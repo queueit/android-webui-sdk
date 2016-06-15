@@ -1,3 +1,5 @@
+[ ![Download](https://api.bintray.com/packages/queueit/maven/com.queue_it.androidsdk/images/download.svg) ](https://bintray.com/queueit/maven/com.queue_it.androidsdk/_latestVersion)
+
 # Queue-it Android SDK
 
 Library for integrating Queue-it into an Android app.
