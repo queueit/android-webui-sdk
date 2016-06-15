@@ -17,8 +17,6 @@ import java.util.Calendar;
 
 public class QueueITEngine {
 
-    private static String SdkVersion = "Android-2.0.0";
-
     private String _customerId;
     private String _eventOrAliasId;
     private String _layoutName;
@@ -202,7 +200,7 @@ public class QueueITEngine {
     {
         String userId = Settings.Secure.getString(_activity.getContentResolver(), Settings.Secure.ANDROID_ID);
         String userAgent = new WebView(_activity).getSettings().getUserAgentString();
-        String sdkVersion = SdkVersion;
+        String sdkVersion = getSdkVersion();
 
         QueueServiceListener queueServiceListener = new QueueServiceListener() {
             @Override
@@ -280,5 +278,10 @@ public class QueueITEngine {
         {
             _queueCache.update(queueUrl, _queueCache.getUrlTtl(), _queueCache.getTargetUrl());
         }
+    }
+
+    private String getSdkVersion()
+    {
+        return "Android-" + BuildConfig.VERSION_NAME;
     }
 }
