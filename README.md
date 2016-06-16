@@ -14,7 +14,7 @@ Using Gradle:
 
 Invoke QueueITEngine as per example below. Parameters `layoutName` and `language` are optional.
 
-    QueueITEngine engine = new QueueITEngine(YourActivity.this, customerId, eventId, layoutName, language,
+    QueueITEngine engine = new QueueITEngine(YourActivity.this, customerId, eventOrAliasId, layoutName, language,
       new QueueListener() {
         @Override
         public void onQueuePassed() { } // Called when the user has passed the queue

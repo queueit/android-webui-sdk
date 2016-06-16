@@ -16,10 +16,10 @@ public class QueueCache {
     private static String KEY_TARGET_URL = "target_url";
     private Context _context;
 
-    public QueueCache(Context context, String customerId, String eventId)
+    public QueueCache(Context context, String customerId, String eventOrAliasId)
     {
         _context = context;
-        _cacheKey = "queueit_" + customerId + eventId;
+        _cacheKey = "queueit_" + customerId + eventOrAliasId;
     }
 
     public boolean isEmpty()

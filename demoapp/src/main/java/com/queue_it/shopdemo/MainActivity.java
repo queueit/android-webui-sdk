@@ -40,12 +40,12 @@ public class MainActivity extends AppCompatActivity {
 
         final SharedPreferences sharedPreferences = getPreferences(Context.MODE_PRIVATE);
         String customerId = sharedPreferences.getString("customerId", "");
-        String eventId = sharedPreferences.getString("eventId", "");
+        String eventOrAliasId = sharedPreferences.getString("eventOrAliasId", "");
         String layoutName = sharedPreferences.getString("layoutName", "");
         String language = sharedPreferences.getString("language", "");
 
         customerIdEditText.setText(customerId);
-        eventIdEditText.setText(eventId);
+        eventIdEditText.setText(eventOrAliasId);
         layoutNameEditText.setText(layoutName);
         languageEditText.setText(language);
 
@@ -61,20 +61,20 @@ public class MainActivity extends AppCompatActivity {
                 hideKeyboard();
 
                 String customerId = customerIdEditText.getText().toString();
-                String eventId = eventIdEditText.getText().toString();
+                String eventOrAliasId = eventIdEditText.getText().toString();
                 String layoutName = layoutNameEditText.getText().toString();
                 String language = languageEditText.getText().toString();
 
                 SharedPreferences.Editor editor = sharedPreferences.edit();
                 editor.putString("customerId", customerId);
-                editor.putString("eventId", eventId);
+                editor.putString("eventOrAliasId", eventOrAliasId);
                 editor.putString("layoutName", layoutName);
                 editor.putString("language", language);
                 editor.commit();
 
                 Toast.makeText(getApplicationContext(), "Please wait for your turn.", Toast.LENGTH_SHORT).show();
 
-                QueueITEngine queueITEngine = new QueueITEngine(MainActivity.this, customerId, eventId, layoutName, language, new QueueListener() {
+                QueueITEngine queueITEngine = new QueueITEngine(MainActivity.this, customerId, eventOrAliasId, layoutName, language, new QueueListener() {
                     @Override
                     public void onQueuePassed() {
                         showResultActivity("You passed the queue!", true);

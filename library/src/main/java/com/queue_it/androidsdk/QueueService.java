@@ -21,7 +21,7 @@ import okhttp3.Response;
 public class QueueService {
 
     private String _customerId;
-    private String _eventId;
+    private String _eventOrAliasId;
     private String _userId;
     private String _userAgent;
     private String _sdkVersion;
@@ -40,12 +40,12 @@ public class QueueService {
         }
     }
 
-    public QueueService(String customerId, String eventId, String userId,
+    public QueueService(String customerId, String eventOrAliasId, String userId,
                         String userAgent, String sdkVersion, String layoutName,
                         String language, QueueServiceListener queueServiceListener)
     {
         _customerId = customerId;
-        _eventId = eventId;
+        _eventOrAliasId = eventOrAliasId;
         _userId = userId;
         _userAgent = userAgent;
         _sdkVersion = sdkVersion;
@@ -58,7 +58,7 @@ public class QueueService {
 
     public void init(final Context context)
     {
-        String url = String.format(getApiUrl(), _customerId, _customerId, _eventId);
+        String url = String.format(getApiUrl(), _customerId, _customerId, _eventOrAliasId);
 
         OkHttpClient client = new OkHttpClient();
 
