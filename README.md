@@ -17,25 +17,25 @@ Invoke QueueITEngine as per example below. Parameters `layoutName` and `language
     QueueITEngine engine = new QueueITEngine(YourActivity.this, customerId, eventId, layoutName, language,
       new QueueListener() {
         @Override
-        public void onQueuePassed() { } // Your logic
+        public void onQueuePassed() { } // Called when the user has passed the queue
 
         @Override
-        public void onQueueViewWillOpen() { } // Your logic
+        public void onQueueViewWillOpen() { } // Called right before the Queue-it view opens
 
         @Override
-        public void onQueueDisabled() { } // Your logic
+        public void onQueueDisabled() { } // Called when the event is disabled.
 
         @Override
-        public void onQueueItUnavailable() { } // Your logic
+        public void onQueueItUnavailable() { } // Called when Queue-it API could not be reached
 
         @Override
-        public void onError(String errorMessage) { } // Your logic
+        public void onError(String errorMessage) { } // Called on connectivity problems
       });
 
       try {
         engine.run();
       }
-      catch (QueueITException e) { } // Your logic
+      catch (QueueITException e) { } // Gets thrown when a request is already in progress.
 
 
 ## Required permissions
