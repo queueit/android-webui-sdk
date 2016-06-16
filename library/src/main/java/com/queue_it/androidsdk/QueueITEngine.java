@@ -11,6 +11,7 @@ import android.os.Handler;
 import android.provider.Settings;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
+import android.util.Log;
 import android.webkit.WebView;
 
 import java.util.Calendar;
@@ -154,6 +155,7 @@ public class QueueITEngine {
         {
             String queueUrl = _queueCache.getQueueUrl();
             String targetUrl = _queueCache.getTargetUrl();
+            Log.v("QueueITEngine", String.format("Using queueUrl from cache: %s", queueUrl));
             showQueueWithOptionalDelay(queueUrl, targetUrl);
             return true;
         }
