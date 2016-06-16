@@ -8,7 +8,7 @@ android {
         minSdkVersion 15
         targetSdkVersion 23
         versionCode 1
-        versionName "2.0.4"
+        versionName "2.0.5"
     }
     buildTypes {
         release {
@@ -31,7 +31,7 @@ ext {
 
     publishedGroupId = 'com.queue_it.androidsdk'
     libraryName = 'com.queue_it.androidsdk'
-    artifact = 'androidsdk'
+    artifact = 'library'
 
     libraryDescription = 'Android SDK to integrate with Queue-it'
 
