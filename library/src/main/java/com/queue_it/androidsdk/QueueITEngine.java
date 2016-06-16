@@ -83,6 +83,15 @@ public class QueueITEngine {
         return netInfo != null && netInfo.isConnected();
     }
 
+    public void run(boolean clearCache) throws QueueITException
+    {
+        if (clearCache)
+        {
+            _queueCache.clear();
+        }
+        run();
+    }
+
     public void run() throws QueueITException
     {
         registerReceivers();

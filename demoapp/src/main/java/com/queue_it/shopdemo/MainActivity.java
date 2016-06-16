@@ -34,6 +34,7 @@ public class MainActivity extends AppCompatActivity {
         final EditText layoutNameEditText = (EditText)findViewById(R.id.layoutname_edittext);
         final EditText languageEditText = (EditText)findViewById(R.id.language_edittext);
         final RadioButton testRadioButton = (RadioButton)findViewById(R.id.radio_environment_test);
+        final RadioButton enableCacheRadioButton = (RadioButton)findViewById(R.id.radio_cache_enabled);
 
         customerIdEditText.addTextChangedListener(getRequiredTextValidator(customerIdEditText));
         eventIdEditText.addTextChangedListener(getRequiredTextValidator(eventIdEditText));
@@ -106,7 +107,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
                 try {
-                    queueITEngine.run();
+                    queueITEngine.run(!enableCacheRadioButton.isChecked());
                 }
                 catch (QueueITException e) {
                     Toast.makeText(getApplicationContext(), "Please try again.", Toast.LENGTH_LONG).show();
