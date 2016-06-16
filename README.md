@@ -12,6 +12,8 @@ Using Gradle:
 
 ## Usage
 
+Invoke QueueITEngine as per example below. Parameters `layoutName` and `language` are optional.
+
     QueueITEngine engine = new QueueITEngine(YourActivity.this, customerId, eventId, layoutName, language,
       new QueueListener() {
         @Override
@@ -34,6 +36,7 @@ Using Gradle:
         engine.run();
       }
       catch (QueueITException e) { } // Your logic
+
 
 ## Required permissions
 

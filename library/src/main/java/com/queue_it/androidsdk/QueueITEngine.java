@@ -34,6 +34,11 @@ public class QueueITEngine {
     private int _deltaSec;
     private int _delayInterval = 0;
 
+    public QueueITEngine(Activity activity, String customerId, String eventOrAliasId, QueueListener queueListener)
+    {
+        this(activity, customerId, eventOrAliasId, "", "", queueListener);
+    }
+
     public QueueITEngine(Activity activity, String customerId, String eventOrAliasId, String layoutName,
                          String language, QueueListener queueListener)
     {
