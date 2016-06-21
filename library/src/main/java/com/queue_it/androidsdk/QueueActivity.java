@@ -124,15 +124,18 @@ public class QueueActivity extends AppCompatActivity {
             public boolean shouldOverrideUrlLoading(WebView view, String urlString) {
                 Log.v("QueueITEngine", "URL loading: " + urlString);
 
+                URL url;
                 try {
-                    URL url = new URL(urlString);
-                    broadcastChangedQueueUrl(urlString);
-                    if (target.getHost().contains(url.getHost())) {
-                        broadcastQueuePassed();
-                        disposeWebview(webView);
-                        return true;
-                    }
+                    url = new URL(urlString);
                 } catch (MalformedURLException e) {
+                    throw new RuntimeException(e);
+                }
+
+                broadcastChangedQueueUrl(urlString);
+                if (target.getHost().contains(url.getHost())) {
+                    broadcastQueuePassed();
+                    disposeWebview(webView);
+                    return true;
                 }
                 return false;
             }});
