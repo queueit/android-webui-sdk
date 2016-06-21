@@ -123,8 +123,7 @@ public class QueueActivity extends AppCompatActivity {
                     broadcastChangedQueueUrl(urlString);
                     if (target.getHost().contains(url.getHost())) {
                         broadcastQueuePassed();
-                        webView.loadUrl("about:blank");
-                        finish();
+                        disposeWebview(webView);
                         return true;
                     }
                 } catch (MalformedURLException e) {
@@ -143,5 +142,10 @@ public class QueueActivity extends AppCompatActivity {
     private void broadcastQueuePassed() {
         Intent intent = new Intent("on-queue-passed");
         LocalBroadcastManager.getInstance(QueueActivity.this).sendBroadcast(intent);
+    }
+
+    private void disposeWebview(WebView webView) {
+        webView.loadUrl("about:blank");
+        finish();
     }
 }
