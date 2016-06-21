@@ -122,8 +122,7 @@ public class QueueActivity extends AppCompatActivity {
                     URL target = new URL(targetUrl);
                     broadcastChangedQueueUrl(urlString);
                     if (target.getHost().contains(url.getHost())) {
-                        Intent intent = new Intent("on-queue-passed");
-                        LocalBroadcastManager.getInstance(QueueActivity.this).sendBroadcast(intent);
+                        broadcastQueuePassed();
                         webView.loadUrl("about:blank");
                         finish();
                         return true;
@@ -139,5 +138,10 @@ public class QueueActivity extends AppCompatActivity {
         Intent intentChangedQueueUrl = new Intent("on-changed-queue-url");
         intentChangedQueueUrl.putExtra("url", urlString);
         LocalBroadcastManager.getInstance(QueueActivity.this).sendBroadcast(intentChangedQueueUrl);
+    }
+
+    private void broadcastQueuePassed() {
+        Intent intent = new Intent("on-queue-passed");
+        LocalBroadcastManager.getInstance(QueueActivity.this).sendBroadcast(intent);
     }
 }
