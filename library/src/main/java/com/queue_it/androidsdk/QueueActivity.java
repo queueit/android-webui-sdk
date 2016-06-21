@@ -50,6 +50,13 @@ public class QueueActivity extends AppCompatActivity {
             targetUrl = (String) savedInstanceState.getSerializable("targetUrl");
         }
 
+        final URL target;
+        try {
+            target = new URL(targetUrl);
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        }
+
         Log.v("QueueITEngine", "Loading initial URL: " + queueUrl);
 
         webView.getSettings().setJavaScriptEnabled(true);
@@ -119,7 +126,6 @@ public class QueueActivity extends AppCompatActivity {
 
                 try {
                     URL url = new URL(urlString);
-                    URL target = new URL(targetUrl);
                     broadcastChangedQueueUrl(urlString);
                     if (target.getHost().contains(url.getHost())) {
                         broadcastQueuePassed();
