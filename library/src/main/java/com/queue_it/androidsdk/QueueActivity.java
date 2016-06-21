@@ -3,6 +3,7 @@ package com.queue_it.androidsdk;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.net.http.SslError;
 import android.os.Build;
 import android.support.v4.content.LocalBroadcastManager;
@@ -51,8 +52,10 @@ public class QueueActivity extends AppCompatActivity {
         }
 
         final URL target;
+        final URL queue;
         try {
             target = new URL(targetUrl);
+            queue = new URL(queueUrl);
         } catch (MalformedURLException e) {
             throw new RuntimeException(e);
         }
@@ -137,6 +140,13 @@ public class QueueActivity extends AppCompatActivity {
                     disposeWebview(webView);
                     return true;
                 }
+                if (!queue.getHost().contains(url.getHost()))
+                {
+                    Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(urlString));
+                    startActivity(browserIntent);
+                    return true;
+                }
+
                 return false;
             }});
         webView.loadUrl(queueUrl);
