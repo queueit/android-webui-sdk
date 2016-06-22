@@ -117,7 +117,7 @@ public class QueueITEngine {
             }
             _isOnlineRetry++;
             if (_isOnlineRetry > 5) {
-                _queueListener.onError("No connection");
+                _queueListener.onError(Error.NO_CONNECTION, "No connection");
                 return;
             }
 
@@ -248,7 +248,7 @@ public class QueueITEngine {
             @Override
             public void onFailure(String errorMessage, int errorCode) {
                 if (errorCode >= 400 && errorCode < 500) {
-                    _queueListener.onError(String.format("Error %s (%s)", errorCode, errorMessage));
+                    _queueListener.onError(Error.INVALID_RESPONSE, String.format("Error %s (%s)", errorCode, errorMessage));
                 }
                 else
                 {

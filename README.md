@@ -29,7 +29,7 @@ Invoke QueueITEngine as per example below. Parameters `layoutName` and `language
         public void onQueueItUnavailable() { } // Called when Queue-it API could not be reached
 
         @Override
-        public void onError(String errorMessage) { } // Called on connectivity problems
+        public void onError(Error error, String errorMessage) { } // Called on connectivity problems
       });
 
       try {

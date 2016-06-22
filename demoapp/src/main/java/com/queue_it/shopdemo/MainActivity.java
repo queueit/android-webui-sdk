@@ -19,6 +19,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.queue_it.androidsdk.*;
+import com.queue_it.androidsdk.Error;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -101,7 +102,7 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                     @Override
-                    public void onError(String errorMessage) {
+                    public void onError(Error error, String errorMessage) {
                         showResultActivity("Critical error: " + errorMessage, false);
                         queue_button.setEnabled(true);
                     }

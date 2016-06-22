@@ -6,5 +6,5 @@ public interface QueueListener {
     void onQueueViewWillOpen();
     void onQueueDisabled();
     void onQueueItUnavailable();
-    void onError(String errorMessage);
+    void onError(Error error, String errorMessage);
 }
