@@ -8,7 +8,7 @@ Library for integrating Queue-it into an Android app.
 
 Using Gradle:
 
-    compile 'com.queue_it.androidsdk:library:2.0.7'
+    compile 'com.queue_it.androidsdk:library:2.0.8'
 
 ## Usage
 
