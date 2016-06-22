@@ -102,14 +102,13 @@ public class QueueService {
                     JSONObject jsonObject = new JSONObject(body);
                     final String queueId = optString(jsonObject, "QueueId");
                     final String queueUrl = optString(jsonObject, "QueueUrl");
-                    final int requeryInterval = optInt(jsonObject, "AskAgainInSeconds");
                     final int queueUrlTtlInMinutes = optInt(jsonObject, "QueueUrlTTLInMinutes");
                     final String eventTargetUrl = optString(jsonObject, "EventTargetUrl");
 
                     mainHandler.post(new Runnable() {
                         @Override
                         public void run() {
-                            _queueServiceListener.onSuccess(queueId, queueUrl, requeryInterval, queueUrlTtlInMinutes, eventTargetUrl);
+                            _queueServiceListener.onSuccess(queueId, queueUrl, queueUrlTtlInMinutes, eventTargetUrl);
                         }
                     });
                 } catch (JSONException e) {

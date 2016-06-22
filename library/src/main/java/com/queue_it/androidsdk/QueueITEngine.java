@@ -220,14 +220,14 @@ public class QueueITEngine {
 
         QueueServiceListener queueServiceListener = new QueueServiceListener() {
             @Override
-            public void onSuccess(String queueId, String queueUrlString, int requeryInterval, int queueUrlTtlInMinutes, String eventTargetUrl) {
+            public void onSuccess(String queueId, String queueUrlString, int queueUrlTtlInMinutes, String eventTargetUrl) {
                 // SafetyNet
-                if (!TextUtils.isEmpty(queueId) && TextUtils.isEmpty(queueUrlString) && requeryInterval == 0)
+                if (!TextUtils.isEmpty(queueId) && TextUtils.isEmpty(queueUrlString))
                 {
                     QueueITEngine.this.raiseQueuePassed();
                 }
                 // InQueue
-                else if (!TextUtils.isEmpty(queueId) && !TextUtils.isEmpty(queueUrlString) && requeryInterval == 0)
+                else if (!TextUtils.isEmpty(queueId) && !TextUtils.isEmpty(queueUrlString))
                 {
                     showQueueWithOptionalDelay(queueUrlString, eventTargetUrl);
 
@@ -237,12 +237,12 @@ public class QueueITEngine {
                     _queueCache.update(queueUrlString, queueUrlTtl, eventTargetUrl);
                 }
                 // Idle
-                else if (TextUtils.isEmpty(queueId) && !TextUtils.isEmpty(queueUrlString) && requeryInterval == 0)
+                else if (TextUtils.isEmpty(queueId) && !TextUtils.isEmpty(queueUrlString))
                 {
                     showQueueWithOptionalDelay(queueUrlString, eventTargetUrl);
                 }
                 // Disabled
-                else if (requeryInterval > 0)
+                else
                 {
                     _requestInProgress = false;
                     QueueITEngine.this.raiseQueueDisabled();
