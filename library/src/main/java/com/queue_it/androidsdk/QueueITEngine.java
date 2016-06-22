@@ -221,13 +221,11 @@ public class QueueITEngine {
         QueueServiceListener queueServiceListener = new QueueServiceListener() {
             @Override
             public void onSuccess(String queueId, String queueUrlString, int queueUrlTtlInMinutes, String eventTargetUrl) {
-                // SafetyNet
-                if (!TextUtils.isEmpty(queueId) && TextUtils.isEmpty(queueUrlString))
+                if (IsSafetyNet(queueId, queueUrlString))
                 {
                     QueueITEngine.this.raiseQueuePassed();
                 }
-                // InQueue
-                else if (!TextUtils.isEmpty(queueId) && !TextUtils.isEmpty(queueUrlString))
+                else if (IsInQueue(queueId, queueUrlString))
                 {
                     showQueueWithOptionalDelay(queueUrlString, eventTargetUrl);
 
@@ -236,12 +234,10 @@ public class QueueITEngine {
 
                     _queueCache.update(queueUrlString, queueUrlTtl, eventTargetUrl);
                 }
-                // Idle
-                else if (TextUtils.isEmpty(queueId) && !TextUtils.isEmpty(queueUrlString))
+                else if (IsIdle(queueId, queueUrlString))
                 {
                     showQueueWithOptionalDelay(queueUrlString, eventTargetUrl);
                 }
-                // Disabled
                 else
                 {
                     _requestInProgress = false;
@@ -264,6 +260,18 @@ public class QueueITEngine {
         QueueService queueService = new QueueService(_customerId, _eventOrAliasId, userId,
                 userAgent, sdkVersion, _layoutName, _language, queueServiceListener);
         queueService.init(_activity);
+    }
+
+    private boolean IsSafetyNet(String queueId, String queueUrlString) {
+        return !TextUtils.isEmpty(queueId) && TextUtils.isEmpty(queueUrlString);
+    }
+
+    private boolean IsInQueue(String queueId, String queueUrlString) {
+        return !TextUtils.isEmpty(queueId) && !TextUtils.isEmpty(queueUrlString);
+    }
+
+    private boolean IsIdle(String queueId, String queueUrlString) {
+        return TextUtils.isEmpty(queueId) && !TextUtils.isEmpty(queueUrlString);
     }
 
     private void enqueueRetryMonitor()
