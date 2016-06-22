@@ -35,6 +35,9 @@ public class QueueITEngine {
     private int _deltaSec;
     private int _delayInterval = 0;
 
+    private Handler _checkConnectionHandler;
+    private int _isOnlineRetry = 0;
+
     public QueueITEngine(Activity activity, String customerId, String eventOrAliasId, QueueListener queueListener)
     {
         this(activity, customerId, eventOrAliasId, "", "", queueListener);
@@ -104,9 +107,6 @@ public class QueueITEngine {
         _checkConnectionHandler = new Handler();
         _checkConnection.run();
     }
-
-    private Handler _checkConnectionHandler;
-    private int _isOnlineRetry = 0;
 
     private Runnable _checkConnection = new Runnable() {
         public void run() {
