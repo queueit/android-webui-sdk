@@ -108,7 +108,7 @@ public class QueueService {
                     return;
                 }
 
-                String body = response.body().string();
+                final String body = response.body().string();
 
                 try {
 
@@ -125,7 +125,12 @@ public class QueueService {
                         }
                     });
                 } catch (JSONException e) {
-                    throw new RuntimeException(e);
+                    mainHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            _queueServiceListener.onFailure("Server did not return valid JSON: " + body, 0);
+                        }
+                    });
                 }
             }
         });
