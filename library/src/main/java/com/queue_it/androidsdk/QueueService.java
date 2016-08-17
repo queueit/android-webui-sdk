@@ -97,8 +97,10 @@ public class QueueService {
                     return;
                 }
 
+                String body = response.body().string();
+
                 try {
-                    String body = response.body().string();
+
                     JSONObject jsonObject = new JSONObject(body);
                     final String queueId = optString(jsonObject, "QueueId");
                     final String queueUrl = optString(jsonObject, "QueueUrl");
