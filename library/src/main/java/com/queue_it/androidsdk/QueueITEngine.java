@@ -247,6 +247,7 @@ public class QueueITEngine {
 
             @Override
             public void onFailure(String errorMessage, int errorCode) {
+                Log.v("QueueITEngine", String.format("Error: %s: %s", errorCode, errorMessage));
                 if (errorCode >= 400 && errorCode < 500) {
                     _queueListener.onError(Error.INVALID_RESPONSE, String.format("Error %s (%s)", errorCode, errorMessage));
                 }
