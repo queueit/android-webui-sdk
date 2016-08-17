@@ -3,12 +3,19 @@ package com.queue_it.androidsdk;
 import android.content.Context;
 import android.os.Handler;
 import android.text.TextUtils;
+import android.util.Log;
 
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -62,7 +69,11 @@ public class QueueService {
 
         OkHttpClient client = new OkHttpClient();
 
-        RequestBody body = RequestBody.create(JSON, getJsonObject().toString());
+        String putBody = getJsonObject().toString();
+        RequestBody body = RequestBody.create(JSON, putBody);
+
+        Log.v("QueueITEngine", "API call " + getISO8601StringForDate(Calendar.getInstance().getTime()) + ": " + url + ": " + putBody);
+
         Request request = new Request.Builder()
                 .url(url)
                 .put(body)
@@ -118,6 +129,12 @@ public class QueueService {
                 }
             }
         });
+    }
+
+    private static String getISO8601StringForDate(Date date) {
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US);
+        dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+        return dateFormat.format(date);
     }
 
     private String optString(JSONObject json, String key)
