@@ -134,13 +134,19 @@ public class QueueActivity extends AppCompatActivity {
                     throw new RuntimeException(e);
                 }
 
-                broadcastChangedQueueUrl(urlString);
+                boolean isQueueUrl = queue.getHost().contains(url.getHost());
+
+                if (isQueueUrl)
+                {
+                    broadcastChangedQueueUrl(urlString);
+                }
+
                 if (target.getHost().contains(url.getHost())) {
                     broadcastQueuePassed();
                     disposeWebview(webView);
                     return true;
                 }
-                if (!queue.getHost().contains(url.getHost()))
+                if (!isQueueUrl)
                 {
                     Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(urlString));
                     startActivity(browserIntent);
