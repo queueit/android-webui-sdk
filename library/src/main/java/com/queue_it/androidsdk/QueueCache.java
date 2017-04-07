@@ -39,8 +39,7 @@ public class QueueCache {
     public String getQueueUrl()
     {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(_context);
-        String a = sharedPreferences.getString(_cacheKey + KEY_QUEUE_URL, "");
-        return a;
+        return sharedPreferences.getString(_cacheKey + KEY_QUEUE_URL, "");
     }
 
     public String getTargetUrl()
