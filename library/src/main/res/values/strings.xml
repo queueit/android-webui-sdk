@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">Android SDK</string>
     <string name="notification_error_ssl_cert_invalid">Invalid SSL certificate. Do you want to continue?</string>
+    <string name="open_activity_with_no_cache_error_message">cache did not find, are you sure you have already ran an engine?</string>
 </resources>
