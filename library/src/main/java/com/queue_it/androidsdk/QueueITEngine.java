@@ -9,7 +9,6 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Handler;
 import android.provider.Settings;
-import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.util.Log;
@@ -309,27 +308,5 @@ public class QueueITEngine {
     private String getSdkVersion()
     {
         return "Android-" + BuildConfig.VERSION_NAME;
-    }
-
-    public void justOpenQueue() {
-        if (hasCacheAndData()) {
-            _activity.startActivity(
-                    new Intent(_activity, QueueActivity.class)
-                            .putExtra("queueUrl", _queueCache.getQueueUrl())
-                            .putExtra("targetUrl", _queueCache.getTargetUrl())
-            );
-            return;
-        }
-        alertCacheException();
-    }
-
-    private boolean hasCacheAndData() {
-        return _queueCache != null
-                && _queueCache.getQueueUrl() != null && !_queueCache.getQueueUrl().isEmpty()
-                && _queueCache.getTargetUrl() != null && !_queueCache.getTargetUrl().isEmpty();
-    }
-
-    private void alertCacheException() {
-        throw new IllegalArgumentException(_activity.getString(R.string.open_activity_with_no_cache_error_message));
     }
 }
