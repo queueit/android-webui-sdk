@@ -26,6 +26,17 @@ import java.net.URL;
 
 public class QueueActivity extends AppCompatActivity {
 
+    private String queueUrl;
+    private String targetUrl;
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState)
+    {
+        super.onSaveInstanceState(outState);
+        outState.putString("queueUrl", queueUrl);
+        outState.putString("targetUrl", targetUrl);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,8 +46,6 @@ public class QueueActivity extends AppCompatActivity {
 
         final WebView webView = (WebView)findViewById(R.id.webView);
 
-        String queueUrl;
-        final String targetUrl;
         if (savedInstanceState == null) {
             Bundle extras = getIntent().getExtras();
             if (extras == null) {
