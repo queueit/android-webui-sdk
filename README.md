@@ -4,6 +4,10 @@
 
 Library for integrating Queue-it into an Android app.
 
+## Sample app
+
+A sample app to try out functionality in the library can be found on the [Releases](https://github.com/queueit/android-sdk/releases) page.
+
 ## Installation
 
 Using Gradle:
