@@ -151,7 +151,10 @@ public class QueueActivity extends AppCompatActivity {
                 }
 
                 if (target.getHost().contains(url.getHost())) {
-                    broadcastQueuePassed();
+                    Uri uri = Uri.parse(urlString);
+                    String queueItToken = uri.getQueryParameter("queueittoken");
+
+                    broadcastQueuePassed(queueItToken);
                     disposeWebview(webView);
                     return true;
                 }
@@ -173,8 +176,9 @@ public class QueueActivity extends AppCompatActivity {
         LocalBroadcastManager.getInstance(QueueActivity.this).sendBroadcast(intentChangedQueueUrl);
     }
 
-    private void broadcastQueuePassed() {
+    private void broadcastQueuePassed(String queueItToken) {
         Intent intent = new Intent("on-queue-passed");
+        intent.putExtra("queue-it-token", queueItToken);
         LocalBroadcastManager.getInstance(QueueActivity.this).sendBroadcast(intent);
     }
 

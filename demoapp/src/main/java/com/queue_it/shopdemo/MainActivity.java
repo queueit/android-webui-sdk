@@ -78,8 +78,8 @@ public class MainActivity extends AppCompatActivity {
 
                 QueueITEngine queueITEngine = new QueueITEngine(MainActivity.this, customerId, eventOrAliasId, layoutName, language, new QueueListener() {
                     @Override
-                    public void onQueuePassed() {
-                        showResultActivity("You passed the queue!", true);
+                    public void onQueuePassed(QueuePassedInfo queuePassedInfo) {
+                        showResultActivity("You passed the queue! Your token: " + queuePassedInfo.getQueueItToken(), true);
                         queue_button.setEnabled(true);
                     }
 

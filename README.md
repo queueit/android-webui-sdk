@@ -21,7 +21,7 @@ Invoke QueueITEngine as per example below. Parameters `layoutName` and `language
     QueueITEngine engine = new QueueITEngine(YourActivity.this, customerId, eventOrAliasId, layoutName, language,
       new QueueListener() {
         @Override
-        public void onQueuePassed() { } // Called when the user has passed the queue
+        public void onQueuePassed(QueuePassedInfo queuePassedInfo) { } // Called when the user has passed the queue
 
         @Override
         public void onQueueViewWillOpen() { } // Called right before the Queue-it view opens

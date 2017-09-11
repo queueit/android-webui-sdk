@@ -140,7 +140,7 @@ public class QueueITEngine {
         LocalBroadcastManager.getInstance(_activity).registerReceiver(new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                raiseQueuePassed();
+                raiseQueuePassed(intent.getStringExtra("queue-it-token"));
             }}, new IntentFilter("on-queue-passed"));
 
         LocalBroadcastManager.getInstance(_activity).registerReceiver(new BroadcastReceiver() {
@@ -198,11 +198,11 @@ public class QueueITEngine {
         _isInQueue = true;
     }
 
-    private void raiseQueuePassed()
+    private void raiseQueuePassed(String queueItToken)
     {
         _queueCache.clear();
 
-        _queueListener.onQueuePassed();
+        _queueListener.onQueuePassed(new QueuePassedInfo(queueItToken));
         _isInQueue = false;
         _requestInProgress = false;
     }
@@ -223,7 +223,7 @@ public class QueueITEngine {
             public void onSuccess(String queueId, String queueUrlString, int queueUrlTtlInMinutes, String eventTargetUrl) {
                 if (IsSafetyNet(queueId, queueUrlString))
                 {
-                    QueueITEngine.this.raiseQueuePassed();
+                    QueueITEngine.this.raiseQueuePassed("");
                 }
                 else if (IsInQueue(queueId, queueUrlString))
                 {

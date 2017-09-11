@@ -2,7 +2,7 @@ package com.queue_it.androidsdk;
 
 
 public interface QueueListener {
-    void onQueuePassed();
+    void onQueuePassed(QueuePassedInfo queuePassedInfo);
     void onQueueViewWillOpen();
     void onQueueDisabled();
     void onQueueItUnavailable();
