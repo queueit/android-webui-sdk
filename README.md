@@ -12,7 +12,7 @@ A sample app to try out functionality in the library can be found on the [Releas
 
 Using Gradle:
 
-    compile 'com.queue_it.androidsdk:library:2.0.12'
+    compile 'com.queue_it.androidsdk:library:2.0.13'
 
 ## Usage
 
