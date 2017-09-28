@@ -24,7 +24,7 @@ public class QueueITEngine {
     private String _language;
     private QueueListener _queueListener;
     private QueueCache _queueCache;
-    private Activity _activity;
+    private Context _context;
 
     private boolean _requestInProgress;
     private boolean _isInQueue;
@@ -54,7 +54,7 @@ public class QueueITEngine {
         {
             throw new IllegalArgumentException("eventOrAliasId must have a value");
         }
-        _activity = activity;
+        _context = activity.getApplicationContext();
         _customerId = customerId;
         _eventOrAliasId = eventOrAliasId;
         _layoutName = layoutName;
@@ -81,7 +81,7 @@ public class QueueITEngine {
 
     private boolean isOnline() {
         ConnectivityManager cm =
-                (ConnectivityManager) _activity.getSystemService(Context.CONNECTIVITY_SERVICE);
+                (ConnectivityManager) _context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netInfo = cm.getActiveNetworkInfo();
         return netInfo != null && netInfo.isConnected();
     }
@@ -137,13 +137,13 @@ public class QueueITEngine {
 
     private void registerReceivers()
     {
-        LocalBroadcastManager.getInstance(_activity).registerReceiver(new BroadcastReceiver() {
+        LocalBroadcastManager.getInstance(_context).registerReceiver(new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 raiseQueuePassed(intent.getStringExtra("queue-it-token"));
             }}, new IntentFilter("on-queue-passed"));
 
-        LocalBroadcastManager.getInstance(_activity).registerReceiver(new BroadcastReceiver() {
+        LocalBroadcastManager.getInstance(_context).registerReceiver(new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 String url = intent.getExtras().getString("url");
@@ -186,10 +186,10 @@ public class QueueITEngine {
 
     private void showQueue(String queueUrl, final String targetUrl)
     {
-        Intent intent = new Intent(_activity, QueueActivity.class);
+        Intent intent = new Intent(_context, QueueActivity.class);
         intent.putExtra("queueUrl", queueUrl);
         intent.putExtra("targetUrl", targetUrl);
-        _activity.startActivity(intent);
+        _context.startActivity(intent);
     }
 
     private void raiseQueueViewWillOpen()
@@ -214,8 +214,8 @@ public class QueueITEngine {
 
     private void tryEnqueue()
     {
-        String userId = Settings.Secure.getString(_activity.getContentResolver(), Settings.Secure.ANDROID_ID);
-        String userAgent = new WebView(_activity).getSettings().getUserAgentString();
+        String userId = Settings.Secure.getString(_context.getContentResolver(), Settings.Secure.ANDROID_ID);
+        String userAgent = new WebView(_context).getSettings().getUserAgentString();
         String sdkVersion = getSdkVersion();
 
         QueueServiceListener queueServiceListener = new QueueServiceListener() {
@@ -260,7 +260,7 @@ public class QueueITEngine {
 
         QueueService queueService = new QueueService(_customerId, _eventOrAliasId, userId,
                 userAgent, sdkVersion, _layoutName, _language, queueServiceListener);
-        queueService.init(_activity);
+        queueService.init(_context);
     }
 
     private boolean IsSafetyNet(String queueId, String queueUrlString) {
