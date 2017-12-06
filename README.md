@@ -37,7 +37,7 @@ Invoke QueueITEngine as per example below. Parameters `layoutName` and `language
       });
 
       try {
-        engine.run();
+        engine.run(YourActivity.this);
       }
       catch (QueueITException e) { } // Gets thrown when a request is already in progress.
 

@@ -26,6 +26,7 @@ public class QueueITEngine {
     private QueueCache _queueCache;
     private Context _context;
 
+    private Activity _activity;
     private boolean _requestInProgress;
     private boolean _isInQueue;
 
@@ -38,12 +39,12 @@ public class QueueITEngine {
     private Handler _checkConnectionHandler;
     private int _isOnlineRetry = 0;
 
-    public QueueITEngine(Activity activity, String customerId, String eventOrAliasId, QueueListener queueListener)
+    public QueueITEngine(Context applicationContext, String customerId, String eventOrAliasId, QueueListener queueListener)
     {
-        this(activity, customerId, eventOrAliasId, "", "", queueListener);
+        this(applicationContext, customerId, eventOrAliasId, "", "", queueListener);
     }
 
-    public QueueITEngine(Activity activity, String customerId, String eventOrAliasId, String layoutName,
+    public QueueITEngine(Context applicationContext, String customerId, String eventOrAliasId, String layoutName,
                          String language, QueueListener queueListener)
     {
         if (TextUtils.isEmpty(customerId))
@@ -54,13 +55,13 @@ public class QueueITEngine {
         {
             throw new IllegalArgumentException("eventOrAliasId must have a value");
         }
-        _context = activity.getApplicationContext();
+        _context = applicationContext.getApplicationContext();
         _customerId = customerId;
         _eventOrAliasId = eventOrAliasId;
         _layoutName = layoutName;
         _language = language;
         _queueListener = queueListener;
-        _queueCache = new QueueCache(activity, customerId, eventOrAliasId);
+        _queueCache = new QueueCache(_context, customerId, eventOrAliasId);
         _deltaSec = INITIAL_WAIT_RETRY_SEC;
     }
 
@@ -86,17 +87,18 @@ public class QueueITEngine {
         return netInfo != null && netInfo.isConnected();
     }
 
-    public void run(boolean clearCache) throws QueueITException
+    public void run(Activity activity, boolean clearCache) throws QueueITException
     {
         if (clearCache)
         {
             _queueCache.clear();
         }
-        run();
+        run(activity);
     }
 
-    public void run() throws QueueITException
+    public void run(Activity activity) throws QueueITException
     {
+        _activity = activity;
         registerReceivers();
 
         if (_requestInProgress)
@@ -189,7 +191,7 @@ public class QueueITEngine {
         Intent intent = new Intent(_context, QueueActivity.class);
         intent.putExtra("queueUrl", queueUrl);
         intent.putExtra("targetUrl", targetUrl);
-        _context.startActivity(intent);
+        _activity.startActivity(intent);
     }
 
     private void raiseQueueViewWillOpen()

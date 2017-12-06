@@ -108,7 +108,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
                 try {
-                    queueITEngine.run(!enableCacheRadioButton.isChecked());
+                    queueITEngine.run(MainActivity.this, !enableCacheRadioButton.isChecked());
                 }
                 catch (QueueITException e) {
                     Toast.makeText(getApplicationContext(), "Please try again.", Toast.LENGTH_LONG).show();
