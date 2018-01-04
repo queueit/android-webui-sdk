@@ -12,41 +12,49 @@ A sample app to try out functionality in the library can be found on the [Releas
 
 Using Gradle:
 
-    compile 'com.queue_it.androidsdk:library:2.0.14'
+```gradle
+compile 'com.queue_it.androidsdk:library:2.0.14'
+```
 
 ## Usage
 
 Invoke QueueITEngine as per example below. Parameters `layoutName` and `language` are optional.
 
-    QueueITEngine engine = new QueueITEngine(YourActivity.this, customerId, eventOrAliasId, layoutName, language,
-      new QueueListener() {
-        @Override
-        public void onQueuePassed(QueuePassedInfo queuePassedInfo) { } // Called when the user has passed the queue
+```java
+QueueITEngine engine = new QueueITEngine(YourActivity.this, customerId, eventOrAliasId, layoutName, language,
+  new QueueListener() {
+    @Override
+    public void onQueuePassed(QueuePassedInfo queuePassedInfo) { } // Called when the user has passed the queue
 
-        @Override
-        public void onQueueViewWillOpen() { } // Called right before the Queue-it view opens
+    @Override
+    public void onQueueViewWillOpen() { } // Called right before the Queue-it view opens
 
-        @Override
-        public void onQueueDisabled() { } // Called when the event is disabled.
+    @Override
+    public void onQueueDisabled() { } // Called when the event is disabled.
 
-        @Override
-        public void onQueueItUnavailable() { } // Called when Queue-it API could not be reached
+    @Override
+    public void onQueueItUnavailable() { } // Called when Queue-it API could not be reached
 
-        @Override
-        public void onError(Error error, String errorMessage) { } // Called on connectivity problems
-      });
+    @Override
+    public void onError(Error error, String errorMessage) { } // Called on connectivity problems
+  });
 
-      try {
-        engine.run(YourActivity.this);
-      }
-      catch (QueueITException e) { } // Gets thrown when a request is already in progress.
+  try {
+    engine.run(YourActivity.this);
+  }
+  catch (QueueITException e) { } // Gets thrown when a request is already in progress.
+```
 
 
 ## Required permissions
 
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-    <uses-permission android:name="android.permission.INTERNET"/>
+```xml
+<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+<uses-permission android:name="android.permission.INTERNET"/>
+```
 
 ## Activities to include in your manifest
 
-    <activity android:name="com.queue_it.androidsdk.QueueActivity" />
+```xml
+<activity android:name="com.queue_it.androidsdk.QueueActivity" />
+```
