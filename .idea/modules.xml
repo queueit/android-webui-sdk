@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/android-sdk.iml" filepath="$PROJECT_DIR$/android-sdk.iml" />
+      <module fileurl="file://$PROJECT_DIR$/android-webui-sdk.iml" filepath="$PROJECT_DIR$/android-webui-sdk.iml" />
       <module fileurl="file://$PROJECT_DIR$/demoapp/demoapp.iml" filepath="$PROJECT_DIR$/demoapp/demoapp.iml" />
       <module fileurl="file://$PROJECT_DIR$/library/library.iml" filepath="$PROJECT_DIR$/library/library.iml" />
     </modules>
