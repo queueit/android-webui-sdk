@@ -29,6 +29,7 @@ public class QueueITEngine {
     private Activity _activity;
     private boolean _requestInProgress;
     private boolean _isInQueue;
+    private boolean _disableExit;
 
     private static final int INITIAL_WAIT_RETRY_SEC = 1;
     private static final int MAX_RETRY_SEC = 10;
@@ -110,6 +111,14 @@ public class QueueITEngine {
         _checkConnection.run();
     }
 
+
+
+    public void run(Activity activity, boolean clearCache, boolean disableExit) throws QueueITException
+    {
+        _disableExit = disableExit;
+        run(activity,clearCache);
+    }
+
     private Runnable _checkConnection = new Runnable() {
         public void run() {
             if (isOnline())
@@ -151,6 +160,15 @@ public class QueueITEngine {
                 String url = intent.getExtras().getString("url");
                 updateQueuePageUrl(url);
             }}, new IntentFilter("on-changed-queue-url"));
+
+        LocalBroadcastManager.getInstance(_context).registerReceiver(new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                //In case of queue aborted because of kill of app the cache should be deleted
+                _queueCache.clear();
+
+            }
+        }, new IntentFilter(("on-queue-aborted")));
     }
 
     private boolean tryToShowQueueFromCache()
@@ -191,6 +209,7 @@ public class QueueITEngine {
         Intent intent = new Intent(_context, QueueActivity.class);
         intent.putExtra("queueUrl", queueUrl);
         intent.putExtra("targetUrl", targetUrl);
+        intent.putExtra("disableExit", _disableExit);
         _activity.startActivity(intent);
     }
 
