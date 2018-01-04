@@ -35,8 +35,8 @@ ext {
 
     libraryDescription = 'Android SDK to integrate with Queue-it'
 
-    siteUrl = 'https://github.com/queueit/android-sdk'
-    gitUrl = 'https://github.com/queueit/android-sdk.git'
+    siteUrl = 'https://github.com/queueit/android-webui-sdk'
+    gitUrl = 'https://github.com/queueit/android-webui-sdk.git'
 
     libraryVersion = android.defaultConfig.versionName
 
