@@ -186,4 +186,10 @@ public class QueueActivity extends AppCompatActivity {
         webView.loadUrl("about:blank");
         finish();
     }
+
+    @Override
+    public void onBackPressed() {
+//        This is for disable the back button to avoid users killing the Queue activity and jumping over the queue.
+        Log.d("TAG", "Pressed back button");
+    }
 }
