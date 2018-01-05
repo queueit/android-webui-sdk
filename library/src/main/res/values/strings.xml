@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">Android SDK</string>
     <string name="notification_error_ssl_cert_invalid">Invalid SSL certificate. Do you want to continue?</string>
+    <string name="queue_it_exiting">You are about to exiting the queue and the app, are you sure?</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
 </resources>

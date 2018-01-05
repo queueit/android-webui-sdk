@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.net.http.SslError;
 import android.os.Build;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -19,7 +20,6 @@ import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -28,13 +28,14 @@ public class QueueActivity extends AppCompatActivity {
 
     private String queueUrl;
     private String targetUrl;
+    private boolean disableExit;
 
     @Override
-    protected void onSaveInstanceState(Bundle outState)
-    {
+    protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putString("queueUrl", queueUrl);
         outState.putString("targetUrl", targetUrl);
+        outState.putBoolean("disableExit", disableExit);
     }
 
     @Override
@@ -42,22 +43,25 @@ public class QueueActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_queue);
 
-        final ProgressBar progressBar = (ProgressBar)findViewById(R.id.progressBar);
+        final ProgressBar progressBar = (ProgressBar) findViewById(R.id.progressBar);
 
-        final WebView webView = (WebView)findViewById(R.id.webView);
+        final WebView webView = (WebView) findViewById(R.id.webView);
 
         if (savedInstanceState == null) {
             Bundle extras = getIntent().getExtras();
             if (extras == null) {
                 queueUrl = null;
                 targetUrl = null;
+                disableExit = false;
             } else {
                 queueUrl = extras.getString("queueUrl");
                 targetUrl = extras.getString("targetUrl");
+                disableExit = extras.getBoolean("disableExit");
             }
         } else {
             queueUrl = (String) savedInstanceState.getSerializable("queueUrl");
             targetUrl = (String) savedInstanceState.getSerializable("targetUrl");
+            disableExit = (Boolean) savedInstanceState.getSerializable("disableExit");
         }
 
         final URL target;
@@ -72,8 +76,7 @@ public class QueueActivity extends AppCompatActivity {
         Log.v("QueueITEngine", "Loading initial URL: " + queueUrl);
 
         webView.getSettings().setJavaScriptEnabled(true);
-        webView.setWebChromeClient(new WebChromeClient()
-        {
+        webView.setWebChromeClient(new WebChromeClient() {
             @Override
             public void onProgressChanged(WebView view, int newProgress) {
                 Log.v("Progress", Integer.toString(newProgress));
@@ -145,8 +148,7 @@ public class QueueActivity extends AppCompatActivity {
 
                 boolean isQueueUrl = queue.getHost().contains(url.getHost());
 
-                if (isQueueUrl)
-                {
+                if (isQueueUrl) {
                     broadcastChangedQueueUrl(urlString);
                 }
 
@@ -158,15 +160,15 @@ public class QueueActivity extends AppCompatActivity {
                     disposeWebview(webView);
                     return true;
                 }
-                if (!isQueueUrl)
-                {
+                if (!isQueueUrl) {
                     Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(urlString));
                     startActivity(browserIntent);
                     return true;
                 }
 
                 return false;
-            }});
+            }
+        });
         webView.loadUrl(queueUrl);
     }
 
@@ -182,8 +184,45 @@ public class QueueActivity extends AppCompatActivity {
         LocalBroadcastManager.getInstance(QueueActivity.this).sendBroadcast(intent);
     }
 
+    private void broadcastQueueAborted() {
+        Intent intent = new Intent("on-queue-aborted");
+        LocalBroadcastManager.getInstance(QueueActivity.this).sendBroadcast(intent);
+    }
+
     private void disposeWebview(WebView webView) {
         webView.loadUrl("about:blank");
         finish();
+    }
+
+    @Override
+    public void onBackPressed() {
+//        This is for disable the back button to avoid users killing the Queue activity and jumping over the queue.
+        Log.d("TAG", "Pressed back button");
+        if (!disableExit) {
+            super.onBackPressed();
+        } else {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("Exiting")
+                    .setMessage(R.string.queue_it_exiting)
+                    .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+
+                        }
+                    })
+                    .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            broadcastQueueAborted();
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                                finishAffinity();
+                            } else {
+                                ActivityCompat.finishAffinity(QueueActivity.this);
+                            }
+                        }
+                    });
+            AlertDialog dialog = builder.create();
+            dialog.show();
+        }
     }
 }
