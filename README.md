@@ -42,7 +42,7 @@ QueueITEngine engine = new QueueITEngine(YourActivity.this, customerId, eventOrA
   try {
     engine.run(YourActivity.this);
   }
-  catch (QueueITException e) { } // Gets thrown when a request is already in progress.
+  catch (QueueITException e) { } // Gets thrown when a request is already in progress. In general you can ignore this.
 ```
 
 
