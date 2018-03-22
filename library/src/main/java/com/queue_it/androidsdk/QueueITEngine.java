@@ -140,20 +140,26 @@ public class QueueITEngine {
     private void registerReceivers()
     {
         LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(_context);
+        localBroadcastManager.registerReceiver(_queuePassedBroadcastReceiver, new IntentFilter("on-queue-passed"));
 
-        localBroadcastManager.registerReceiver(new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                raiseQueuePassed(intent.getStringExtra("queue-it-token"));
-            }}, new IntentFilter("on-queue-passed"));
-
-        localBroadcastManager.registerReceiver(new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                String url = intent.getExtras().getString("url");
-                updateQueuePageUrl(url);
-            }}, new IntentFilter("on-changed-queue-url"));
+        localBroadcastManager.registerReceiver(_queueUrlChangedBroadcastReceiver, new IntentFilter("on-changed-queue-url"));
     }
+
+    private BroadcastReceiver _queuePassedBroadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            raiseQueuePassed(intent.getStringExtra("queue-it-token"));
+        }
+    };
+
+    private BroadcastReceiver _queueUrlChangedBroadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String url = intent.getExtras().getString("url");
+            updateQueuePageUrl(url);
+        }
+    };
+
 
     private boolean tryToShowQueueFromCache()
     {
