@@ -139,13 +139,15 @@ public class QueueITEngine {
 
     private void registerReceivers()
     {
-        LocalBroadcastManager.getInstance(_context).registerReceiver(new BroadcastReceiver() {
+        LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(_context);
+
+        localBroadcastManager.registerReceiver(new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 raiseQueuePassed(intent.getStringExtra("queue-it-token"));
             }}, new IntentFilter("on-queue-passed"));
 
-        LocalBroadcastManager.getInstance(_context).registerReceiver(new BroadcastReceiver() {
+        localBroadcastManager.registerReceiver(new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 String url = intent.getExtras().getString("url");
