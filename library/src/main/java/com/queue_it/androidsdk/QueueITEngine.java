@@ -142,6 +142,18 @@ public class QueueITEngine {
         localBroadcastManager.registerReceiver(_queuePassedBroadcastReceiver, new IntentFilter("on-queue-passed"));
 
         localBroadcastManager.registerReceiver(_queueUrlChangedBroadcastReceiver, new IntentFilter("on-changed-queue-url"));
+
+        localBroadcastManager.registerReceiver(_queueActivityClosedBroadcastReceiver, new IntentFilter("queue-activity-closed"));
+    }
+
+    private void unregisterReceivers()
+    {
+        LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(_context);
+        localBroadcastManager.unregisterReceiver(_queuePassedBroadcastReceiver);
+
+        localBroadcastManager.unregisterReceiver(_queueUrlChangedBroadcastReceiver);
+
+        localBroadcastManager.unregisterReceiver(_queueActivityClosedBroadcastReceiver);
     }
 
     private BroadcastReceiver _queuePassedBroadcastReceiver = new BroadcastReceiver() {
@@ -159,6 +171,12 @@ public class QueueITEngine {
         }
     };
 
+    private BroadcastReceiver _queueActivityClosedBroadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            unregisterReceivers();
+        }
+    };
 
     private boolean tryToShowQueueFromCache()
     {

@@ -38,6 +38,13 @@ public class QueueActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onStop()
+    {
+        broadcastQueueActivityClosed();
+        super.onStop();
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_queue);
@@ -179,6 +186,11 @@ public class QueueActivity extends AppCompatActivity {
     private void broadcastQueuePassed(String queueItToken) {
         Intent intent = new Intent("on-queue-passed");
         intent.putExtra("queue-it-token", queueItToken);
+        LocalBroadcastManager.getInstance(QueueActivity.this).sendBroadcast(intent);
+    }
+
+    private void broadcastQueueActivityClosed() {
+        Intent intent = new Intent("queue-activity-closed");
         LocalBroadcastManager.getInstance(QueueActivity.this).sendBroadcast(intent);
     }
 
