@@ -99,7 +99,6 @@ public class QueueITEngine {
     public void run(Activity activity) throws QueueITException
     {
         _activity = activity;
-        registerReceivers();
 
         if (_requestInProgress)
         {
@@ -196,6 +195,8 @@ public class QueueITEngine {
 
     private void showQueue(String queueUrl, final String targetUrl)
     {
+        registerReceivers();
+
         Intent intent = new Intent(_context, QueueActivity.class);
         intent.putExtra("queueUrl", queueUrl);
         intent.putExtra("targetUrl", targetUrl);
