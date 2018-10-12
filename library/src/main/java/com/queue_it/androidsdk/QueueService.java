@@ -41,9 +41,9 @@ public class QueueService {
     private String getApiUrl()
     {
         if (IsTest) {
-            return "http://%s.test.queue-it.net/api/queue/%s/%s/appenqueue";
+            return "https://%s.test.queue-it.net/api/queue/%s/%s/appenqueue";
         } else {
-            return "http://%s.queue-it.net/api/queue/%s/%s/appenqueue";
+            return "https://%s.queue-it.net/api/queue/%s/%s/appenqueue";
         }
     }
 
