@@ -38,7 +38,7 @@ public class QueueActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onStop()
+    protected void onDestroy()
     {
         broadcastQueueActivityClosed();
         super.onStop();
