@@ -40,7 +40,11 @@ public class QueueActivity extends AppCompatActivity {
     @Override
     protected void onDestroy()
     {
-        broadcastQueueActivityClosed();
+        if (isFinishing())
+        {
+            broadcastQueueActivityClosed();
+        }
+
         super.onDestroy();
     }
 
