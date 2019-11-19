@@ -137,7 +137,8 @@ public class QueueActivity extends AppCompatActivity {
                 builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        handler.cancel();
+                        Log.v("Ssl Error", String.format("%s: %s", "onReceivedSslError", "user clicked cancel."));
+                        QueueActivity.super.finish();
                     }
                 });
                 final AlertDialog dialog = builder.create();
