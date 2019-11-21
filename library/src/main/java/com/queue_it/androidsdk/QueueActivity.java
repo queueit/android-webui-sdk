@@ -126,22 +126,8 @@ public class QueueActivity extends AppCompatActivity {
 
             @Override
             public void onReceivedSslError(WebView view, final SslErrorHandler handler, SslError error) {
-                final AlertDialog.Builder builder = new AlertDialog.Builder(QueueActivity.this);
-                builder.setMessage(R.string.notification_error_ssl_cert_invalid);
-                builder.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        handler.proceed();
-                    }
-                });
-                builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        handler.cancel();
-                    }
-                });
-                final AlertDialog dialog = builder.create();
-                dialog.show();
+                Log.v("Ssl Error", String.format("%s: %s", "onReceivedSslError", "SslCertificate error detected, user will be sent to queue anyway."));
+                handler.proceed();
             }
 
             public boolean shouldOverrideUrlLoading(WebView view, String urlString) {
