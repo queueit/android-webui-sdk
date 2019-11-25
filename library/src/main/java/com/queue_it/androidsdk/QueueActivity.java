@@ -126,7 +126,7 @@ public class QueueActivity extends AppCompatActivity {
 
             @Override
             public void onReceivedSslError(WebView view, final SslErrorHandler handler, SslError error) {
-                Log.v("Ssl Error", String.format("%s: %s", "onReceivedSslError", "SslCertificate error detected, user will however be sent to queue anyway."));
+                Log.v("Ssl Error", String.format("%s: %s", "onReceivedSslError", "SslCertificate error detected, user will be sent to queue anyway."));
                 handler.proceed();
             }
 
