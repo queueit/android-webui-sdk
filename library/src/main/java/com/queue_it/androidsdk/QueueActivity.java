@@ -126,6 +126,7 @@ public class QueueActivity extends AppCompatActivity {
 
             @Override
             public void onReceivedSslError(WebView view, final SslErrorHandler handler, SslError error) {
+
                 final AlertDialog.Builder builder = new AlertDialog.Builder(QueueActivity.this);
                 builder.setMessage(R.string.notification_error_ssl_cert_invalid);
                 builder.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
@@ -140,6 +141,7 @@ public class QueueActivity extends AppCompatActivity {
                         handler.cancel();
                     }
                 });
+
                 final AlertDialog dialog = builder.create();
                 dialog.show();
             }
