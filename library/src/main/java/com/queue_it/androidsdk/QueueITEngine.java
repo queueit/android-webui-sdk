@@ -7,11 +7,13 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.http.SslError;
 import android.os.Handler;
 import android.provider.Settings;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.util.Log;
+import android.webkit.SslErrorHandler;
 import android.webkit.WebView;
 
 import java.util.Calendar;
@@ -144,6 +146,8 @@ public class QueueITEngine {
         localBroadcastManager.registerReceiver(_queueUrlChangedBroadcastReceiver, new IntentFilter("on-changed-queue-url"));
 
         localBroadcastManager.registerReceiver(_queueActivityClosedBroadcastReceiver, new IntentFilter("queue-activity-closed"));
+
+        localBroadcastManager.registerReceiver(_queueSslErrorBroadcastReceiver, new IntentFilter("queue-activity-failed-ssl-error"));
     }
 
     private void unregisterReceivers()
@@ -154,6 +158,8 @@ public class QueueITEngine {
         localBroadcastManager.unregisterReceiver(_queueUrlChangedBroadcastReceiver);
 
         localBroadcastManager.unregisterReceiver(_queueActivityClosedBroadcastReceiver);
+
+        localBroadcastManager.unregisterReceiver(_queueSslErrorBroadcastReceiver);
     }
 
     private BroadcastReceiver _queuePassedBroadcastReceiver = new BroadcastReceiver() {
@@ -162,6 +168,14 @@ public class QueueITEngine {
             raiseQueuePassed(intent.getStringExtra("queue-it-token"));
         }
     };
+
+    private BroadcastReceiver _queueSslErrorBroadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            _queueListener.onError(Error.SSL_ERROR, intent.getStringExtra("ssl-error-message"));
+        }
+    };
+
 
     private BroadcastReceiver _queueUrlChangedBroadcastReceiver = new BroadcastReceiver() {
         @Override
