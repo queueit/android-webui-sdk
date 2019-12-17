@@ -127,15 +127,8 @@ public class QueueActivity extends AppCompatActivity {
             @Override
             public void onReceivedSslError(WebView view, final SslErrorHandler handler, SslError error) {
                 handler.cancel();
-                broadcastQueueActivityFailed("SslError, code: " + error.getPrimaryError()); // <- ny metode, der skal implementeres
+                broadcastQueueError("SslError, code: " + error.getPrimaryError()); 
                 disposeWebview(webView);
-            }
-
-            private void broadcastQueueActivityFailed(String sslErrorMessage)
-            {
-                Intent intent = new Intent("queue-activity-failed-ssl-error");
-                intent.putExtra("ssl-error-message", sslErrorMessage);
-                LocalBroadcastManager.getInstance(QueueActivity.this).sendBroadcast(intent);
             }
 
             public boolean shouldOverrideUrlLoading(WebView view, String urlString) {
@@ -189,6 +182,13 @@ public class QueueActivity extends AppCompatActivity {
 
     private void broadcastQueueActivityClosed() {
         Intent intent = new Intent("queue-activity-closed");
+        LocalBroadcastManager.getInstance(QueueActivity.this).sendBroadcast(intent);
+    }
+
+    private void broadcastQueueError(String errorMessage)
+    {
+        Intent intent = new Intent("on-queue-error");
+        intent.putExtra("error-message", errorMessage);
         LocalBroadcastManager.getInstance(QueueActivity.this).sendBroadcast(intent);
     }
 

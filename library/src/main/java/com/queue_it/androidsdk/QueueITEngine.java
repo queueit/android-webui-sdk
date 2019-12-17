@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.http.SslError;
 import android.os.Handler;
 import android.provider.Settings;
 import android.support.v4.content.LocalBroadcastManager;
@@ -147,7 +146,7 @@ public class QueueITEngine {
 
         localBroadcastManager.registerReceiver(_queueActivityClosedBroadcastReceiver, new IntentFilter("queue-activity-closed"));
 
-        localBroadcastManager.registerReceiver(_queueSslErrorBroadcastReceiver, new IntentFilter("queue-activity-failed-ssl-error"));
+        localBroadcastManager.registerReceiver(_queueErrorBroadcastReceiver, new IntentFilter("on-queue-error"));
     }
 
     private void unregisterReceivers()
@@ -159,7 +158,7 @@ public class QueueITEngine {
 
         localBroadcastManager.unregisterReceiver(_queueActivityClosedBroadcastReceiver);
 
-        localBroadcastManager.unregisterReceiver(_queueSslErrorBroadcastReceiver);
+        localBroadcastManager.unregisterReceiver(_queueErrorBroadcastReceiver);
     }
 
     private BroadcastReceiver _queuePassedBroadcastReceiver = new BroadcastReceiver() {
@@ -169,10 +168,10 @@ public class QueueITEngine {
         }
     };
 
-    private BroadcastReceiver _queueSslErrorBroadcastReceiver = new BroadcastReceiver() {
+    private BroadcastReceiver _queueErrorBroadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            _queueListener.onError(Error.SSL_ERROR, intent.getStringExtra("ssl-error-message"));
+            _queueListener.onError(Error.SSL_ERROR, intent.getStringExtra("error-message"));
         }
     };
 
