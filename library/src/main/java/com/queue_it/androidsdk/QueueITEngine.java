@@ -12,6 +12,7 @@ import android.provider.Settings;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.util.Log;
+import android.webkit.SslErrorHandler;
 import android.webkit.WebView;
 
 import java.util.Calendar;
@@ -139,27 +140,34 @@ public class QueueITEngine {
     private void registerReceivers()
     {
         LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(_context);
+
         localBroadcastManager.registerReceiver(_queuePassedBroadcastReceiver, new IntentFilter("on-queue-passed"));
-
         localBroadcastManager.registerReceiver(_queueUrlChangedBroadcastReceiver, new IntentFilter("on-changed-queue-url"));
-
         localBroadcastManager.registerReceiver(_queueActivityClosedBroadcastReceiver, new IntentFilter("queue-activity-closed"));
+        localBroadcastManager.registerReceiver(_queueErrorBroadcastReceiver, new IntentFilter("on-queue-error"));
     }
 
     private void unregisterReceivers()
     {
         LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(_context);
+
         localBroadcastManager.unregisterReceiver(_queuePassedBroadcastReceiver);
-
         localBroadcastManager.unregisterReceiver(_queueUrlChangedBroadcastReceiver);
-
         localBroadcastManager.unregisterReceiver(_queueActivityClosedBroadcastReceiver);
+        localBroadcastManager.unregisterReceiver(_queueErrorBroadcastReceiver);
     }
 
     private BroadcastReceiver _queuePassedBroadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             raiseQueuePassed(intent.getStringExtra("queue-it-token"));
+        }
+    };
+
+    private BroadcastReceiver _queueErrorBroadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            _queueListener.onError(Error.SSL_ERROR, intent.getStringExtra("error-message"));
         }
     };
 
