@@ -117,11 +117,11 @@ public class QueueService {
                     final String queueUrl = optString(jsonObject, "QueueUrl");
                     final int queueUrlTtlInMinutes = optInt(jsonObject, "QueueUrlTTLInMinutes");
                     final String eventTargetUrl = optString(jsonObject, "EventTargetUrl");
-
+                    final String queueItToken = optString(jsonObject, "QueueitToken");
                     mainHandler.post(new Runnable() {
                         @Override
                         public void run() {
-                            _queueServiceListener.onSuccess(queueId, queueUrl, queueUrlTtlInMinutes, eventTargetUrl);
+                            _queueServiceListener.onSuccess(queueId, queueUrl, queueUrlTtlInMinutes, eventTargetUrl, queueItToken);
                         }
                     });
                 } catch (JSONException e) {

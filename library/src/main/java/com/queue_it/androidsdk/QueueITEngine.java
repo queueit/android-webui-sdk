@@ -257,10 +257,12 @@ public class QueueITEngine {
 
         QueueServiceListener queueServiceListener = new QueueServiceListener() {
             @Override
-            public void onSuccess(String queueId, String queueUrlString, int queueUrlTtlInMinutes, String eventTargetUrl) {
+            public void onSuccess(String queueId, String queueUrlString, int queueUrlTtlInMinutes, String eventTargetUrl, String queueItToken) {
                 if (IsSafetyNet(queueId, queueUrlString))
                 {
-                    QueueITEngine.this.raiseQueuePassed("");
+                    QueuePassedInfo queuePassedInfo = new QueuePassedInfo(queueItToken);
+                    String result = queuePassedInfo.getQueueItToken();
+                    QueueITEngine.this.raiseQueuePassed(result);
                 }
                 else if (IsInQueue(queueId, queueUrlString))
                 {
