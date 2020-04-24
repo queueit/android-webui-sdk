@@ -260,9 +260,7 @@ public class QueueITEngine {
             public void onSuccess(String queueId, String queueUrlString, int queueUrlTtlInMinutes, String eventTargetUrl, String queueItToken) {
                 if (IsSafetyNet(queueId, queueUrlString))
                 {
-                    QueuePassedInfo queuePassedInfo = new QueuePassedInfo(queueItToken);
-                    String result = queuePassedInfo.getQueueItToken();
-                    QueueITEngine.this.raiseQueuePassed(result);
+                    QueueITEngine.this.raiseQueuePassed(queueItToken);
                 }
                 else if (IsInQueue(queueId, queueUrlString))
                 {
