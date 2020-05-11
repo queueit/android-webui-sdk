@@ -2,7 +2,7 @@
 
 # Queue-it Android WebUI SDK
 
-Library for integrating Queue-it into an Android app.
+Library for integrating Queue-it's virtual waiting room into an Android app written in java.
 
 ## Sample app
 
