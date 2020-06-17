@@ -10,6 +10,9 @@ A sample app to try out functionality in the library can be found on the [Releas
 
 ## Installation
 
+Before starting please download the whitepaper **Mobile App Integration** from GO Queue-it Platform. 
+This whitepaper contains the needed information to perform a successful integration.
+
 Using Gradle:
 
 ```gradle
