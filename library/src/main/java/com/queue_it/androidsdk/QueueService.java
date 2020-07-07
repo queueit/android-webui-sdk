@@ -106,14 +106,12 @@ public class QueueService {
                             _queueServiceListener.onFailure(errorMessage, code);
                         }
                     });
-
                     return;
                 }
 
                 final String body = response.body().string();
 
                 try {
-
                     JSONObject jsonObject = new JSONObject(body);
                     final String queueId = optString(jsonObject, "QueueId");
                     final String queueUrl = optString(jsonObject, "QueueUrl");
@@ -123,7 +121,10 @@ public class QueueService {
                     mainHandler.post(new Runnable() {
                         @Override
                         public void run() {
-                            _queueServiceListener.onSuccess(queueId, queueUrl, queueUrlTtlInMinutes, eventTargetUrl, queueItToken);
+                            String updatedQueueUrl = QueueUrlHelper.urlUpdateNeeded(queueUrl, _userId) ?
+                                    QueueUrlHelper.updateUrl(queueUrl, _userId) :
+                                    queueUrl;
+                            _queueServiceListener.onSuccess(queueId, updatedQueueUrl, queueUrlTtlInMinutes, eventTargetUrl, queueItToken);
                         }
                     });
                 } catch (JSONException e) {

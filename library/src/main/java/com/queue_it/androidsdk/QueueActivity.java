@@ -1,7 +1,5 @@
 package com.queue_it.androidsdk;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.net.http.SslError;
@@ -19,7 +17,6 @@ import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -28,20 +25,19 @@ public class QueueActivity extends AppCompatActivity {
 
     private String queueUrl;
     private String targetUrl;
+    private String userId;
 
     @Override
-    protected void onSaveInstanceState(Bundle outState)
-    {
+    protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putString("queueUrl", queueUrl);
         outState.putString("targetUrl", targetUrl);
+        outState.putString("userId", userId);
     }
 
     @Override
-    protected void onDestroy()
-    {
-        if (isFinishing())
-        {
+    protected void onDestroy() {
+        if (isFinishing()) {
             broadcastQueueActivityClosed();
         }
 
@@ -53,9 +49,9 @@ public class QueueActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_queue);
 
-        final ProgressBar progressBar = (ProgressBar)findViewById(R.id.progressBar);
+        final ProgressBar progressBar = (ProgressBar) findViewById(R.id.progressBar);
 
-        final WebView webView = (WebView)findViewById(R.id.webView);
+        final WebView webView = (WebView) findViewById(R.id.webView);
 
         if (savedInstanceState == null) {
             Bundle extras = getIntent().getExtras();
@@ -65,10 +61,12 @@ public class QueueActivity extends AppCompatActivity {
             } else {
                 queueUrl = extras.getString("queueUrl");
                 targetUrl = extras.getString("targetUrl");
+                userId = extras.getString("userId");
             }
         } else {
             queueUrl = (String) savedInstanceState.getSerializable("queueUrl");
             targetUrl = (String) savedInstanceState.getSerializable("targetUrl");
+            userId = (String) savedInstanceState.getSerializable("userId");
         }
 
         final URL target;
@@ -83,8 +81,7 @@ public class QueueActivity extends AppCompatActivity {
         Log.v("QueueITEngine", "Loading initial URL: " + queueUrl);
 
         webView.getSettings().setJavaScriptEnabled(true);
-        webView.setWebChromeClient(new WebChromeClient()
-        {
+        webView.setWebChromeClient(new WebChromeClient() {
             @Override
             public void onProgressChanged(WebView view, int newProgress) {
                 Log.v("Progress", Integer.toString(newProgress));
@@ -127,7 +124,7 @@ public class QueueActivity extends AppCompatActivity {
             @Override
             public void onReceivedSslError(WebView view, final SslErrorHandler handler, SslError error) {
                 handler.cancel();
-                broadcastQueueError("SslError, code: " + error.getPrimaryError()); 
+                broadcastQueueError("SslError, code: " + error.getPrimaryError());
                 disposeWebview(webView);
             }
 
@@ -142,13 +139,17 @@ public class QueueActivity extends AppCompatActivity {
                 }
 
                 boolean isQueueUrl = queue.getHost().contains(url.getHost());
-
-                if (isQueueUrl)
-                {
+                if (isQueueUrl) {
+                    if (QueueUrlHelper.urlUpdateNeeded(urlString, userId)) {
+                        urlString = QueueUrlHelper.updateUrl(urlString, userId);
+                        Log.v("QueueITEngine", "URL intercepting: " + urlString);
+                        webView.loadUrl(urlString);
+                        return true;
+                    }
                     broadcastChangedQueueUrl(urlString);
                 }
-
-                if (target.getHost().contains(url.getHost())) {
+                boolean isTarget = target.getHost().contains(url.getHost());
+                if (isTarget) {
                     Uri uri = Uri.parse(urlString);
                     String queueItToken = uri.getQueryParameter("queueittoken");
 
@@ -156,15 +157,15 @@ public class QueueActivity extends AppCompatActivity {
                     disposeWebview(webView);
                     return true;
                 }
-                if (!isQueueUrl)
-                {
+                if (!isQueueUrl) {
                     Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(urlString));
                     startActivity(browserIntent);
                     return true;
                 }
 
                 return false;
-            }});
+            }
+        });
         webView.loadUrl(queueUrl);
     }
 
@@ -185,8 +186,7 @@ public class QueueActivity extends AppCompatActivity {
         LocalBroadcastManager.getInstance(QueueActivity.this).sendBroadcast(intent);
     }
 
-    private void broadcastQueueError(String errorMessage)
-    {
+    private void broadcastQueueError(String errorMessage) {
         Intent intent = new Intent("on-queue-error");
         intent.putExtra("error-message", errorMessage);
         LocalBroadcastManager.getInstance(QueueActivity.this).sendBroadcast(intent);

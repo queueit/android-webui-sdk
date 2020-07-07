@@ -226,6 +226,7 @@ public class QueueITEngine {
         Intent intent = new Intent(_context, QueueActivity.class);
         intent.putExtra("queueUrl", queueUrl);
         intent.putExtra("targetUrl", targetUrl);
+        intent.putExtra("userId", getUserId());
         _activity.startActivity(intent);
     }
 
@@ -249,9 +250,13 @@ public class QueueITEngine {
         _queueListener.onQueueDisabled();
     }
 
+    private String getUserId(){
+        return Settings.Secure.getString(_context.getContentResolver(), Settings.Secure.ANDROID_ID);
+    }
+
     private void tryEnqueue()
     {
-        String userId = Settings.Secure.getString(_context.getContentResolver(), Settings.Secure.ANDROID_ID);
+        String userId = getUserId();
         String userAgent = new WebView(_context).getSettings().getUserAgentString();
         String sdkVersion = getSdkVersion();
 
