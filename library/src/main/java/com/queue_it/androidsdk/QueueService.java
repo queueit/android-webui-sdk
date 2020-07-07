@@ -45,11 +45,12 @@ public class QueueService {
                         "%s.test.queue-it.net" :
                         "%s.queue-it.net",
                 _customerId);
-        String path = String.format("/api/queue/%s/%s/appenqueue", _customerId, _eventOrAliasId);
+        String path = String.format("api/queue/%s/%s/appenqueue", _customerId, _eventOrAliasId);
         return new HttpUrl.Builder()
                 .scheme("https")
                 .host(hostname)
                 .addPathSegments(path)
+                .addQueryParameter("userId", _userId)
                 .build().url();
     }
 
