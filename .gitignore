@@ -13,3 +13,4 @@
 /.vs/VSWorkspaceState.json
 /private_key_sender.asc
 /public_key_sender.asc
+.idea
