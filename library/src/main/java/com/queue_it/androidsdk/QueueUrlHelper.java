@@ -27,6 +27,7 @@ public abstract class QueueUrlHelper {
 
     public static boolean urlUpdateNeeded(String queueUrl, String userId) {
         try {
+            if(queueUrl==null) return false;
             URL currentUrl = new URL(queueUrl);
             String query = currentUrl.getQuery();
             String userIdQuery = String.format("userId=%s", userId);
