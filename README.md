@@ -1,4 +1,4 @@
-[ ![Download](https://api.bintray.com/packages/queueit/maven/com.queue_it.androidsdk/images/download.svg) ](https://bintray.com/queueit/maven/com.queue_it.androidsdk/_latestVersion)
+[ ![Download](https://api.bintray.com/packages/vasilvasilev/maven/com.queue_it.androidsdk/images/download.svg) ](https://bintray.com/vasilvasilev/maven/com.queue_it.androidsdk/_latestVersion)
 
 # Queue-it Android WebUI SDK
 
