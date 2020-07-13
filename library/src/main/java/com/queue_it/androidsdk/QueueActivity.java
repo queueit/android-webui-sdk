@@ -114,7 +114,7 @@ public class QueueActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_queue);
-        loadUrls(savedInstanceState);
+        readActivityUrls(savedInstanceState);
         cleanupWebViews();
         final ProgressBar progressBar = (ProgressBar) findViewById(R.id.progressBar);
 
@@ -157,7 +157,7 @@ public class QueueActivity extends AppCompatActivity {
         super.onDestroy();
     }
 
-    private void loadUrls(Bundle savedInstanceState) {
+    private void readActivityUrls(Bundle savedInstanceState) {
         if (savedInstanceState == null) {
             Bundle extras = getIntent().getExtras();
             if (extras == null) {
