@@ -83,17 +83,18 @@ public class QueueITEngine {
         return netInfo != null && netInfo.isConnected();
     }
 
-    public void run(boolean clearCache) throws QueueITException {
+    public void run(Activity activityContext, boolean clearCache) throws QueueITException {
         if (clearCache) {
             _queueCache.clear();
         }
-        run();
+        run(activityContext);
     }
 
-    public void run() throws QueueITException {
+    public void run(Activity activityContext) throws QueueITException {
         if (_requestInProgress.getAndSet(true)) {
             throw new QueueITException("Request is already in progress");
         }
+        _context = activityContext;
         _checkConnectionHandler = new Handler();
         _checkConnection.run();
     }
