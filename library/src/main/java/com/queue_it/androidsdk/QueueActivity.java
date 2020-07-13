@@ -18,11 +18,10 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URL;
+import java.util.Stack;
 
 public class QueueActivity extends AppCompatActivity {
 
@@ -32,6 +31,7 @@ public class QueueActivity extends AppCompatActivity {
     private WebView webview;
     private URL target;
     private URL queue;
+    private static Stack<WebView> webviews = new Stack<>();
 
     WebViewClient webviewClient = new WebViewClient() {
 
@@ -103,38 +103,10 @@ public class QueueActivity extends AppCompatActivity {
         }
     };
 
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putString("queueUrl", queueUrl);
-        outState.putString("targetUrl", targetUrl);
-        outState.putString("userId", userId);
-    }
-
-    @Override
-    protected void onDestroy() {
-        if (isFinishing()) {
-            broadcastQueueActivityClosed();
-        }
-        super.onDestroy();
-    }
-
-
-    private String appWebViewTempUrl;
-    // Code for onPause()
-    @Override
-    protected void onPause() {
-        super.onPause();
-        appWebViewTempUrl = webview.getUrl();
-    }
-
-    // Code for onResume()
-    @Override
-    protected void onResume() {
-        super.onResume();
-        //webview.loadUrl("file:///android_asset/infAppPaused.html");
-        if (appWebViewTempUrl!=null && !appWebViewTempUrl.equals("")) {
-            webview.loadUrl(appWebViewTempUrl);
+    private static void cleanupWebViews(){
+        while(webviews.size()>0){
+            WebView wv = webviews.pop();
+            wv.destroy();
         }
     }
 
@@ -143,16 +115,13 @@ public class QueueActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_queue);
         loadUrls(savedInstanceState);
+        cleanupWebViews();
         final ProgressBar progressBar = (ProgressBar) findViewById(R.id.progressBar);
-        webview = (WebView) findViewById(R.id.webView);
-        webview.destroy();
+
         FrameLayout layout = (FrameLayout) findViewById(R.id.relativeLayout);
         webview = new WebView(this);
         layout.addView(webview);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            WebView.setWebContentsDebuggingEnabled(true);
-        }
+        webviews.add(webview);
         webview.getSettings().setJavaScriptEnabled(true);
         webview.setWebChromeClient(new WebChromeClient() {
             @Override
@@ -170,6 +139,22 @@ public class QueueActivity extends AppCompatActivity {
         webview.setWebViewClient(webviewClient);
         Log.v("QueueITEngine", "Loading initial URL: " + queueUrl);
         webview.loadUrl(queueUrl);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString("queueUrl", queueUrl);
+        outState.putString("targetUrl", targetUrl);
+        outState.putString("userId", userId);
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (isFinishing()) {
+            broadcastQueueActivityClosed();
+        }
+        super.onDestroy();
     }
 
     private void loadUrls(Bundle savedInstanceState) {
