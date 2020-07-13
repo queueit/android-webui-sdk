@@ -3,11 +3,6 @@
     android:layout_height="match_parent"
     android:id="@+id/relativeLayout">
 
-    <WebView
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:id="@+id/webView" />
-
     <ProgressBar
         android:id="@+id/progressBar"
         style="?android:attr/progressBarStyleHorizontal"

@@ -16,16 +16,130 @@ import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Stack;
 
 public class QueueActivity extends AppCompatActivity {
 
     private String queueUrl;
     private String targetUrl;
     private String userId;
+    private WebView webview;
+    private URL target;
+    private URL queue;
+    private static Stack<WebView> webviews = new Stack<>();
+
+    WebViewClient webviewClient = new WebViewClient() {
+
+        @Override
+        public void onReceivedHttpError(WebView view, WebResourceRequest request, WebResourceResponse errorResponse) {
+            String errorMessage;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                errorMessage = String.format("%s %s: %s %s", request.getMethod(), request.getUrl(), errorResponse.getStatusCode(), errorResponse.getReasonPhrase());
+            } else {
+                errorMessage = errorResponse.toString();
+            }
+            Log.v("QueueActivity", String.format("%s: %s", "onReceivedHttpError", errorMessage));
+            super.onReceivedHttpError(view, request, errorResponse);
+        }
+
+        @Override
+        public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
+            String errorMessage;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                errorMessage = String.format("%s %s: %s %s", request.getMethod(), request.getUrl(), error.getErrorCode(), error.getDescription());
+            } else {
+                errorMessage = error.toString();
+            }
+            Log.v("QueueActivity", String.format("%s: %s", "onReceivedError", errorMessage));
+            super.onReceivedError(view, request, error);
+        }
+
+        @Override
+        public void onReceivedSslError(WebView view, final SslErrorHandler handler, SslError error) {
+            handler.cancel();
+            broadcastQueueError("SslError, code: " + error.getPrimaryError());
+            disposeWebview(webview);
+        }
+
+        public boolean shouldOverrideUrlLoading(WebView view, String urlString) {
+            Log.v("QueueITEngine", "URL loading: " + urlString);
+            URL url;
+            try {
+                url = new URL(urlString);
+            } catch (MalformedURLException e) {
+                throw new RuntimeException(e);
+            }
+
+            boolean isQueueUrl = queue.getHost().contains(url.getHost());
+            if (isQueueUrl) {
+                if (QueueUrlHelper.urlUpdateNeeded(urlString, userId)) {
+                    urlString = QueueUrlHelper.updateUrl(urlString, userId);
+                    Log.v("QueueITEngine", "URL intercepting: " + urlString);
+                    webview.loadUrl(urlString);
+                    return true;
+                }
+                broadcastChangedQueueUrl(urlString);
+            }
+            boolean isTarget = target.getHost().contains(url.getHost());
+            if (isTarget) {
+                Uri uri = Uri.parse(urlString);
+                String queueItToken = uri.getQueryParameter("queueittoken");
+
+                broadcastQueuePassed(queueItToken);
+                disposeWebview(webview);
+                return true;
+            }
+            if (!isQueueUrl) {
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(urlString));
+                startActivity(browserIntent);
+                return true;
+            }
+            return false;
+        }
+    };
+
+    private static void cleanupWebViews(){
+        while(webviews.size()>0){
+            WebView wv = webviews.pop();
+            wv.destroy();
+        }
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_queue);
+        loadUrls(savedInstanceState);
+        cleanupWebViews();
+        final ProgressBar progressBar = (ProgressBar) findViewById(R.id.progressBar);
+
+        FrameLayout layout = (FrameLayout) findViewById(R.id.relativeLayout);
+        webview = new WebView(this);
+        layout.addView(webview);
+        webviews.add(webview);
+        webview.getSettings().setJavaScriptEnabled(true);
+        webview.setWebChromeClient(new WebChromeClient() {
+            @Override
+            public void onProgressChanged(WebView view, int newProgress) {
+                Log.v("Progress", Integer.toString(newProgress));
+                if (newProgress < 100) {
+                    progressBar.setVisibility(View.VISIBLE);
+                } else {
+                    progressBar.setVisibility(View.GONE);
+                }
+                progressBar.setProgress(newProgress);
+                super.onProgressChanged(view, newProgress);
+            }
+        });
+        webview.setWebViewClient(webviewClient);
+        Log.v("QueueITEngine", "Loading initial URL: " + queueUrl);
+        webview.loadUrl(queueUrl);
+    }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
@@ -40,19 +154,10 @@ public class QueueActivity extends AppCompatActivity {
         if (isFinishing()) {
             broadcastQueueActivityClosed();
         }
-
         super.onDestroy();
     }
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_queue);
-
-        final ProgressBar progressBar = (ProgressBar) findViewById(R.id.progressBar);
-
-        final WebView webView = (WebView) findViewById(R.id.webView);
-
+    private void loadUrls(Bundle savedInstanceState) {
         if (savedInstanceState == null) {
             Bundle extras = getIntent().getExtras();
             if (extras == null) {
@@ -69,104 +174,12 @@ public class QueueActivity extends AppCompatActivity {
             userId = (String) savedInstanceState.getSerializable("userId");
         }
 
-        final URL target;
-        final URL queue;
         try {
             target = new URL(targetUrl);
             queue = new URL(queueUrl);
         } catch (MalformedURLException e) {
             throw new RuntimeException(e);
         }
-
-        Log.v("QueueITEngine", "Loading initial URL: " + queueUrl);
-
-        webView.getSettings().setJavaScriptEnabled(true);
-        webView.setWebChromeClient(new WebChromeClient() {
-            @Override
-            public void onProgressChanged(WebView view, int newProgress) {
-                Log.v("Progress", Integer.toString(newProgress));
-                if (newProgress < 100) {
-                    progressBar.setVisibility(View.VISIBLE);
-                } else {
-                    progressBar.setVisibility(View.GONE);
-                }
-                progressBar.setProgress(newProgress);
-                super.onProgressChanged(view, newProgress);
-            }
-        });
-
-        webView.setWebViewClient(new WebViewClient() {
-
-            @Override
-            public void onReceivedHttpError(WebView view, WebResourceRequest request, WebResourceResponse errorResponse) {
-                String errorMessage;
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    errorMessage = String.format("%s %s: %s %s", request.getMethod(), request.getUrl(), errorResponse.getStatusCode(), errorResponse.getReasonPhrase());
-                } else {
-                    errorMessage = errorResponse.toString();
-                }
-                Log.v("QueueActivity", String.format("%s: %s", "onReceivedHttpError", errorMessage));
-                super.onReceivedHttpError(view, request, errorResponse);
-            }
-
-            @Override
-            public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
-                String errorMessage;
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    errorMessage = String.format("%s %s: %s %s", request.getMethod(), request.getUrl(), error.getErrorCode(), error.getDescription());
-                } else {
-                    errorMessage = error.toString();
-                }
-                Log.v("QueueActivity", String.format("%s: %s", "onReceivedError", errorMessage));
-                super.onReceivedError(view, request, error);
-            }
-
-            @Override
-            public void onReceivedSslError(WebView view, final SslErrorHandler handler, SslError error) {
-                handler.cancel();
-                broadcastQueueError("SslError, code: " + error.getPrimaryError());
-                disposeWebview(webView);
-            }
-
-            public boolean shouldOverrideUrlLoading(WebView view, String urlString) {
-                Log.v("QueueITEngine", "URL loading: " + urlString);
-
-                URL url;
-                try {
-                    url = new URL(urlString);
-                } catch (MalformedURLException e) {
-                    throw new RuntimeException(e);
-                }
-
-                boolean isQueueUrl = queue.getHost().contains(url.getHost());
-                if (isQueueUrl) {
-                    if (QueueUrlHelper.urlUpdateNeeded(urlString, userId)) {
-                        urlString = QueueUrlHelper.updateUrl(urlString, userId);
-                        Log.v("QueueITEngine", "URL intercepting: " + urlString);
-                        webView.loadUrl(urlString);
-                        return true;
-                    }
-                    broadcastChangedQueueUrl(urlString);
-                }
-                boolean isTarget = target.getHost().contains(url.getHost());
-                if (isTarget) {
-                    Uri uri = Uri.parse(urlString);
-                    String queueItToken = uri.getQueryParameter("queueittoken");
-
-                    broadcastQueuePassed(queueItToken);
-                    disposeWebview(webView);
-                    return true;
-                }
-                if (!isQueueUrl) {
-                    Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(urlString));
-                    startActivity(browserIntent);
-                    return true;
-                }
-
-                return false;
-            }
-        });
-        webView.loadUrl(queueUrl);
     }
 
     private void broadcastChangedQueueUrl(String urlString) {
