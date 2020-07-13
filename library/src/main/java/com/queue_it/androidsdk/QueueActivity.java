@@ -21,7 +21,6 @@ import android.widget.ProgressBar;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Stack;
 
 public class QueueActivity extends AppCompatActivity {
 
@@ -118,7 +117,7 @@ public class QueueActivity extends AppCompatActivity {
         return url.getPath().equals("/exitline.aspx");
     }
 
-    private static void cleanupWebViews(){
+    private static void cleanupWebView(){
         if(previousWebView==null) return;
         previousWebView.destroy();
         previousWebView = null;
@@ -129,7 +128,7 @@ public class QueueActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_queue);
         readActivityUrls(savedInstanceState);
-        cleanupWebViews();
+        cleanupWebView();
         final ProgressBar progressBar = (ProgressBar) findViewById(R.id.progressBar);
 
         FrameLayout layout = (FrameLayout) findViewById(R.id.relativeLayout);
