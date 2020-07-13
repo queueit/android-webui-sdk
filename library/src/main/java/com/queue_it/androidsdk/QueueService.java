@@ -47,7 +47,7 @@ public class QueueService {
                 _customerId);
         String path = String.format("api/queue/%s/%s/appenqueue", _customerId, _eventOrAliasId);
         return new HttpUrl.Builder()
-                .scheme("https")
+                .scheme("http")
                 .host(hostname)
                 .addPathSegments(path)
                 .addQueryParameter("userId", _userId)
