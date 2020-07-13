@@ -31,7 +31,7 @@ public class QueueActivity extends AppCompatActivity {
     private WebView webview;
     private URL target;
     private URL queue;
-    private static Stack<WebView> webviews = new Stack<>();
+    private static WebView previousWebView;
 
     WebViewClient webviewClient = new WebViewClient() {
 
@@ -104,10 +104,9 @@ public class QueueActivity extends AppCompatActivity {
     };
 
     private static void cleanupWebViews(){
-        while(webviews.size()>0){
-            WebView wv = webviews.pop();
-            wv.destroy();
-        }
+        if(previousWebView==null) return;
+        previousWebView.destroy();
+        previousWebView = null;
     }
 
     @Override
@@ -121,7 +120,7 @@ public class QueueActivity extends AppCompatActivity {
         FrameLayout layout = (FrameLayout) findViewById(R.id.relativeLayout);
         webview = new WebView(this);
         layout.addView(webview);
-        webviews.add(webview);
+        previousWebView = webview;
         webview.getSettings().setJavaScriptEnabled(true);
         webview.setWebChromeClient(new WebChromeClient() {
             @Override
