@@ -75,26 +75,30 @@ public class QueueActivity extends AppCompatActivity {
                 throw new RuntimeException(e);
             }
 
-            boolean isQueueUrl = queue.getHost().contains(url.getHost());
-            if (isQueueUrl) {
-                if (QueueUrlHelper.urlUpdateNeeded(urlString, userId)) {
+            boolean isQueueItUrl = queue.getHost().contains(url.getHost());
+            if (isQueueItUrl) {
+                boolean needsRewrite = QueueUrlHelper.urlUpdateNeeded(urlString, userId);
+                if (needsRewrite) {
                     urlString = QueueUrlHelper.updateUrl(urlString, userId);
                     Log.v("QueueITEngine", "URL intercepting: " + urlString);
+                }
+                if(isLeaveRequest(urlString)){
+                    broadcastQueueLeft();
+                }
+                if(needsRewrite){
                     webview.loadUrl(urlString);
                     return true;
                 }
-                broadcastChangedQueueUrl(urlString);
             }
             boolean isTarget = target.getHost().contains(url.getHost());
             if (isTarget) {
                 Uri uri = Uri.parse(urlString);
                 String queueItToken = uri.getQueryParameter("queueittoken");
-
                 broadcastQueuePassed(queueItToken);
                 disposeWebview(webview);
                 return true;
             }
-            if (!isQueueUrl) {
+            if (!isQueueItUrl) {
                 Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(urlString));
                 startActivity(browserIntent);
                 return true;
@@ -102,6 +106,17 @@ public class QueueActivity extends AppCompatActivity {
             return false;
         }
     };
+
+    private boolean isLeaveRequest(String urlString) {
+        URL url = null;
+        try {
+            url = new URL(urlString);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return url.getPath().equals("/exitline.aspx");
+    }
 
     private static void cleanupWebViews(){
         if(previousWebView==null) return;
@@ -190,6 +205,11 @@ public class QueueActivity extends AppCompatActivity {
     private void broadcastQueuePassed(String queueItToken) {
         Intent intent = new Intent("on-queue-passed");
         intent.putExtra("queue-it-token", queueItToken);
+        LocalBroadcastManager.getInstance(QueueActivity.this).sendBroadcast(intent);
+    }
+
+    private void broadcastQueueLeft(){
+        Intent intent = new Intent("on-queue-left");
         LocalBroadcastManager.getInstance(QueueActivity.this).sendBroadcast(intent);
     }
 
