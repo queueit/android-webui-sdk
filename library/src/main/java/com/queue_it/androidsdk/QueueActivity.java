@@ -9,6 +9,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.webkit.CookieSyncManager;
 import android.webkit.SslErrorHandler;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceError;
@@ -33,6 +34,12 @@ public class QueueActivity extends AppCompatActivity {
     private static WebView previousWebView;
 
     WebViewClient webviewClient = new WebViewClient() {
+
+        @Override
+        public void onPageFinished(WebView view, String url) {
+            super.onPageFinished(view, url);
+            CookieSyncManager.getInstance().sync();
+        }
 
         @Override
         public void onReceivedHttpError(WebView view, WebResourceRequest request, WebResourceResponse errorResponse) {
@@ -81,9 +88,7 @@ public class QueueActivity extends AppCompatActivity {
                     urlString = QueueUrlHelper.updateUrl(urlString, userId);
                     Log.v("QueueITEngine", "URL intercepting: " + urlString);
                 }
-                if(isLeaveRequest(urlString)){
-                    broadcastQueueLeft();
-                }
+                broadcastChangedQueueUrl(urlString);
                 if(needsRewrite){
                     webview.loadUrl(urlString);
                     return true;
@@ -105,17 +110,6 @@ public class QueueActivity extends AppCompatActivity {
             return false;
         }
     };
-
-    private boolean isLeaveRequest(String urlString) {
-        URL url = null;
-        try {
-            url = new URL(urlString);
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-            return false;
-        }
-        return url.getPath().equals("/exitline.aspx");
-    }
 
     private static void cleanupWebView(){
         if(previousWebView==null) return;
@@ -204,11 +198,6 @@ public class QueueActivity extends AppCompatActivity {
     private void broadcastQueuePassed(String queueItToken) {
         Intent intent = new Intent("on-queue-passed");
         intent.putExtra("queue-it-token", queueItToken);
-        LocalBroadcastManager.getInstance(QueueActivity.this).sendBroadcast(intent);
-    }
-
-    private void broadcastQueueLeft(){
-        Intent intent = new Intent("on-queue-left");
         LocalBroadcastManager.getInstance(QueueActivity.this).sendBroadcast(intent);
     }
 

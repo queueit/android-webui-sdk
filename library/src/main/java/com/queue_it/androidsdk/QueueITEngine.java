@@ -129,7 +129,6 @@ public class QueueITEngine {
         localBroadcastManager.registerReceiver(_queueUrlChangedBroadcastReceiver, new IntentFilter("on-changed-queue-url"));
         localBroadcastManager.registerReceiver(_queueActivityClosedBroadcastReceiver, new IntentFilter("queue-activity-closed"));
         localBroadcastManager.registerReceiver(_queueErrorBroadcastReceiver, new IntentFilter("on-queue-error"));
-        localBroadcastManager.registerReceiver(_queueLeftBroadcastReceiver, new IntentFilter("on-queue-left"));
     }
 
     private void unregisterReceivers() {
@@ -139,7 +138,6 @@ public class QueueITEngine {
         localBroadcastManager.unregisterReceiver(_queueUrlChangedBroadcastReceiver);
         localBroadcastManager.unregisterReceiver(_queueActivityClosedBroadcastReceiver);
         localBroadcastManager.unregisterReceiver(_queueErrorBroadcastReceiver);
-        localBroadcastManager.unregisterReceiver(_queueLeftBroadcastReceiver);
     }
 
     private BroadcastReceiver _queuePassedBroadcastReceiver = new BroadcastReceiver() {
@@ -153,13 +151,6 @@ public class QueueITEngine {
         @Override
         public void onReceive(Context context, Intent intent) {
             _queueListener.onError(Error.SSL_ERROR, intent.getStringExtra("error-message"));
-        }
-    };
-
-    private BroadcastReceiver _queueLeftBroadcastReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            _queueCache.clear();
         }
     };
 
