@@ -1,5 +1,5 @@
 apply plugin: 'com.android.library'
-
+def org = "queueit"
 android {
     compileSdkVersion 23
     buildToolsVersion "28.0.3"
@@ -8,7 +8,7 @@ android {
         minSdkVersion 15
         targetSdkVersion 23
         versionCode 1
-        versionName "2.0.20"
+        versionName "2.0.22"
     }
     buildTypes {
         release {
@@ -17,6 +17,7 @@ android {
         }
     }
 }
+
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
@@ -35,8 +36,8 @@ ext {
 
     libraryDescription = 'Android SDK to integrate with Queue-it'
 
-    siteUrl = 'https://github.com/queueit/android-webui-sdk'
-    gitUrl = 'https://github.com/queueit/android-webui-sdk.git'
+    siteUrl = "https://github.com/${org}/android-webui-sdk"
+    gitUrl = "https://github.com/${org}/android-webui-sdk.git"
 
     libraryVersion = android.defaultConfig.versionName
 
@@ -113,7 +114,7 @@ bintray {
     pkg {
         repo = bintrayRepo
         name = bintrayName
-        userOrg = 'queueit'
+        userOrg = "${org}"
         desc = libraryDescription
         websiteUrl = siteUrl
         vcsUrl = gitUrl

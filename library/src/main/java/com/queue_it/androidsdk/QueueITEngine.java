@@ -12,10 +12,10 @@ import android.provider.Settings;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.util.Log;
-import android.webkit.SslErrorHandler;
 import android.webkit.WebView;
 
 import java.util.Calendar;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class QueueITEngine {
 
@@ -26,9 +26,7 @@ public class QueueITEngine {
     private QueueListener _queueListener;
     private QueueCache _queueCache;
     private Context _context;
-
-    private Activity _activity;
-    private boolean _requestInProgress;
+    private AtomicBoolean _requestInProgress;
     private boolean _isInQueue;
 
     private static final int INITIAL_WAIT_RETRY_SEC = 1;
@@ -40,23 +38,20 @@ public class QueueITEngine {
     private Handler _checkConnectionHandler;
     private int _isOnlineRetry = 0;
 
-    public QueueITEngine(Context applicationContext, String customerId, String eventOrAliasId, QueueListener queueListener)
-    {
+    public QueueITEngine(Activity applicationContext, String customerId, String eventOrAliasId, QueueListener queueListener) {
         this(applicationContext, customerId, eventOrAliasId, "", "", queueListener);
     }
 
-    public QueueITEngine(Context applicationContext, String customerId, String eventOrAliasId, String layoutName,
-                         String language, QueueListener queueListener)
-    {
-        if (TextUtils.isEmpty(customerId))
-        {
+    public QueueITEngine(Activity activityContext, String customerId, String eventOrAliasId, String layoutName,
+                         String language, QueueListener queueListener) {
+        _requestInProgress = new AtomicBoolean(false);
+        if (TextUtils.isEmpty(customerId)) {
             throw new IllegalArgumentException("customerId must have a value");
         }
-        if (TextUtils.isEmpty(eventOrAliasId))
-        {
+        if (TextUtils.isEmpty(eventOrAliasId)) {
             throw new IllegalArgumentException("eventOrAliasId must have a value");
         }
-        _context = applicationContext.getApplicationContext();
+        _context = activityContext;
         _customerId = customerId;
         _eventOrAliasId = eventOrAliasId;
         _layoutName = layoutName;
@@ -66,54 +61,47 @@ public class QueueITEngine {
         _deltaSec = INITIAL_WAIT_RETRY_SEC;
     }
 
-    public void setViewDelay(int delayInterval)
-    {
+    public void setViewDelay(int delayInterval) {
         _delayInterval = delayInterval;
     }
 
-    public boolean isInQueue()
-    {
+    public boolean isInQueue() {
         return _isInQueue;
     }
 
-    public boolean IsRequestInProgress()
-    {
-        return _requestInProgress;
+    public boolean IsRequestInProgress() {
+        return _requestInProgress.get();
     }
 
     private boolean isOnline() {
         ConnectivityManager cm =
                 (ConnectivityManager) _context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        if(cm==null){
+            return true;
+        }
         NetworkInfo netInfo = cm.getActiveNetworkInfo();
         return netInfo != null && netInfo.isConnected();
     }
 
-    public void run(Activity activity, boolean clearCache) throws QueueITException
-    {
-        if (clearCache)
-        {
+    public void run(Activity activityContext, boolean clearCache) throws QueueITException {
+        if (clearCache) {
             _queueCache.clear();
         }
-        run(activity);
+        run(activityContext);
     }
 
-    public void run(Activity activity) throws QueueITException
-    {
-        _activity = activity;
-
-        if (_requestInProgress)
-        {
+    public void run(Activity activityContext) throws QueueITException {
+        if (_requestInProgress.getAndSet(true)) {
             throw new QueueITException("Request is already in progress");
         }
-
+        _context = activityContext;
         _checkConnectionHandler = new Handler();
         _checkConnection.run();
     }
 
     private Runnable _checkConnection = new Runnable() {
         public void run() {
-            if (isOnline())
-            {
+            if (isOnline()) {
                 runWithConnection();
                 return;
             }
@@ -127,18 +115,14 @@ public class QueueITEngine {
         }
     };
 
-    private void runWithConnection()
-    {
-        _requestInProgress = true;
-
-        if (!tryToShowQueueFromCache())
-        {
+    private void runWithConnection() {
+        if (!tryToShowQueueFromCache()) {
             tryEnqueue();
         }
+        _requestInProgress.set(false);
     }
 
-    private void registerReceivers()
-    {
+    private void registerReceivers() {
         LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(_context);
 
         localBroadcastManager.registerReceiver(_queuePassedBroadcastReceiver, new IntentFilter("on-queue-passed"));
@@ -147,8 +131,7 @@ public class QueueITEngine {
         localBroadcastManager.registerReceiver(_queueErrorBroadcastReceiver, new IntentFilter("on-queue-error"));
     }
 
-    private void unregisterReceivers()
-    {
+    private void unregisterReceivers() {
         LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(_context);
 
         localBroadcastManager.unregisterReceiver(_queuePassedBroadcastReceiver);
@@ -186,8 +169,7 @@ public class QueueITEngine {
         }
     };
 
-    private boolean tryToShowQueueFromCache()
-    {
+    private boolean tryToShowQueueFromCache() {
         if (_queueCache.isEmpty()) {
             return false;
         }
@@ -195,8 +177,7 @@ public class QueueITEngine {
         Calendar cachedTime = _queueCache.getUrlTtl();
         Calendar currentTime = Calendar.getInstance();
 
-        if (currentTime.compareTo(cachedTime) == -1)
-        {
+        if (currentTime.compareTo(cachedTime) < 0) {
             String queueUrl = _queueCache.getQueueUrl();
             String targetUrl = _queueCache.getTargetUrl();
             Log.v("QueueITEngine", String.format("Using queueUrl from cache: %s", queueUrl));
@@ -206,8 +187,7 @@ public class QueueITEngine {
         return false;
     }
 
-    private void showQueueWithOptionalDelay(final String queueUrl, final String targetUrl)
-    {
+    private void showQueueWithOptionalDelay(final String queueUrl, final String targetUrl) {
         raiseQueueViewWillOpen();
 
         Handler handler = new Handler();
@@ -219,43 +199,38 @@ public class QueueITEngine {
         handler.postDelayed(r, _delayInterval);
     }
 
-    private void showQueue(String queueUrl, final String targetUrl)
-    {
+    private void showQueue(String queueUrl, final String targetUrl) {
         registerReceivers();
 
         Intent intent = new Intent(_context, QueueActivity.class);
         intent.putExtra("queueUrl", queueUrl);
         intent.putExtra("targetUrl", targetUrl);
         intent.putExtra("userId", getUserId());
-        _activity.startActivity(intent);
+        _context.startActivity(intent);
     }
 
-    private void raiseQueueViewWillOpen()
-    {
+    private void raiseQueueViewWillOpen() {
         _queueListener.onQueueViewWillOpen();
         _isInQueue = true;
     }
 
-    private void raiseQueuePassed(String queueItToken)
-    {
+    private void raiseQueuePassed(String queueItToken) {
         _queueCache.clear();
-
         _queueListener.onQueuePassed(new QueuePassedInfo(queueItToken));
         _isInQueue = false;
-        _requestInProgress = false;
+
+        _requestInProgress.set(false);
     }
 
-    private void raiseQueueDisabled()
-    {
+    private void raiseQueueDisabled() {
         _queueListener.onQueueDisabled();
     }
 
-    private String getUserId(){
+    private String getUserId() {
         return Settings.Secure.getString(_context.getContentResolver(), Settings.Secure.ANDROID_ID);
     }
 
-    private void tryEnqueue()
-    {
+    private void tryEnqueue() {
         String userId = getUserId();
         String userAgent = new WebView(_context).getSettings().getUserAgentString();
         String sdkVersion = getSdkVersion();
@@ -263,28 +238,21 @@ public class QueueITEngine {
         QueueServiceListener queueServiceListener = new QueueServiceListener() {
             @Override
             public void onSuccess(String queueId, String queueUrlString, int queueUrlTtlInMinutes, String eventTargetUrl, String queueItToken) {
-                if (IsSafetyNet(queueId, queueUrlString))
-                {
+                if (IsSafetyNet(queueId, queueUrlString)) {
                     QueueITEngine.this.raiseQueuePassed(queueItToken);
-                }
-                else if (IsInQueue(queueId, queueUrlString))
-                {
+                } else if (IsInQueue(queueId, queueUrlString)) {
                     showQueueWithOptionalDelay(queueUrlString, eventTargetUrl);
 
                     Calendar queueUrlTtl = Calendar.getInstance();
                     queueUrlTtl.add(Calendar.MINUTE, queueUrlTtlInMinutes);
 
                     _queueCache.update(queueUrlString, queueUrlTtl, eventTargetUrl);
-                }
-                else if (IsIdle(queueId, queueUrlString))
-                {
+                } else if (IsIdle(queueId, queueUrlString)) {
                     showQueueWithOptionalDelay(queueUrlString, eventTargetUrl);
-                }
-                else
-                {
-                    _requestInProgress = false;
+                } else {
                     QueueITEngine.this.raiseQueueDisabled();
                 }
+                _requestInProgress.set(false);
             }
 
             @Override
@@ -292,9 +260,7 @@ public class QueueITEngine {
                 Log.v("QueueITEngine", String.format("Error: %s: %s", errorCode, errorMessage));
                 if (errorCode >= 400 && errorCode < 500) {
                     _queueListener.onError(Error.INVALID_RESPONSE, String.format("Error %s (%s)", errorCode, errorMessage));
-                }
-                else
-                {
+                } else {
                     QueueITEngine.this.enqueueRetryMonitor();
                 }
             }
@@ -317,10 +283,8 @@ public class QueueITEngine {
         return TextUtils.isEmpty(queueId) && !TextUtils.isEmpty(queueUrlString);
     }
 
-    private void enqueueRetryMonitor()
-    {
-        if (_deltaSec < MAX_RETRY_SEC)
-        {
+    private void enqueueRetryMonitor() {
+        if (_deltaSec < MAX_RETRY_SEC) {
             Handler handler = new Handler();
             Runnable r = new Runnable() {
                 public void run() {
@@ -330,25 +294,20 @@ public class QueueITEngine {
             handler.postDelayed(r, _deltaSec * 1000);
 
             _deltaSec = _deltaSec * 2;
-        }
-        else
-        {
+        } else {
             _deltaSec = INITIAL_WAIT_RETRY_SEC;
-            _requestInProgress = false;
+            _requestInProgress.set(false);
             _queueListener.onQueueItUnavailable();
         }
     }
 
-    private void updateQueuePageUrl(String queueUrl)
-    {
-        if (!_queueCache.isEmpty())
-        {
+    private void updateQueuePageUrl(String queueUrl) {
+        if (!_queueCache.isEmpty()) {
             _queueCache.update(queueUrl, _queueCache.getUrlTtl(), _queueCache.getTargetUrl());
         }
     }
 
-    private String getSdkVersion()
-    {
+    private String getSdkVersion() {
         return "Android-" + BuildConfig.VERSION_NAME;
     }
 }
