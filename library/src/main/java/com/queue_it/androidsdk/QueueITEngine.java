@@ -128,6 +128,7 @@ public class QueueITEngine {
         localBroadcastManager.registerReceiver(_queuePassedBroadcastReceiver, new IntentFilter("on-queue-passed"));
         localBroadcastManager.registerReceiver(_queueUrlChangedBroadcastReceiver, new IntentFilter("on-changed-queue-url"));
         localBroadcastManager.registerReceiver(_queueActivityClosedBroadcastReceiver, new IntentFilter("queue-activity-closed"));
+        localBroadcastManager.registerReceiver(_queueUserExitedBroadcastReceiver, new IntentFilter("queue-user-exited"));
         localBroadcastManager.registerReceiver(_queueErrorBroadcastReceiver, new IntentFilter("on-queue-error"));
     }
 
@@ -137,6 +138,7 @@ public class QueueITEngine {
         localBroadcastManager.unregisterReceiver(_queuePassedBroadcastReceiver);
         localBroadcastManager.unregisterReceiver(_queueUrlChangedBroadcastReceiver);
         localBroadcastManager.unregisterReceiver(_queueActivityClosedBroadcastReceiver);
+        localBroadcastManager.unregisterReceiver(_queueUserExitedBroadcastReceiver);
         localBroadcastManager.unregisterReceiver(_queueErrorBroadcastReceiver);
     }
 
@@ -159,6 +161,13 @@ public class QueueITEngine {
         public void onReceive(Context context, Intent intent) {
             String url = intent.getExtras().getString("url");
             updateQueuePageUrl(url);
+        }
+    };
+
+    private BroadcastReceiver _queueUserExitedBroadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            raiseUserExited();
         }
     };
 
@@ -212,6 +221,10 @@ public class QueueITEngine {
     private void raiseQueueViewWillOpen() {
         _queueListener.onQueueViewWillOpen();
         _isInQueue = true;
+    }
+
+    private void raiseUserExited(){
+        _queueListener.onUserExited();
     }
 
     private void raiseQueuePassed(String queueItToken) {
