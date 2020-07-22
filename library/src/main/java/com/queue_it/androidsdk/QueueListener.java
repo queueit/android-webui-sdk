@@ -7,4 +7,5 @@ public interface QueueListener {
     void onQueueDisabled();
     void onQueueItUnavailable();
     void onError(Error error, String errorMessage);
+    void onUserExited();
 }

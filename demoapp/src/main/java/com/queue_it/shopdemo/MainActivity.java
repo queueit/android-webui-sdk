@@ -90,6 +90,11 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                     @Override
+                    public void onUserExited() {
+                        Toast.makeText(getApplicationContext(), "onUserExited", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
                     public void onQueueDisabled() {
                         showResultActivity("The queue is disabled.", false);
                         queue_button.setEnabled(true);
@@ -106,6 +111,7 @@ public class MainActivity extends AppCompatActivity {
                         showResultActivity("Critical error: " + errorMessage, false);
                         queue_button.setEnabled(true);
                     }
+
                 });
                 try {
                     queueITEngine.run(MainActivity.this, !enableCacheRadioButton.isChecked());
