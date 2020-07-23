@@ -1,4 +1,4 @@
-name: Run Gradle on PRs
+name: Publish to bintray on closed PR
 on:
   pull_request:
   #pull_request:
@@ -13,7 +13,11 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     # Export properties
-    - run: echo "bintray.user=queueitdevs\nbintray.apiKey=$BINTRAY_APIKEY" >> ./local.properties
+    - name: Setup bintray credentials
+      env:
+        BINTRAY_APIKEY: ${{ secrets.BINTRAY_APIKEY }}
+      run: echo "bintray.user=queueitdevs
+    bintray.apiKey=$(BINTRAY_APIKEY)" >> ./local.properties
     - run: ls -la; pwd; cat ./local.properties
     - uses: actions/setup-java@v1
       with:
