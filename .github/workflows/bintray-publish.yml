@@ -16,8 +16,8 @@ jobs:
       env:
         BINTRAY_APIKEY: ${{ secrets.BINTRAY_APIKEY }}
       run: |
-        echo "bintray.user=queueitdevs" >> ./local.properties
-        echo "bintray.apiKey=${BINTRAY_APIKEY}" > ./local.properties
+        echo "bintray.user=queueitdevs" > ./local.properties
+        echo "bintray.apiKey=${BINTRAY_APIKEY}" >> ./local.properties
     - run: ls -la; pwd; cat ./local.properties
     - uses: actions/setup-java@v1
       with:
