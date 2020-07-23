@@ -10,6 +10,7 @@ jobs:
     - uses: actions/checkout@v2
     # Export properties
     - run: echo "bintray.user=queueitdevs\nbintray.apiKey=$BINTRAY_APIKEY" >> ./local.properties
+    - run: ls -la; pwd;
     - uses: actions/setup-java@v1
       with:
         java-version: 11
