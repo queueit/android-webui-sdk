@@ -8,6 +8,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v2
+    - name: Create local.properties
+      run: echo "" >> ./local.properties
     - uses: actions/setup-java@v1
       with:
         java-version: 11
