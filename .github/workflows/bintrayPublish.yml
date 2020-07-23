@@ -9,7 +9,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     # Export properties
-    - run: echo "bintray.user=queueitdevs\nbintray.apikey=$BINTRAY_APIKEY" >> ./local.properties
+    - run: echo "bintray.user=queueitdevs\nbintray.apiKey=$BINTRAY_APIKEY" >> ./local.properties
     - uses: actions/setup-java@v1
       with:
         java-version: 11
