@@ -5,23 +5,19 @@ on:
     branches: [master]
 
 jobs:
-  check-commit-message:
-    name: Check Commit Message
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check Commit Type
-        uses: gsactions/commit-message-checker@v1
-        #Commit should be like "^Merge pull request #"
-        with:
-          pattern: '^Merge pull request #\d'
-          flags: 'gm'
-          error: 'This action runs only on PR merges. Check your commit message.'
   gradle:
     strategy:
       matrix:
         os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
     steps:
+    - name: Check Commit Type
+      uses: gsactions/commit-message-checker@v1
+      #Commit should be like "^Merge pull request #"
+      with:
+        pattern: '^Merge pull request #\d'
+        flags: 'gm'
+        error: 'This action runs only on PR merges. Check your commit message.'
     - uses: actions/checkout@v2
     # Export properties
     - name: Setup bintray credentials
