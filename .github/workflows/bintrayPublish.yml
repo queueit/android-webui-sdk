@@ -1,14 +1,23 @@
-# .github/workflows/gradle-build-pr.yml
-name: Run Gradle on PRs
-on: pull_request
+name: Publish to bintray on closed PR
+on: push
+  #pull_request:
+  #  types: [closed]
+
 jobs:
   gradle:
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v2
+    # Export properties
+    - name: Setup bintray credentials
+      env:
+        BINTRAY_APIKEY: ${{ secrets.BINTRAY_APIKEY }}
+      run: echo "bintray.user=queueitdevs
+    bintray.apiKey=$(BINTRAY_APIKEY)" >> ./local.properties
+    - run: ls -la; pwd; cat ./local.properties
     - uses: actions/setup-java@v1
       with:
         java-version: 11
