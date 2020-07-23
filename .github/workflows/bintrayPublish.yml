@@ -1,6 +1,5 @@
 name: Publish to bintray on closed PR
-on:
-  pull_request:
+on: push
   #pull_request:
   #  types: [closed]
 
