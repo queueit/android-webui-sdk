@@ -1,9 +1,5 @@
 name: Run Gradle on PRs
-on:
-  pull_request:
-  #pull_request:
-  #  types: [closed]
-
+on: push
 jobs:
   gradle:
     strategy:
@@ -12,12 +8,9 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v2
-    # Export properties
-    - run: echo "bintray.user=queueitdevs\nbintray.apiKey=$BINTRAY_APIKEY" >> ./local.properties
-    - run: ls -la; pwd; cat ./local.properties
     - uses: actions/setup-java@v1
       with:
         java-version: 11
     - uses: eskatos/gradle-command-action@v1
       with:
-        arguments: bintrayUpload
+        arguments: build
