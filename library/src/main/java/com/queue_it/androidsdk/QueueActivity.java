@@ -88,6 +88,9 @@ public class QueueActivity extends AppCompatActivity {
                     urlString = QueueUrlHelper.updateUrl(urlString, userId);
                     Log.v("QueueITEngine", "URL intercepting: " + urlString);
                 }
+                if(isExitLineUrl(urlString)){
+                    broadcastUserExited();
+                }
                 broadcastChangedQueueUrl(urlString);
                 if(needsRewrite){
                     webview.loadUrl(urlString);
@@ -110,6 +113,17 @@ public class QueueActivity extends AppCompatActivity {
             return false;
         }
     };
+
+    private boolean isExitLineUrl(String urlString) {
+        URL url = null;
+        try {
+            url = new URL(urlString);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return url.getPath().equals("/exitline.aspx");
+    }
 
     private static void cleanupWebView(){
         if(previousWebView==null) return;
@@ -203,6 +217,11 @@ public class QueueActivity extends AppCompatActivity {
 
     private void broadcastQueueActivityClosed() {
         Intent intent = new Intent("queue-activity-closed");
+        LocalBroadcastManager.getInstance(QueueActivity.this).sendBroadcast(intent);
+    }
+
+    public void broadcastUserExited(){
+        Intent intent = new Intent("queue-user-exited");
         LocalBroadcastManager.getInstance(QueueActivity.this).sendBroadcast(intent);
     }
 
