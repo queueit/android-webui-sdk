@@ -1,8 +1,7 @@
 name: Publish to bintray on closed PR
 on:
-  # Trigger the workflow on push to master branch
-  push:
-    branches: [master]
+  release:
+    types: [released]
 
 jobs:
   gradle:
@@ -11,13 +10,6 @@ jobs:
         os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
     steps:
-    - name: Check Commit Type
-      uses: gsactions/commit-message-checker@v1
-      #Commit should be like "^Merge pull request #"
-      with:
-        pattern: '^Merge pull request #\d'
-        flags: 'gm'
-        error: 'This action runs only on PR merges. Check your commit message.'
     - uses: actions/checkout@v2
     # Export properties
     - name: Setup bintray credentials
