@@ -16,7 +16,7 @@ This whitepaper contains the needed information to perform a successful integrat
 Using Gradle:
 
 ```gradle
-compile 'com.queue_it.androidsdk:library:2.0.20'
+compile 'com.queue_it.androidsdk:library:2.0.23'
 ```
 
 ## Usage
