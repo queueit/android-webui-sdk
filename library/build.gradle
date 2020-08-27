@@ -1,12 +1,14 @@
 apply plugin: 'com.android.library'
+apply plugin: 'de.mobilej.unmock'
 def org = "queueit"
+
 android {
-    compileSdkVersion 26
+    compileSdkVersion 30
     buildToolsVersion "28.0.3"
 
     defaultConfig {
         minSdkVersion 15
-        targetSdkVersion 26
+        targetSdkVersion 30
         versionCode 1
         versionName "2.0.23"
     }
@@ -16,14 +18,19 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
 }
 
-
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    testCompile 'junit:junit:4.12'
-    compile 'com.android.support:appcompat-v7:26.1.0'
-    compile 'com.squareup.okhttp3:okhttp:3.3.1'
+    api fileTree(dir: 'libs', include: ['*.jar'])
+    testImplementation 'junit:junit:4.12'
+    testImplementation 'org.mockito:mockito-core:2.28.2'
+
+    api 'com.squareup.okhttp3:okhttp:3.3.1'
+    api 'com.android.support:appcompat-v7:26.1.0'
 }
 
 ext {
@@ -128,4 +135,10 @@ bintray {
             }
         }
     }
+}
+
+unMock {
+    keepStartingWith "android.net.Uri"
+    keepAndRename "java.nio.charset.Charsets" to "xjava.nio.charset.Charsets"
+    keepStartingWith "libcore."
 }

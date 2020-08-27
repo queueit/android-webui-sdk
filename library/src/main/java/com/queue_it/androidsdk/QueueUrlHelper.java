@@ -30,6 +30,7 @@ public abstract class QueueUrlHelper {
             if(queueUrl==null) return false;
             URL currentUrl = new URL(queueUrl);
             String query = currentUrl.getQuery();
+            if(query==null) query = "";
             String userIdQuery = String.format("userId=%s", userId);
             return !query.startsWith(userIdQuery) && !query.contains("&" + userIdQuery);
         } catch (MalformedURLException e) {
