@@ -41,7 +41,7 @@ public class UriOverriderTest {
   }
 
   @Test
-  public void givenUserIsNavigatingToAnotherPageThenLoadShouldBeCancelled() {
+  public void givenUserIsNavigatingToExternalPageThenLoadShouldBeCancelledAndIntentShouldBeStarted() {
     UriOverrider testObj = new UriOverrider();
     testObj.setQueue(Uri.parse("https://useraccount.queue-it.net/app/enqueue"));
     testObj.setTarget(Uri.parse("https://google.com"));
@@ -152,12 +152,13 @@ public class UriOverriderTest {
   }
 
   @Test
-  public void givenUserIsNavigatingToDeepUrlThenLoadShouldBeCancelled() {
+  public void givenUserIsNavigatingToExternalDeepUrlThenLoadShouldBeCancelledAndIntentShouldBeStarted() {
     UriOverrider testObj = new UriOverrider();
     testObj.setQueue(Uri.parse("https://useraccount.queue-it.net/app/enqueue"));
     testObj.setTarget(Uri.parse("https://google.com"));
     testObj.setUserId("myuser1");
     WebView webView = getMockedWebview();
+    ArgumentCaptor<Intent> argument = ArgumentCaptor.forClass(Intent.class);
 
     final AtomicBoolean urlChangeHappened = new AtomicBoolean(false);
     boolean loadCancelled = testObj.handleNavigationRequest("myapp://go?tab=activity1", webView, new UriOverrideWrapper() {
@@ -174,6 +175,8 @@ public class UriOverriderTest {
 
     assertTrue(loadCancelled);
     assertFalse(urlChangeHappened.get());
+
+    verify(webView.getContext()).startActivity(argument.capture());
   }
 
   @Test
@@ -230,7 +233,7 @@ public class UriOverriderTest {
 
 
   @Test
-  public void givenUserNavigatesToQueueItPageUrlShouldIncludeUserId() {
+  public void givenUserIsNavigatingToQueueItPageUrlShouldIncludeUserId() {
     UriOverrider testObj = new UriOverrider();
     testObj.setQueue(Uri.parse("https://customer.queue-it.net/app/enqueue"));
     testObj.setTarget(Uri.parse("http://localhost:3000"));
