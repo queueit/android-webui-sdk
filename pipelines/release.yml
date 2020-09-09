@@ -1,0 +1,35 @@
+name: 2.0$(rev:.r)
+trigger:
+  - none
+
+pool:
+  vmImage: 'macos-latest'
+
+jobs:
+  - job: BuildTestRelease
+    displayName: Build, test and release
+    steps:
+      - checkout: self
+        clean: true
+
+      - task: Bash@3
+        displayName: Create local.properties
+        inputs:
+          targetType: 'inline'
+          script: |
+            echo "bintray.user=queueitdevs" > ./local.properties
+            echo "bintray.apiKey=${BINTRAY_APIKEY}" >> ./local.properties
+        env:
+          BINTRAY_APIKEY: $(BINTRAY_APIKEY)
+
+      - task: Gradle@2
+        displayName: Build
+        inputs:
+          gradleWrapperFile: 'gradlew'
+          publishJUnitResults: true
+          testResultsFiles: '**/TEST-*.xml'
+          javaHomeOption: 'JDKVersion'
+          jdkVersionOption: '1.11'
+          gradleOptions: '-Xmx3072m'
+          sonarQubeRunAnalysis: false
+          tasks: 'assembleDebug :library:test bintrayUpload'
