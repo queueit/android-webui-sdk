@@ -129,11 +129,12 @@ afterEvaluate {
         pkg {
             repo = bintrayRepo
             name = bintrayName
+            userOrg = org
             desc = libraryDescription
             websiteUrl = siteUrl
             vcsUrl = gitUrl
             licenses = allLicenses
-            publish = false
+            publish = true
             publicDownloadNumbers = true
             version {
                 desc = libraryDescription
