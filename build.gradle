@@ -29,6 +29,7 @@ allprojects {
         bintrayRepo = 'maven'
         bintrayName = 'com.queue_it.androidsdk'
         groupId = 'com.queue_it.androidsdk'
+        bintrayOrg = "${org}"
 
         libraryName = 'com.queue_it.androidsdk'
         libraryDescription = 'Android SDK to integrate with Queue-it'

@@ -129,7 +129,7 @@ afterEvaluate {
         pkg {
             repo = bintrayRepo
             name = bintrayName
-            userOrg = org
+            userOrg = bintrayOrg
             desc = libraryDescription
             websiteUrl = siteUrl
             vcsUrl = gitUrl
