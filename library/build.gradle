@@ -1,16 +1,15 @@
 apply plugin: 'com.android.library'
 apply plugin: 'de.mobilej.unmock'
-def org = "queueit"
 
 android {
     compileSdkVersion 30
-    buildToolsVersion "28.0.3"
+    buildToolsVersion "29.0.2"
 
     defaultConfig {
         minSdkVersion 15
         targetSdkVersion 30
         versionCode 1
-        versionName "2.0.24"
+        versionName libraryVersion
     }
     buildTypes {
         release {
@@ -26,69 +25,32 @@ android {
     lintOptions {
         abortOnError false
     }
+
+    flavorDimensions "androidx"
+    productFlavors{
+        library_androidx
+        library
+    }
 }
 
 dependencies {
     api fileTree(dir: 'libs', include: ['*.jar'])
-    testImplementation 'junit:junit:4.12'
+
+    testImplementation 'junit:junit:4.13'
     testImplementation 'org.mockito:mockito-core:2.28.2'
 
     api 'com.squareup.okhttp3:okhttp:3.3.1'
-    api 'com.android.support:appcompat-v7:28.0.0'
-}
+    library_androidxApi 'androidx.appcompat:appcompat:1.2.0'
+    library_androidxApi 'androidx.localbroadcastmanager:localbroadcastmanager:1.0.0'
 
-ext {
-    bintrayRepo = 'maven'
-    bintrayName = 'com.queue_it.androidsdk'
-
-    publishedGroupId = 'com.queue_it.androidsdk'
-    libraryName = 'com.queue_it.androidsdk'
-    artifact = 'library'
-
-    libraryDescription = 'Android SDK to integrate with Queue-it'
-
-    siteUrl = "https://github.com/${org}/android-webui-sdk"
-    gitUrl = "https://github.com/${org}/android-webui-sdk.git"
-
-    libraryVersion = android.defaultConfig.versionName
-
-    licenseName = 'MIT'
-    licenseUrl = 'MIT'
-    allLicenses = ["MIT"]
+    //noinspection GradleCompatible
+    libraryImplementation 'com.android.support:appcompat-v7:28.0.0'
 }
 
 apply plugin: 'com.github.dcendents.android-maven'
+apply plugin: 'maven-publish'
 
-group = publishedGroupId                               // Maven Group ID for the artifact
-
-install {
-    repositories.mavenInstaller {
-        pom {
-            project {
-                packaging 'aar'
-                groupId publishedGroupId
-                artifactId artifact
-
-                name libraryName
-                description libraryDescription
-                url siteUrl
-
-                licenses {
-                    license {
-                        name licenseName
-                        url licenseUrl
-                    }
-                }
-                scm {
-                    connection gitUrl
-                    developerConnection gitUrl
-                    url siteUrl
-
-                }
-            }
-        }
-    }
-}
+group = groupId                               // Maven Group ID for the artifact
 
 apply plugin: 'com.jfrog.bintray'
 
@@ -114,35 +76,10 @@ artifacts {
     archives sourcesJar
 }
 
-Properties properties = new Properties()
-properties.load(project.rootProject.file('local.properties').newDataInputStream())
-
-bintray {
-    user = properties.getProperty("bintray.user")
-    key = properties.getProperty("bintray.apiKey")
-
-    configurations = ['archives']
-    pkg {
-        repo = bintrayRepo
-        name = bintrayName
-        userOrg = "${org}"
-        desc = libraryDescription
-        websiteUrl = siteUrl
-        vcsUrl = gitUrl
-        licenses = allLicenses
-        publish = true
-        publicDownloadNumbers = true
-        version {
-            desc = libraryDescription
-            gpg {
-                sign = true
-            }
-        }
-    }
-}
-
 unMock {
     keepStartingWith "android.net.Uri"
     keepAndRename "java.nio.charset.Charsets" to "xjava.nio.charset.Charsets"
     keepStartingWith "libcore."
 }
+
+apply from: '../publish.gradle' // Makes this library publishable

@@ -26,12 +26,12 @@ public class UriOverriderTest {
     final AtomicBoolean queuePassed = new AtomicBoolean(false);
     boolean loadCancelled = testObj.handleNavigationRequest("https://google.com", webView, new UriOverrideWrapper() {
       @Override
-      void onQueueUrlChange(String uri) {
+      protected void onQueueUrlChange(String uri) {
         System.out.print(uri);
       }
 
       @Override
-      void onPassed(String queueItToken) {
+      protected void onPassed(String queueItToken) {
         queuePassed.set(true);
       }
     });
@@ -52,12 +52,12 @@ public class UriOverriderTest {
 
     boolean loadCancelled = testObj.handleNavigationRequest(otherPage, webView, new UriOverrideWrapper() {
       @Override
-      void onQueueUrlChange(String uri) {
+      protected void onQueueUrlChange(String uri) {
         System.out.print(uri);
       }
 
       @Override
-      void onPassed(String queueItToken) {
+      protected void onPassed(String queueItToken) {
         queuePassed.set(true);
       }
     });
@@ -78,12 +78,12 @@ public class UriOverriderTest {
 
     boolean loadCancelled = testObj.handleNavigationRequest("myapp://page1", webView, new UriOverrideWrapper() {
       @Override
-      void onQueueUrlChange(String uri) {
+      protected void onQueueUrlChange(String uri) {
         System.out.print(uri);
       }
 
       @Override
-      void onPassed(String queueItToken) {
+      protected void onPassed(String queueItToken) {
         queuePassed.set(true);
       }
     });
@@ -101,12 +101,12 @@ public class UriOverriderTest {
     final AtomicBoolean queuePassed = new AtomicBoolean(false);
     boolean loadCancelled = testObj.handleNavigationRequest("https://mypage.com", webView, new UriOverrideWrapper() {
       @Override
-      void onQueueUrlChange(String uri) {
+      protected void onQueueUrlChange(String uri) {
         System.out.print(uri);
       }
 
       @Override
-      void onPassed(String queueItToken) {
+      protected void onPassed(String queueItToken) {
         queuePassed.set(true);
       }
     });
@@ -137,12 +137,12 @@ public class UriOverriderTest {
     final AtomicBoolean queuePassed = new AtomicBoolean(false);
     boolean loadCancelled = testObj.handleNavigationRequest("myapp://page1", webView, new UriOverrideWrapper() {
       @Override
-      void onQueueUrlChange(String uri) {
+      protected void onQueueUrlChange(String uri) {
         System.out.print(uri);
       }
 
       @Override
-      void onPassed(String queueItToken) {
+      protected void onPassed(String queueItToken) {
         queuePassed.set(true);
       }
     });
@@ -163,12 +163,12 @@ public class UriOverriderTest {
     final AtomicBoolean urlChangeHappened = new AtomicBoolean(false);
     boolean loadCancelled = testObj.handleNavigationRequest("myapp://go?tab=activity1", webView, new UriOverrideWrapper() {
       @Override
-      void onQueueUrlChange(String uri) {
+      protected void onQueueUrlChange(String uri) {
         urlChangeHappened.set(true);
       }
 
       @Override
-      void onPassed(String queueItToken) {
+      protected void onPassed(String queueItToken) {
         System.out.print(queueItToken);
       }
     });
@@ -190,12 +190,12 @@ public class UriOverriderTest {
     final AtomicBoolean urlChangeHappened = new AtomicBoolean(false);
     boolean loadCancelled = testObj.handleNavigationRequest("https://useraccount.queue-it.net/app/leaveLine", webView, new UriOverrideWrapper() {
       @Override
-      void onQueueUrlChange(String uri) {
+      protected void onQueueUrlChange(String uri) {
         urlChangeHappened.set(true);
       }
 
       @Override
-      void onPassed(String queueItToken) {
+      protected void onPassed(String queueItToken) {
         System.out.print(queueItToken);
       }
     });
@@ -217,12 +217,12 @@ public class UriOverriderTest {
 
     boolean loadCancelled = testObj.handleNavigationRequest("http://customer.queue-it.net/exitline.aspx?c=customer&e=otherroom2&q=qid&cid=en-US&l=myLayout&sdkv=Android-2.0.22", webView, new UriOverrideWrapper() {
       @Override
-      void onQueueUrlChange(String uri) {
+      protected void onQueueUrlChange(String uri) {
         urlChangeHappened.set(true);
       }
 
       @Override
-      void onPassed(String queueItToken) {
+      protected void onPassed(String queueItToken) {
         System.out.print(queueItToken);
       }
     });
@@ -245,12 +245,12 @@ public class UriOverriderTest {
 
     boolean loadCancelled = testObj.handleNavigationRequest("http://customer.queue-it.net/exitline.aspx?c=customer&e=otherroom2&q=qid&cid=en-US&l=myLayout&sdkv=Android-2.0.22", webView, new UriOverrideWrapper() {
       @Override
-      void onQueueUrlChange(String uri) {
+      protected void onQueueUrlChange(String uri) {
         assertEquals(expectedRewrittenUrl, uri);
       }
 
       @Override
-      void onPassed(String queueItToken) {
+      protected void onPassed(String queueItToken) {
       }
     });
 

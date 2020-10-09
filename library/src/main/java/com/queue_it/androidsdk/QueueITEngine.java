@@ -4,12 +4,10 @@ import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Handler;
 import android.provider.Settings;
-import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.webkit.WebView;
@@ -19,6 +17,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class QueueITEngine {
 
+    private final IWaitingRoomStateBroadcaster _stateBroadcaster;
     private String _customerId;
     private String _eventOrAliasId;
     private String _layoutName;
@@ -59,6 +58,7 @@ public class QueueITEngine {
         _queueListener = queueListener;
         _queueCache = new QueueCache(_context, customerId, eventOrAliasId);
         _deltaSec = INITIAL_WAIT_RETRY_SEC;
+        _stateBroadcaster = new WaitingRoomStateBroadcaster(_context);
     }
 
     public void setViewDelay(int delayInterval) {
@@ -76,7 +76,7 @@ public class QueueITEngine {
     private boolean isOnline() {
         ConnectivityManager cm =
                 (ConnectivityManager) _context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        if(cm==null){
+        if (cm == null) {
             return true;
         }
         NetworkInfo netInfo = cm.getActiveNetworkInfo();
@@ -122,26 +122,6 @@ public class QueueITEngine {
         _requestInProgress.set(false);
     }
 
-    private void registerReceivers() {
-        LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(_context);
-
-        localBroadcastManager.registerReceiver(_queuePassedBroadcastReceiver, new IntentFilter("on-queue-passed"));
-        localBroadcastManager.registerReceiver(_queueUrlChangedBroadcastReceiver, new IntentFilter("on-changed-queue-url"));
-        localBroadcastManager.registerReceiver(_queueActivityClosedBroadcastReceiver, new IntentFilter("queue-activity-closed"));
-        localBroadcastManager.registerReceiver(_queueUserExitedBroadcastReceiver, new IntentFilter("queue-user-exited"));
-        localBroadcastManager.registerReceiver(_queueErrorBroadcastReceiver, new IntentFilter("on-queue-error"));
-    }
-
-    private void unregisterReceivers() {
-        LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(_context);
-
-        localBroadcastManager.unregisterReceiver(_queuePassedBroadcastReceiver);
-        localBroadcastManager.unregisterReceiver(_queueUrlChangedBroadcastReceiver);
-        localBroadcastManager.unregisterReceiver(_queueActivityClosedBroadcastReceiver);
-        localBroadcastManager.unregisterReceiver(_queueUserExitedBroadcastReceiver);
-        localBroadcastManager.unregisterReceiver(_queueErrorBroadcastReceiver);
-    }
-
     private BroadcastReceiver _queuePassedBroadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -174,7 +154,11 @@ public class QueueITEngine {
     private BroadcastReceiver _queueActivityClosedBroadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            unregisterReceivers();
+            _stateBroadcaster.unregisterReceivers(_queuePassedBroadcastReceiver,
+                    _queueUrlChangedBroadcastReceiver,
+                    _queueActivityClosedBroadcastReceiver,
+                    _queueUserExitedBroadcastReceiver,
+                    _queueErrorBroadcastReceiver);
         }
     };
 
@@ -209,7 +193,11 @@ public class QueueITEngine {
     }
 
     private void showQueue(String queueUrl, final String targetUrl) {
-        registerReceivers();
+        _stateBroadcaster.registerReceivers(_queuePassedBroadcastReceiver,
+                _queueUrlChangedBroadcastReceiver,
+                _queueActivityClosedBroadcastReceiver,
+                _queueUserExitedBroadcastReceiver,
+                _queueErrorBroadcastReceiver);
 
         Intent intent = new Intent(_context, QueueActivity.class);
         intent.putExtra("queueUrl", queueUrl);
@@ -223,7 +211,7 @@ public class QueueITEngine {
         _isInQueue = true;
     }
 
-    private void raiseUserExited(){
+    private void raiseUserExited() {
         _queueListener.onUserExited();
     }
 

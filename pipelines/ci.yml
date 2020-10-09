@@ -16,7 +16,7 @@ steps:
     displayName: Build
     inputs:
       gradleWrapperFile: 'gradlew'
-      tasks: 'assembleDebug :library:test'
+      tasks: 'assembleLibrary_androidx :library:assembleLibrary :library:test'
       publishJUnitResults: true
       testResultsFiles: '**/TEST-*.xml'
       javaHomeOption: 'JDKVersion'

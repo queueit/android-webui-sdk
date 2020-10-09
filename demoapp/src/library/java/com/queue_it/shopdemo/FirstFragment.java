@@ -1,16 +1,14 @@
 package com.queue_it.shopdemo;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import android.support.annotation.NonNull;
-import android.support.v4.app.Fragment;
 
-import androidx.navigation.fragment.NavHostFragment;
-
-public class SecondFragment extends Fragment {
+public class FirstFragment extends Fragment {
 
   @Override
   public View onCreateView(
@@ -18,17 +16,17 @@ public class SecondFragment extends Fragment {
           Bundle savedInstanceState
   ) {
     // Inflate the layout for this fragment
-    return inflater.inflate(R.layout.fragment_second, container, false);
+    return inflater.inflate(R.layout.fragment_first, container, false);
   }
 
   public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
 
-    view.findViewById(R.id.button_second).setOnClickListener(new View.OnClickListener() {
+    view.findViewById(R.id.button_first).setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View view) {
-        NavHostFragment.findNavController(SecondFragment.this)
-                .navigate(R.id.action_SecondFragment_to_FirstFragment);
+//        NavHostFragment.findNavController(FirstFragment.this)
+//                .navigate(R.id.action_FirstFragment_to_SecondFragment);
       }
     });
   }
