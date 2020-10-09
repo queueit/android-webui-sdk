@@ -31,4 +31,4 @@ jobs:
           jdkVersionOption: '1.11'
           gradleOptions: '-Xmx3072m'
           sonarQubeRunAnalysis: false
-          tasks: 'assembleDebug :library:test bintrayUpload'
+          tasks: 'assembleLibrary_androidx :library:assembleLibrary bintrayUpload'
