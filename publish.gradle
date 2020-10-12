@@ -74,7 +74,7 @@ publishing.publications {
             group groupId
             version libraryVersion
 
-            artifact variant.packageLibraryProvider.get().archivePath // This is the aar library
+            artifact variant.outputs[0].packageLibrary // This is the aar library
             artifact sourcesJar
             artifact javadocJar
 
