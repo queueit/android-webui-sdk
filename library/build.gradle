@@ -38,6 +38,7 @@ dependencies {
 
     testImplementation 'junit:junit:4.13'
     testImplementation 'org.mockito:mockito-core:2.28.2'
+    testImplementation 'pl.pragmatists:JUnitParams:1.0.5'
 
     api 'com.squareup.okhttp3:okhttp:3.3.1'
     library_androidxApi 'androidx.appcompat:appcompat:1.2.0'

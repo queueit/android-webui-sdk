@@ -6,25 +6,85 @@ import android.net.Uri;
 import android.webkit.WebView;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import junitparams.JUnitParamsRunner;
+import junitparams.Parameters;
+
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
+
+@RunWith(JUnitParamsRunner.class)
 public class UriOverriderTest {
+
+  @Test
+  @Parameters({
+          "https://queue-it.com/what-is-this.html?customerId=vavatest&eventId=testendedroom&queueId=00000000-0000-0000-0000-000000000000&language=en-US"
+  })
+  public void givenUserIsNavigatingToBlockedPage_ThenLoadShouldBeCancelled(String destinationUrl) {
+    UriOverrider testObj = new UriOverrider();
+    testObj.setQueue(Uri.parse("https://vavatest.queue-it.net/app/enqueue"));
+    testObj.setTarget(Uri.parse("https://google.com"));
+    WebView webView = mock(WebView.class);
+    final AtomicBoolean queuePassed = new AtomicBoolean(false);
+    boolean loadCancelled = testObj.handleNavigationRequest(destinationUrl, webView, new UriOverrideWrapper() {
+      @Override
+      protected void onQueueUrlChange(String uri) {
+        System.out.print(uri);
+      }
+
+      @Override
+      protected void onPassed(String queueItToken) {
+        queuePassed.set(true);
+      }
+
+    });
+
+    assertTrue(loadCancelled);
+    assertFalse(queuePassed.get());
+  }
+
+  @Test
+  @Parameters({
+          "https://queue-it.com/what-is-this.html?customerId=vavatest&eventId=testendedroom&queueId=00000000-0000-0000-0000-000000000000&language=en-US"
+  })
+  public void givenuserIsNavigatingToUrlOnTargetDomainButNotTargetUrl_ThenQueueSHouldNotBePassedAndWebBrowserShouldOpen(String destinationUrl){
+    UriOverrider testObj = new UriOverrider();
+    testObj.setQueue(Uri.parse("https://vavatest.queue-it.net/app/enqueue"));
+    testObj.setTarget(Uri.parse("https://google.com/q=iamthetarget"));
+    WebView webView = mock(WebView.class);
+    final AtomicBoolean queuePassed = new AtomicBoolean(false);
+
+    boolean loadCancelled = testObj.handleNavigationRequest(destinationUrl, webView, new UriOverrideWrapper() {
+      @Override
+      protected void onQueueUrlChange(String uri) {
+        System.out.print(uri);
+      }
+
+      @Override
+      protected void onPassed(String queueItToken) {
+        queuePassed.set(true);
+      }
+    });
+
+    assertTrue(loadCancelled);
+    assertFalse(queuePassed.get());
+  }
 
   @Test
   public void givenUserIsRedirectedToTargetLoadShouldBeCancelled() {
     UriOverrider testObj = new UriOverrider();
     testObj.setQueue(Uri.parse("https://useraccount.queue-it.net/app/enqueue"));
     testObj.setTarget(Uri.parse("https://google.com"));
-    WebView webView = mock(WebView.class);
+    WebView webView = getMockedWebview();
     final AtomicBoolean queuePassed = new AtomicBoolean(false);
-    boolean loadCancelled = testObj.handleNavigationRequest("https://google.com", webView, new UriOverrideWrapper() {
+    boolean loadCancelled = testObj.handleNavigationRequest("https://google.com?queueittoken=a", webView, new UriOverrideWrapper() {
       @Override
       protected void onQueueUrlChange(String uri) {
         System.out.print(uri);
@@ -99,7 +159,7 @@ public class UriOverriderTest {
     testObj.setTarget(Uri.parse("https://mypage.com"));
     WebView webView = mock(WebView.class);
     final AtomicBoolean queuePassed = new AtomicBoolean(false);
-    boolean loadCancelled = testObj.handleNavigationRequest("https://mypage.com", webView, new UriOverrideWrapper() {
+    boolean loadCancelled = testObj.handleNavigationRequest("https://mypage.com?queueittoken=1", webView, new UriOverrideWrapper() {
       @Override
       protected void onQueueUrlChange(String uri) {
         System.out.print(uri);

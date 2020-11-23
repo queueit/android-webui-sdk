@@ -122,7 +122,7 @@ public class QueueService {
                         @Override
                         public void run() {
                             String updatedQueueUrl = QueueUrlHelper.urlUpdateNeeded(queueUrl, _userId) ?
-                                    QueueUrlHelper.updateUrl(queueUrl, _userId) :
+                                    QueueUrlHelper.updateUrl(queueUrl, _userId).toString() :
                                     queueUrl;
                             _queueServiceListener.onSuccess(queueId, updatedQueueUrl, queueUrlTtlInMinutes, eventTargetUrl, queueItToken);
                         }

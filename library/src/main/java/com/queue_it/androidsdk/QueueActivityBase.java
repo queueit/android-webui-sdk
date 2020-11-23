@@ -88,7 +88,6 @@ public class QueueActivityBase {
                 }
             });
         }
-
     };
 
     private static void cleanupWebView() {
