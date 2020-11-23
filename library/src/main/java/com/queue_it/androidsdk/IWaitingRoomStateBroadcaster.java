@@ -13,15 +13,19 @@ public interface IWaitingRoomStateBroadcaster {
 
     void broadcastQueueError(String errorMessage);
 
+    void broadcastWebViewClosed();
+
     void registerReceivers(BroadcastReceiver queuePassedBroadcastReceiver,
                            BroadcastReceiver queueUrlChangedBroadcastReceiver,
                            BroadcastReceiver queueActivityClosedBroadcastReceiver,
                            BroadcastReceiver queueUserExitedBroadcastReceiver,
-                           BroadcastReceiver queueErrorBroadcastReceiver);
+                           BroadcastReceiver queueErrorBroadcastReceiver,
+                           BroadcastReceiver webViewClosedBroadcastReceiver);
 
     void unregisterReceivers(BroadcastReceiver queuePassedBroadcastReceiver,
                              BroadcastReceiver queueUrlChangedBroadcastReceiver,
                              BroadcastReceiver queueActivityClosedBroadcastReceiver,
                              BroadcastReceiver queueUserExitedBroadcastReceiver,
-                             BroadcastReceiver queueErrorBroadcastReceiver);
+                             BroadcastReceiver queueErrorBroadcastReceiver,
+                             BroadcastReceiver webViewClosedBroadcastReceiver);
 }

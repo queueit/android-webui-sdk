@@ -56,14 +56,22 @@ QueueITEngine engine = new QueueITEngine(YourActivity.this, customerId, eventOrA
     }
 
     // This callback will be triggered when the mobile application can't reach Queue-it's servers.
-    // It can be any one of these scenarioes:
+    // It can be any one of these scenarios:
     // 1) Queue-it's servers can't be reached (connectivity issue).
     // 2) SSL connection error if custom queue domain is used having an invalid certificate. 
     // 3) Client receives HTTP 4xx response. 
     // In all these cases is most likely a misconfiguration of the queue settings:
     // Invalid customer ID, event alias ID or cname setting on queue (GO Queue-it portal -> event settings).
     @Override
-    public void onError(Error error, String errorMessage) { } // Called on connectivity problems
+    public void onError(Error error, String errorMessage) {
+    } // Called on connectivity problems
+
+    // This callback will be triggered after a user clicks a close link in the layout and the WebView closes.
+    // The close link is "queueit://close". Whenever the user navigates to this link, the SDK intercepts the navigation
+    // and closes the WebView.
+    @Override
+    public void onWebViewClosed(){
+    }
   });
 
   try {

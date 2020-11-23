@@ -151,6 +151,13 @@ public class QueueITEngine {
         }
     };
 
+    private BroadcastReceiver _webViewClosedBroadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            raiseWebViewClosed();
+        }
+    };
+
     private BroadcastReceiver _queueActivityClosedBroadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -158,7 +165,8 @@ public class QueueITEngine {
                     _queueUrlChangedBroadcastReceiver,
                     _queueActivityClosedBroadcastReceiver,
                     _queueUserExitedBroadcastReceiver,
-                    _queueErrorBroadcastReceiver);
+                    _queueErrorBroadcastReceiver,
+                    _webViewClosedBroadcastReceiver);
         }
     };
 
@@ -197,7 +205,8 @@ public class QueueITEngine {
                 _queueUrlChangedBroadcastReceiver,
                 _queueActivityClosedBroadcastReceiver,
                 _queueUserExitedBroadcastReceiver,
-                _queueErrorBroadcastReceiver);
+                _queueErrorBroadcastReceiver,
+                _webViewClosedBroadcastReceiver);
 
         Intent intent = new Intent(_context, QueueActivity.class);
         intent.putExtra("queueUrl", queueUrl);
@@ -225,6 +234,10 @@ public class QueueITEngine {
 
     private void raiseQueueDisabled() {
         _queueListener.onQueueDisabled();
+    }
+
+    private void raiseWebViewClosed(){
+        _queueListener.onWebViewClosed();
     }
 
     private String getUserId() {

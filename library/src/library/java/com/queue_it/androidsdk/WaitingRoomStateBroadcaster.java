@@ -18,7 +18,8 @@ public class WaitingRoomStateBroadcaster implements IWaitingRoomStateBroadcaster
                                   BroadcastReceiver onUrlChanged,
                                   BroadcastReceiver onActivityClosed,
                                   BroadcastReceiver onUserExited,
-                                  BroadcastReceiver onError) {
+                                  BroadcastReceiver onError,
+                                  BroadcastReceiver onWebViewClosed) {
         LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(_context);
 
         localBroadcastManager.registerReceiver(onPassed, new IntentFilter("on-queue-passed"));
@@ -26,13 +27,15 @@ public class WaitingRoomStateBroadcaster implements IWaitingRoomStateBroadcaster
         localBroadcastManager.registerReceiver(onActivityClosed, new IntentFilter("queue-activity-closed"));
         localBroadcastManager.registerReceiver(onUserExited, new IntentFilter("queue-user-exited"));
         localBroadcastManager.registerReceiver(onError, new IntentFilter("on-queue-error"));
+        localBroadcastManager.registerReceiver(onWebViewClosed, new IntentFilter("on-webview-close"));
     }
 
     public void unregisterReceivers(BroadcastReceiver onPassed,
                                     BroadcastReceiver onUrlChanged,
                                     BroadcastReceiver onActivityClosed,
                                     BroadcastReceiver onUserExited,
-                                    BroadcastReceiver onError) {
+                                    BroadcastReceiver onError,
+                                    BroadcastReceiver onWebViewClosed) {
         LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(_context);
 
         localBroadcastManager.unregisterReceiver(onPassed);
@@ -40,6 +43,7 @@ public class WaitingRoomStateBroadcaster implements IWaitingRoomStateBroadcaster
         localBroadcastManager.unregisterReceiver(onActivityClosed);
         localBroadcastManager.unregisterReceiver(onUserExited);
         localBroadcastManager.unregisterReceiver(onError);
+        localBroadcastManager.unregisterReceiver(onWebViewClosed);
     }
 
     @Override
@@ -72,6 +76,12 @@ public class WaitingRoomStateBroadcaster implements IWaitingRoomStateBroadcaster
     public void broadcastQueueError(String errorMessage) {
         Intent intent = new Intent("on-queue-error");
         intent.putExtra("error-message", errorMessage);
+        LocalBroadcastManager.getInstance(_context).sendBroadcast(intent);
+    }
+
+    @Override
+    public void broadcastWebViewClosed() {
+        Intent intent = new Intent("on-webview-close");
         LocalBroadcastManager.getInstance(_context).sendBroadcast(intent);
     }
 }

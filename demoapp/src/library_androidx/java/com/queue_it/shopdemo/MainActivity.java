@@ -109,6 +109,11 @@ public class MainActivity extends AppCompatActivity {
                         queue_button.setEnabled(true);
                     }
 
+                    @Override
+                    public void onWebViewClosed(){
+                        showResultActivity("WebView closed ", false);
+                        queue_button.setEnabled(true);
+                    }
                 });
                 try {
                     queueITEngine.run(MainActivity.this, !enableCacheRadioButton.isChecked());

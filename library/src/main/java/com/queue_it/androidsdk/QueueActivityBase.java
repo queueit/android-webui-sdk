@@ -86,6 +86,12 @@ public class QueueActivityBase {
                     broadcaster.broadcastQueuePassed(queueItToken);
                     disposeWebview(webview);
                 }
+
+                @Override
+                protected void onCloseClicked() {
+                    broadcaster.broadcastWebViewClosed();
+                    disposeWebview(webview);
+                }
             });
         }
     };

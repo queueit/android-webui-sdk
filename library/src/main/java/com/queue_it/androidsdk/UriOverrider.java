@@ -56,7 +56,18 @@ public class UriOverrider implements IUriOverrider {
                 && destinationPath.equals(targetPath);
     }
 
-    private boolean handleDeepLink(WebView webview, Uri destinationUri) {
+    private boolean isCloseLink(Uri uri){
+        if(!uri.getScheme().equals("queueit")){
+            return false;
+        }
+        return uri.getHost().equals("close");
+    }
+
+    private boolean handleDeepLink(WebView webview, Uri destinationUri, UriOverrideWrapper uriOverride){
+        if(isCloseLink(destinationUri)){
+            uriOverride.onCloseClicked();
+            return true;
+        }
         Intent browserIntent = new Intent(Intent.ACTION_VIEW, destinationUri);
         webview.getContext().startActivity(browserIntent);
         return true;
@@ -69,7 +80,7 @@ public class UriOverrider implements IUriOverrider {
         boolean isWeb = destinationUri.getScheme() != null && (destinationUri.getScheme().equals("http")
                 || destinationUri.getScheme().equals("https"));
         if (!isWeb) {
-            return handleDeepLink(webview, destinationUri);
+            return handleDeepLink(webview, destinationUri, uriOverride);
         }
         if (isBlockedUri(destinationUri)) {
             return true;
