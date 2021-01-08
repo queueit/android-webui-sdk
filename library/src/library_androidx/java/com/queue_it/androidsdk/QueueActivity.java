@@ -1,10 +1,9 @@
 package com.queue_it.androidsdk;
 
+import android.app.Activity;
 import android.os.Bundle;
 
-import androidx.appcompat.app.AppCompatActivity;
-
-public class QueueActivity extends AppCompatActivity {
+public class QueueActivity extends Activity {
 
     private QueueActivityBase base = new QueueActivityBase(this);
 

@@ -321,7 +321,11 @@ public class QueueITEngine {
         }
     }
 
-    private String getSdkVersion() {
+    public String getSdkVersion() {
         return "Android-" + BuildConfig.VERSION_NAME;
+    }
+
+    public static String getVerboseSdkVersion(){
+        return BuildConfig.LIBRARY_PACKAGE_NAME + "@" + BuildConfig.VERSION_NAME;
     }
 }

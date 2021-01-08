@@ -130,6 +130,7 @@ public class QueueActivityBase {
         });
         webview.setWebViewClient(webviewClient);
         Log.v("QueueITEngine", "Loading initial URL: " + queueUrl);
+        setUserAgent();
         webview.loadUrl(queueUrl);
     }
 
@@ -169,5 +170,12 @@ public class QueueActivityBase {
     private void disposeWebview(WebView webView) {
         webView.loadUrl("about:blank");
         _context.finish();
+    }
+
+    private void setUserAgent(){
+        String defaultUserAgent = new WebView(_context).getSettings().getUserAgentString();
+        defaultUserAgent += "(sdk: " + QueueITEngine.getVerboseSdkVersion() + ")";
+        System.setProperty("http.agent", defaultUserAgent);
+        webview.getSettings().setUserAgentString(defaultUserAgent);
     }
 }
