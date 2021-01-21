@@ -74,7 +74,7 @@ public class QueueService {
         String putBody = getJsonObject().toString();
         RequestBody body = RequestBody.create(JSON, putBody);
 
-        Log.v("QueueITEngine", "API call " + getISO8601StringForDate(Calendar.getInstance().getTime()) + ": " + enqueueUrl.toString() + ": " + putBody);
+        Log.v("QueueService", "API call " + getISO8601StringForDate(Calendar.getInstance().getTime()) + ": " + enqueueUrl.toString() + ": " + putBody);
 
         Request request = new Request.Builder()
                 .url(enqueueUrl)
@@ -109,7 +109,6 @@ public class QueueService {
                 }
 
                 final String body = response.body().string();
-
                 try {
                     JSONObject jsonObject = new JSONObject(body);
                     final String queueId = optString(jsonObject, "QueueId");
