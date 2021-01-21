@@ -2,6 +2,7 @@ package com.queue_it.androidsdk;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Context;
 import android.net.Uri;
 import android.net.http.SslError;
 import android.os.Build;
@@ -108,9 +109,9 @@ public class QueueActivityBase {
         _context.setContentView(R.layout.activity_queue);
         readActivityUrls(savedInstanceState);
         cleanupWebView();
-        final ProgressBar progressBar = (ProgressBar) _context.findViewById(R.id.progressBar);
+        final ProgressBar progressBar = _context.findViewById(R.id.progressBar);
 
-        FrameLayout layout = (FrameLayout) _context.findViewById(R.id.relativeLayout);
+        FrameLayout layout = _context.findViewById(R.id.relativeLayout);
         webview = new WebView(_context);
         layout.addView(webview);
         previousWebView = webview;
@@ -130,7 +131,7 @@ public class QueueActivityBase {
         });
         webview.setWebViewClient(webviewClient);
         Log.v("QueueITEngine", "Loading initial URL: " + queueUrl);
-        setUserAgent();
+        setUserAgent(UserAgentManager.getUserAgent());
         webview.loadUrl(queueUrl);
     }
 
@@ -172,10 +173,8 @@ public class QueueActivityBase {
         _context.finish();
     }
 
-    private void setUserAgent(){
-        String defaultUserAgent = new WebView(_context).getSettings().getUserAgentString();
-        defaultUserAgent += "(sdk: " + QueueITEngine.getVerboseSdkVersion() + ")";
-        System.setProperty("http.agent", defaultUserAgent);
-        webview.getSettings().setUserAgentString(defaultUserAgent);
+    private void setUserAgent(String userAgent) {
+        System.setProperty("http.agent", userAgent);
+        webview.getSettings().setUserAgentString(userAgent);
     }
 }

@@ -29,6 +29,9 @@ public abstract class QueueUrlHelper {
     }
 
     public static boolean urlUpdateNeeded(String queueUrl, String userId) {
+        if(queueUrl==null || userId==null){
+            return false;
+        }
         Uri uri = Uri.parse(queueUrl);
         return urlUpdateNeeded(uri, userId);
     }

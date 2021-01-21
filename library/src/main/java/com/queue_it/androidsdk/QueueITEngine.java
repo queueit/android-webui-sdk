@@ -10,7 +10,6 @@ import android.os.Handler;
 import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.Log;
-import android.webkit.WebView;
 
 import java.util.Calendar;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -44,6 +43,7 @@ public class QueueITEngine {
     public QueueITEngine(Activity activityContext, String customerId, String eventOrAliasId, String layoutName,
                          String language, QueueListener queueListener) {
         _requestInProgress = new AtomicBoolean(false);
+        UserAgentManager.initialize(activityContext);
         if (TextUtils.isEmpty(customerId)) {
             throw new IllegalArgumentException("customerId must have a value");
         }
@@ -246,7 +246,7 @@ public class QueueITEngine {
 
     private void tryEnqueue() {
         String userId = getUserId();
-        String userAgent = new WebView(_context).getSettings().getUserAgentString();
+        String userAgent = UserAgentManager.getUserAgent();
         String sdkVersion = getSdkVersion();
 
         QueueServiceListener queueServiceListener = new QueueServiceListener() {
@@ -323,9 +323,5 @@ public class QueueITEngine {
 
     public String getSdkVersion() {
         return "Android-" + BuildConfig.VERSION_NAME;
-    }
-
-    public static String getVerboseSdkVersion(){
-        return BuildConfig.LIBRARY_PACKAGE_NAME + "@" + BuildConfig.VERSION_NAME;
     }
 }
