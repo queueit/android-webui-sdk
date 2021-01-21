@@ -5,7 +5,6 @@ import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
 
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -29,14 +28,14 @@ import okhttp3.Response;
 
 public class QueueService {
 
-    private String _customerId;
-    private String _eventOrAliasId;
-    private String _userId;
-    private String _userAgent;
-    private String _sdkVersion;
-    private String _layoutName;
-    private String _language;
-    private QueueServiceListener _queueServiceListener;
+    private final String _customerId;
+    private final String _eventOrAliasId;
+    private final String _userId;
+    private final String _userAgent;
+    private final String _sdkVersion;
+    private final String _layoutName;
+    private final String _language;
+    private final QueueServiceListener _queueServiceListener;
 
     public static boolean IsTest = false;
 
@@ -82,7 +81,7 @@ public class QueueService {
                 .put(body)
                 .build();
         client.newCall(request).enqueue(new Callback() {
-            Handler mainHandler = new Handler(context.getMainLooper());
+            final Handler mainHandler = new Handler(context.getMainLooper());
 
             @Override
             public void onFailure(Call call, IOException e) {

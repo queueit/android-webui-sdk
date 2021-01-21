@@ -252,20 +252,7 @@ public class QueueITEngine {
         QueueServiceListener queueServiceListener = new QueueServiceListener() {
             @Override
             public void onSuccess(String queueId, String queueUrlString, int queueUrlTtlInMinutes, String eventTargetUrl, String queueItToken) {
-                if (IsSafetyNet(queueId, queueUrlString)) {
-                    QueueITEngine.this.raiseQueuePassed(queueItToken);
-                } else if (IsInQueue(queueId, queueUrlString)) {
-                    showQueueWithOptionalDelay(queueUrlString, eventTargetUrl);
-
-                    Calendar queueUrlTtl = Calendar.getInstance();
-                    queueUrlTtl.add(Calendar.MINUTE, queueUrlTtlInMinutes);
-
-                    _queueCache.update(queueUrlString, queueUrlTtl, eventTargetUrl);
-                } else if (IsIdle(queueId, queueUrlString)) {
-                    showQueueWithOptionalDelay(queueUrlString, eventTargetUrl);
-                } else {
-                    QueueITEngine.this.raiseQueueDisabled();
-                }
+                handleAppEnqueueResponse(queueId, queueUrlString, queueUrlTtlInMinutes, eventTargetUrl, queueItToken);
                 _requestInProgress.set(false);
             }
 
@@ -285,16 +272,27 @@ public class QueueITEngine {
         queueService.init(_context);
     }
 
-    private boolean IsSafetyNet(String queueId, String queueUrlString) {
-        return !TextUtils.isEmpty(queueId) && TextUtils.isEmpty(queueUrlString);
+    private void handleAppEnqueueResponse(String queueId, String queueUrlString, int queueUrlTtlInMinutes, String eventTargetUrl, String queueItToken) {
+        if (IsSafetyNet(queueId, queueUrlString)) {
+            QueueITEngine.this.raiseQueuePassed(queueItToken);
+            return;
+        } else if(IsDisabled(queueId, queueUrlString)){
+            QueueITEngine.this.raiseQueueDisabled();
+            return;
+        }
+
+        Calendar queueUrlTtl = Calendar.getInstance();
+        queueUrlTtl.add(Calendar.MINUTE, queueUrlTtlInMinutes);
+        showQueueWithOptionalDelay(queueUrlString, eventTargetUrl);
+        _queueCache.update(queueUrlString, queueUrlTtl, eventTargetUrl);
     }
 
-    private boolean IsInQueue(String queueId, String queueUrlString) {
-        return !TextUtils.isEmpty(queueId) && !TextUtils.isEmpty(queueUrlString);
+    private boolean IsSafetyNet(String queueId, String queueUrl) {
+        return !TextUtils.isEmpty(queueId) && TextUtils.isEmpty(queueUrl);
     }
 
-    private boolean IsIdle(String queueId, String queueUrlString) {
-        return TextUtils.isEmpty(queueId) && !TextUtils.isEmpty(queueUrlString);
+    private boolean IsDisabled(String queueId, String queueUrl){
+        return TextUtils.isEmpty(queueId) && TextUtils.isEmpty(queueUrl);
     }
 
     private void enqueueRetryMonitor() {
