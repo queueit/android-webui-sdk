@@ -28,7 +28,7 @@ implementation 'com.queue_it.androidsdk:library:2.0.25'
 Invoke QueueITEngine as per example below. Parameters `layoutName` and `language` are optional.
 
 ```java
-QueueITEngine engine = new QueueITEngine(YourActivity.this, customerId, eventOrAliasId, layoutName, language,
+QueueITEngine engine = new QueueITEngine(YourActivity.this, customerId, eventIdOrAlias, layoutName, language,
   new QueueListener() {
     
     // This callback will be triggered when the user has been through the queue.
