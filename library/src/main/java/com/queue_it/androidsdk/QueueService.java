@@ -44,7 +44,8 @@ public class QueueService {
                         "%s.test.queue-it.net" :
                         "%s.queue-it.net",
                 _customerId);
-        String path = String.format("api/queue/%s/%s/appenqueue", _customerId, _eventOrAliasId);
+
+        String path = String.format("api/mobileapp/queue/%s/%s/enqueue", _customerId, _eventOrAliasId);
         return new HttpUrl.Builder()
                 .scheme("https")
                 .host(hostname)
@@ -78,7 +79,7 @@ public class QueueService {
 
         Request request = new Request.Builder()
                 .url(enqueueUrl)
-                .put(body)
+                .post(body)
                 .build();
         client.newCall(request).enqueue(new Callback() {
             final Handler mainHandler = new Handler(context.getMainLooper());
