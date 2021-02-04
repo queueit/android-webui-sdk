@@ -17,14 +17,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class QueueITEngine {
 
     private final IWaitingRoomStateBroadcaster _stateBroadcaster;
-    private String _customerId;
-    private String _eventOrAliasId;
-    private String _layoutName;
-    private String _language;
-    private QueueListener _queueListener;
-    private QueueCache _queueCache;
+    private final String _customerId;
+    private final String _eventOrAliasId;
+    private final String _layoutName;
+    private final String _language;
+    private final QueueListener _queueListener;
+    private final QueueCache _queueCache;
     private Context _context;
-    private AtomicBoolean _requestInProgress;
+    private final AtomicBoolean _requestInProgress;
     private boolean _isInQueue;
 
     private static final int INITIAL_WAIT_RETRY_SEC = 1;
@@ -99,7 +99,7 @@ public class QueueITEngine {
         _checkConnection.run();
     }
 
-    private Runnable _checkConnection = new Runnable() {
+    private final Runnable _checkConnection = new Runnable() {
         public void run() {
             if (isOnline()) {
                 runWithConnection();
@@ -122,21 +122,21 @@ public class QueueITEngine {
         _requestInProgress.set(false);
     }
 
-    private BroadcastReceiver _queuePassedBroadcastReceiver = new BroadcastReceiver() {
+    private final BroadcastReceiver _queuePassedBroadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             raiseQueuePassed(intent.getStringExtra("queue-it-token"));
         }
     };
 
-    private BroadcastReceiver _queueErrorBroadcastReceiver = new BroadcastReceiver() {
+    private final BroadcastReceiver _queueErrorBroadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             _queueListener.onError(Error.SSL_ERROR, intent.getStringExtra("error-message"));
         }
     };
 
-    private BroadcastReceiver _queueUrlChangedBroadcastReceiver = new BroadcastReceiver() {
+    private final BroadcastReceiver _queueUrlChangedBroadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             String url = intent.getExtras().getString("url");
@@ -144,21 +144,21 @@ public class QueueITEngine {
         }
     };
 
-    private BroadcastReceiver _queueUserExitedBroadcastReceiver = new BroadcastReceiver() {
+    private final BroadcastReceiver _queueUserExitedBroadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             raiseUserExited();
         }
     };
 
-    private BroadcastReceiver _webViewClosedBroadcastReceiver = new BroadcastReceiver() {
+    private final BroadcastReceiver _webViewClosedBroadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             raiseWebViewClosed();
         }
     };
 
-    private BroadcastReceiver _queueActivityClosedBroadcastReceiver = new BroadcastReceiver() {
+    private final BroadcastReceiver _queueActivityClosedBroadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             _stateBroadcaster.unregisterReceivers(_queuePassedBroadcastReceiver,
@@ -236,7 +236,7 @@ public class QueueITEngine {
         _queueListener.onQueueDisabled();
     }
 
-    private void raiseWebViewClosed(){
+    private void raiseWebViewClosed() {
         _queueListener.onWebViewClosed();
     }
 
@@ -252,20 +252,7 @@ public class QueueITEngine {
         QueueServiceListener queueServiceListener = new QueueServiceListener() {
             @Override
             public void onSuccess(String queueId, String queueUrlString, int queueUrlTtlInMinutes, String eventTargetUrl, String queueItToken) {
-                if (IsSafetyNet(queueId, queueUrlString)) {
-                    QueueITEngine.this.raiseQueuePassed(queueItToken);
-                } else if (IsInQueue(queueId, queueUrlString)) {
-                    showQueueWithOptionalDelay(queueUrlString, eventTargetUrl);
-
-                    Calendar queueUrlTtl = Calendar.getInstance();
-                    queueUrlTtl.add(Calendar.MINUTE, queueUrlTtlInMinutes);
-
-                    _queueCache.update(queueUrlString, queueUrlTtl, eventTargetUrl);
-                } else if (IsIdle(queueId, queueUrlString)) {
-                    showQueueWithOptionalDelay(queueUrlString, eventTargetUrl);
-                } else {
-                    QueueITEngine.this.raiseQueueDisabled();
-                }
+                handleAppEnqueueResponse(queueId, queueUrlString, queueUrlTtlInMinutes, eventTargetUrl, queueItToken);
                 _requestInProgress.set(false);
             }
 
@@ -285,16 +272,25 @@ public class QueueITEngine {
         queueService.init(_context);
     }
 
-    private boolean IsSafetyNet(String queueId, String queueUrlString) {
-        return !TextUtils.isEmpty(queueId) && TextUtils.isEmpty(queueUrlString);
+    private void handleAppEnqueueResponse(String queueId, String queueUrlString, int queueUrlTtlInMinutes, String eventTargetUrl, String queueItToken) {
+        if (IsSafetyNet(queueId, queueUrlString)) {
+            QueueITEngine.this.raiseQueuePassed(queueItToken);
+            return;
+        } else if (IsDisabled(queueId, queueUrlString)) {
+            QueueITEngine.this.raiseQueueDisabled();
+            return;
+        }
+
+        showQueueWithOptionalDelay(queueUrlString, eventTargetUrl);
+        _queueCache.update(queueUrlString, queueUrlTtlInMinutes, eventTargetUrl);
     }
 
-    private boolean IsInQueue(String queueId, String queueUrlString) {
-        return !TextUtils.isEmpty(queueId) && !TextUtils.isEmpty(queueUrlString);
+    private boolean IsSafetyNet(String queueId, String queueUrl) {
+        return !TextUtils.isEmpty(queueId) && TextUtils.isEmpty(queueUrl);
     }
 
-    private boolean IsIdle(String queueId, String queueUrlString) {
-        return TextUtils.isEmpty(queueId) && !TextUtils.isEmpty(queueUrlString);
+    private boolean IsDisabled(String queueId, String queueUrl) {
+        return TextUtils.isEmpty(queueId) && TextUtils.isEmpty(queueUrl);
     }
 
     private void enqueueRetryMonitor() {

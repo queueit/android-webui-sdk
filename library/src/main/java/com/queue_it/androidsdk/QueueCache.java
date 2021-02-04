@@ -10,11 +10,11 @@ import java.util.Calendar;
 
 public class QueueCache {
 
-    private String _cacheKey;
-    private static String KEY_QUEUE_URL = "queueUrl";
-    private static String KEY_URL_TTL = "url_ttl";
-    private static String KEY_TARGET_URL = "target_url";
-    private Context _context;
+    private final String _cacheKey;
+    private static final String KEY_QUEUE_URL = "queueUrl";
+    private static final String KEY_URL_TTL = "url_ttl";
+    private static final String KEY_TARGET_URL = "target_url";
+    private final Context _context;
 
     public QueueCache(Context context, String customerId, String eventOrAliasId)
     {
@@ -46,6 +46,16 @@ public class QueueCache {
     {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(_context);
         return sharedPreferences.getString(_cacheKey + KEY_TARGET_URL, "");
+    }
+
+    public void update(String queueUrl, int urlTTLInMinutes, String targetUrl){
+        if (urlTTLInMinutes <= 0) {
+            return;
+        }
+
+        Calendar queueUrlTtl = Calendar.getInstance();
+        queueUrlTtl.add(Calendar.MINUTE, urlTTLInMinutes);
+        update(queueUrl, queueUrlTtl, targetUrl);
     }
 
     public void update(String queueUrl, Calendar urlTtl, String targetUrl)
