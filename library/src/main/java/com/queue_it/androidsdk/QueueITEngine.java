@@ -236,7 +236,7 @@ public class QueueITEngine {
         _queueListener.onQueueDisabled();
     }
 
-    private void raiseWebViewClosed(){
+    private void raiseWebViewClosed() {
         _queueListener.onWebViewClosed();
     }
 
@@ -276,22 +276,20 @@ public class QueueITEngine {
         if (IsSafetyNet(queueId, queueUrlString)) {
             QueueITEngine.this.raiseQueuePassed(queueItToken);
             return;
-        } else if(IsDisabled(queueId, queueUrlString)){
+        } else if (IsDisabled(queueId, queueUrlString)) {
             QueueITEngine.this.raiseQueueDisabled();
             return;
         }
 
-        Calendar queueUrlTtl = Calendar.getInstance();
-        queueUrlTtl.add(Calendar.MINUTE, queueUrlTtlInMinutes);
         showQueueWithOptionalDelay(queueUrlString, eventTargetUrl);
-        _queueCache.update(queueUrlString, queueUrlTtl, eventTargetUrl);
+        _queueCache.update(queueUrlString, queueUrlTtlInMinutes, eventTargetUrl);
     }
 
     private boolean IsSafetyNet(String queueId, String queueUrl) {
         return !TextUtils.isEmpty(queueId) && TextUtils.isEmpty(queueUrl);
     }
 
-    private boolean IsDisabled(String queueId, String queueUrl){
+    private boolean IsDisabled(String queueId, String queueUrl) {
         return TextUtils.isEmpty(queueId) && TextUtils.isEmpty(queueUrl);
     }
 
