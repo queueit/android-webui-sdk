@@ -381,7 +381,7 @@ public class UriOverriderTest {
         WebView webView = mock(WebView.class);
 
         ArgumentCaptor<String> argument = ArgumentCaptor.forClass(String.class);
-        final String expectedRewrittenUrl = "http://customer.queue-it.net/exitline.aspx?c=customer&e=otherroom2&q=qid&cid=en-US&l=myLayout&sdkv=Android-2.0.22&userId=myuser1";
+        final String expectedRewrittenUrl = "http://customer.queue-it.net/exitline.aspx?userId=myuser1&c=customer&e=otherroom2&q=qid&cid=en-US&l=myLayout&sdkv=Android-2.0.22";
 
         boolean loadCancelled = testObj.handleNavigationRequest("http://customer.queue-it.net/exitline.aspx?c=customer&e=otherroom2&q=qid&cid=en-US&l=myLayout&sdkv=Android-2.0.22",
                 webView, new UriOverrideWrapper() {
