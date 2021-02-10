@@ -16,12 +16,13 @@ public abstract class QueueUrlHelper {
     }
 
     public static Uri updateUrl(Uri queueUrl, String userId) {
+        String encodedQuery = queueUrl.getEncodedQuery();
         String updatedUrl = new HttpUrl.Builder()
                 .scheme(queueUrl.getScheme())
                 .host(queueUrl.getHost())
                 .encodedPath(queueUrl.getPath())
-                .query(queueUrl.getQuery())
                 .addQueryParameter("userId", userId)
+                .encodedQuery(encodedQuery)
                 .build()
                 .url()
                 .toString();
