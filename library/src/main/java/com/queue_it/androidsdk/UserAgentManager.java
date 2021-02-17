@@ -4,7 +4,7 @@ import android.app.Activity;
 import android.webkit.WebView;
 
 public class UserAgentManager {
-    public static final String SDKVersion = BuildConfig.LIBRARY_PACKAGE_NAME + "@" + BuildConfig.VERSION_NAME;
+    public static final String SDKVersion = com.queue_it.androidsdk.BuildConfig.LIBRARY_PACKAGE_NAME + "@" + BuildConfig.VERSION_NAME;
     private static String DeviceUserAgent;
 
     private UserAgentManager(){

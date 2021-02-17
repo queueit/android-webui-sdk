@@ -10,17 +10,15 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+import org.robolectric.RobolectricTestRunner;
 
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import junitparams.JUnitParamsRunner;
-import junitparams.Parameters;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 
-@RunWith(JUnitParamsRunner.class)
+@RunWith(RobolectricTestRunner.class)
 public class UriOverriderTest {
 
     @Test
@@ -54,10 +52,8 @@ public class UriOverriderTest {
     }
 
     @Test
-    @Parameters({
-            "https://queue-it.com/what-is-this.html?customerId=vavatest&eventId=testendedroom&queueId=00000000-0000-0000-0000-000000000000&language=en-US"
-    })
-    public void givenUserIsNavigatingToBlockedPage_ThenLoadShouldBeCancelled(String destinationUrl) {
+    public void givenUserIsNavigatingToBlockedPage_ThenLoadShouldBeCancelled() {
+        String destinationUrl = "https://queue-it.com/what-is-this.html?customerId=vavatest&eventId=testendedroom&queueId=00000000-0000-0000-0000-000000000000&language=en-US";
         UriOverrider testObj = new UriOverrider();
         testObj.setQueue(Uri.parse("https://vavatest.queue-it.net/app/enqueue"));
         testObj.setTarget(Uri.parse("https://google.com"));
@@ -85,10 +81,8 @@ public class UriOverriderTest {
     }
 
     @Test
-    @Parameters({
-            "https://queue-it.com/what-is-this.html?customerId=vavatest&eventId=testendedroom&queueId=00000000-0000-0000-0000-000000000000&language=en-US"
-    })
-    public void givenuserIsNavigatingToUrlOnTargetDomainButNotTargetUrl_ThenQueueSHouldNotBePassedAndWebBrowserShouldOpen(String destinationUrl) {
+    public void givenuserIsNavigatingToUrlOnTargetDomainButNotTargetUrl_ThenQueueSHouldNotBePassedAndWebBrowserShouldOpen() {
+        String destinationUrl = "https://queue-it.com/what-is-this.html?customerId=vavatest&eventId=testendedroom&queueId=00000000-0000-0000-0000-000000000000&language=en-US";
         UriOverrider testObj = new UriOverrider();
         testObj.setQueue(Uri.parse("https://vavatest.queue-it.net/app/enqueue"));
         testObj.setTarget(Uri.parse("https://google.com/q=iamthetarget"));

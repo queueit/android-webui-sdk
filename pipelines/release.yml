@@ -31,4 +31,28 @@ jobs:
           jdkVersionOption: '1.11'
           gradleOptions: '-Xmx3072m'
           sonarQubeRunAnalysis: false
-          tasks: 'assembleLibrary_androidx :library:assembleLibrary bintrayUpload'
+          tasks: 'assembleLibrary_androidx :library:assembleLibrary'
+
+      - task: Gradle@2
+        displayName: Publish to OSSRH
+        inputs:
+          gradleWrapperFile: 'gradlew'
+          publishJUnitResults: true
+          testResultsFiles: '**/TEST-*.xml'
+          javaHomeOption: 'JDKVersion'
+          jdkVersionOption: '1.11'
+          gradleOptions: '-Xmx3072m'
+          sonarQubeRunAnalysis: false
+          tasks: 'publish'
+
+      - task: Gradle@2
+        displayName: Close OSSRH repository
+        inputs:
+          gradleWrapperFile: 'gradlew'
+          publishJUnitResults: true
+          testResultsFiles: '**/TEST-*.xml'
+          javaHomeOption: 'JDKVersion'
+          jdkVersionOption: '1.11'
+          gradleOptions: '-Xmx3072m'
+          sonarQubeRunAnalysis: false
+          tasks: 'closeRepository releaseRepository'

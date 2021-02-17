@@ -3,45 +3,58 @@
 buildscript {
     repositories {
         google()
-        jcenter()
+        mavenCentral()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.0.1'
-
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.5'
-        classpath 'com.github.dcendents:android-maven-gradle-plugin:1.5'
-        classpath 'de.mobilej.unmock:UnMockPlugin:0.7.6'
+        classpath 'com.android.tools.build:gradle:7.0.0-alpha06'
+        classpath 'com.github.dcendents:android-maven-gradle-plugin:2.1'
+        classpath "gradle.plugin.xyz.tynn.buildsrc:publishing:0.1.2"
+        classpath "io.codearte.gradle.nexus:gradle-nexus-staging-plugin:0.22.0"
+        classpath "de.marcphilipp.gradle:nexus-publish-plugin:0.4.0"
     }
+}
+apply plugin: 'io.codearte.nexus-staging'
+
+Properties localProps = new Properties()
+if (rootProject.file("local.properties").exists()) {
+    localProps.load(rootProject.file("local.properties").newDataInputStream())
 }
 
 subprojects {
     tasks.withType(Javadoc).all { enabled = false }
 }
 
-def org = "queueit"
 allprojects {
     repositories {
         google()
-        jcenter()
+        mavenCentral()
     }
 
     ext {
-        bintrayRepo = 'maven'
-        bintrayName = 'com.queue_it.androidsdk'
-        groupId = 'com.queue_it.androidsdk'
-        bintrayOrg = "${org}"
-
+        groupId = 'com.queue-it.androidsdk'
         libraryName = 'com.queue_it.androidsdk'
         libraryDescription = 'Android SDK to integrate with Queue-it'
-        libraryVersion = "2.0.32"
+        libraryVersion = "2.0.33"
+        organization = "Queue-it"
+        organizationUrl = "https://queue-it.com"
 
         artifact = 'library'
-        siteUrl = "https://github.com/${org}/android-webui-sdk"
-        gitUrl = "https://github.com/${org}/android-webui-sdk.git"
+        siteUrl = "https://github.com/queueit/android-webui-sdk"
+        gitUrl = "https://github.com/queueit/android-webui-sdk.git"
 
         licenseName = 'MIT'
         licenseUrl = 'MIT'
         allLicenses = ["MIT"]
+        var = '7.0.0-alpha05'
+        extraProperties = localProps
+
+        OSSRH_USERNAME = localProps.getProperty("OSSRH_USERNAME") ?: System.getenv("OSSRH_USERNAME")
+        OSSRH_PASSWORD = localProps.getProperty("OSSRH_PASSWORD") ?: System.getenv("OSSRH_PASSWORD")
+        PGP_KEY = localProps.getProperty("PGP_KEY") ?: System.getenv("PGP_KEY")
+        PGP_PASSWORD = localProps.getProperty("PGP_PASSWORD") ?: System.getenv("PGP_PASSWORD")
     }
 }
 

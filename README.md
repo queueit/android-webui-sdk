@@ -1,4 +1,4 @@
-[ ![Download](https://api.bintray.com/packages/queueit/maven/com.queue_it.androidsdk/images/download.svg) ](https://bintray.com/queueit/maven/com.queue_it.androidsdk/_latestVersion)
+[ ![Download](https://maven-badges.herokuapp.com/maven-central/com.queue-it.androidsdk/library/badge.svg) ](https://repo1.maven.org/maven2/com/queue-it/androidsdk/)
 
 # Queue-it Android WebUI SDK
 
@@ -10,17 +10,15 @@ A sample app to try out functionality in the library can be found on the [Releas
 
 ## Installation
 
-Before starting please download the whitepaper **Mobile App Integration** from GO Queue-it Platform. 
+Before starting please download the whitepaper **Mobile App Integration** from GO Queue-it Platform.
 This whitepaper contains the needed information to perform a successful integration.
 
 Using Gradle:
 
 ```gradle
-implementation 'com.queue_it.androidsdk:library:2.0.30'
+implementation 'com.queue-it.androidsdk:library:2.0.30'
 //For AndroidX
-//implementation 'com.queue_it.androidsdk:library-androidx:2.0.30'
-// and add the repository
-//maven { url  "https://dl.bintray.com/queueit/maven" }
+//implementation 'com.queue-it.androidsdk:library-androidx:2.0.30'
 ```
 
 ## Usage
