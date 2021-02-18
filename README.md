@@ -16,9 +16,9 @@ This whitepaper contains the needed information to perform a successful integrat
 Using Gradle:
 
 ```gradle
-implementation 'com.queue-it.androidsdk:library:2.0.30'
+implementation 'com.queue-it.androidsdk:library:2.0.33'
 //For AndroidX
-//implementation 'com.queue-it.androidsdk:library-androidx:2.0.30'
+//implementation 'com.queue-it.androidsdk:library-androidx:2.0.33'
 ```
 
 ## Usage
