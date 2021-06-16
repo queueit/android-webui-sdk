@@ -79,12 +79,15 @@ QueueITEngine engine = new QueueITEngine(YourActivity.this, customerId, eventIdO
   }
   catch (QueueITException e) { } // Gets thrown when a request is already in progress. In general you can ignore this.
 ```
+
 As the App developer your must manage the state (whether user was previously queued up or not) inside the apps storage.
 After you have received the "onQueuePassed callback", the app must remember this, possibly with a date / time expiration.
 When the user goes to the next page - you check this state, and only call QueueITEngine.run in the case where the user did not previously queue up.
 When the user clicks back, the same check needs to be done.
 
 ![App Integration Flow](https://github.com/queueit/android-webui-sdk/blob/master/App%20integration%20flow.PNG "App Integration Flow")
+
+If your application is using an API that's protected by a Queue-it connector (KnownUser) you can check out [this documentation](https://github.com/queueit/android-webui-sdk/blob/master/documentation/protected_apis.md).
 
 
 ## Required permissions
