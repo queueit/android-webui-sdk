@@ -16,14 +16,14 @@ This whitepaper contains the needed information to perform a successful integrat
 Using Gradle:
 
 ```gradle
-implementation 'com.queue-it.androidsdk:library:2.0.33'
+implementation 'com.queue-it.androidsdk:library:2.0.34'
 //For AndroidX
-//implementation 'com.queue-it.androidsdk:library-androidx:2.0.33'
+//implementation 'com.queue-it.androidsdk:library-androidx:2.0.34'
 ```
 
 ## Usage
 
-Invoke QueueITEngine as per example below. Parameters `layoutName` and `language` are optional.
+Invoke QueueITEngine as per example below. Parameters `layoutName`, `language` and `options` are optional.
 
 ```java
 QueueITEngine engine = new QueueITEngine(YourActivity.this, customerId, eventIdOrAlias, layoutName, language,
@@ -89,6 +89,15 @@ When the user clicks back, the same check needs to be done.
 
 If your application is using an API that's protected by a Queue-it connector (KnownUser) you can check out [this documentation](https://github.com/queueit/android-webui-sdk/blob/master/documentation/protected_apis.md).
 
+### QueueITEngine options
+
+The QueueITEngine can be configured if you use the `options` argument in it's constructor. Here's an example.
+
+```java
+QueueItEngineOptions options = new QueueItEngineOptions();
+// Use this if you want to disable the back button when the waiting room is shown
+options.setBackButtonDisabledFromWR(true);
+```
 
 ## Required permissions
 

@@ -2,7 +2,6 @@ package com.queue_it.androidsdk;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.Context;
 import android.net.Uri;
 import android.net.http.SslError;
 import android.os.Build;
@@ -29,10 +28,16 @@ public class QueueActivityBase {
     private static WebView previousWebView;
     private IUriOverrider uriOverrider;
     private final IWaitingRoomStateBroadcaster broadcaster;
+    private QueueItEngineOptions options;
 
     public QueueActivityBase(Activity context) {
         _context = context;
+        options = QueueItEngineOptions.getDefault();
         broadcaster = new WaitingRoomStateBroadcaster(_context);
+    }
+
+    public QueueItEngineOptions getOptions(){
+        return options;
     }
 
     WebViewClient webviewClient = new WebViewClient() {
@@ -107,7 +112,7 @@ public class QueueActivityBase {
     public void initialize(Bundle savedInstanceState) {
         uriOverrider = new UriOverrider();
         _context.setContentView(R.layout.activity_queue);
-        readActivityUrls(savedInstanceState);
+        readActivityExtras(savedInstanceState);
         cleanupWebView();
         final ProgressBar progressBar = _context.findViewById(R.id.progressBar);
 
@@ -147,7 +152,7 @@ public class QueueActivityBase {
         }
     }
 
-    private void readActivityUrls(Bundle savedInstanceState) {
+    private void readActivityExtras(Bundle savedInstanceState) {
         if (savedInstanceState == null) {
             Bundle extras = _context.getIntent().getExtras();
             if (extras == null) {
@@ -157,6 +162,7 @@ public class QueueActivityBase {
                 queueUrl = extras.getString("queueUrl");
                 targetUrl = extras.getString("targetUrl");
                 uriOverrider.setUserId(extras.getString("userId"));
+                options = (QueueItEngineOptions)extras.getParcelable("options");
             }
         } else {
             queueUrl = (String) savedInstanceState.getSerializable("queueUrl");

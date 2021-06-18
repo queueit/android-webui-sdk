@@ -33,8 +33,11 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar', '*.aar'])
     //implementation project(path: ':library')
-    library_androidxImplementation 'com.queue-it.androidsdk:library-androidx:2.0.33'
-    libraryImplementation 'com.queue-it.androidsdk:library:2.0.33'
+    //library_androidxImplementation 'com.queue-it.androidsdk:library-androidx:2.0.34'
+    library_androidxImplementation project(path: ':library')
+    //libraryImplementation 'com.queue-it.androidsdk:library:2.0.34'
+    libraryImplementation project(path: ':library')
+
     testImplementation 'junit:junit:4.13'
 
     library_androidxImplementation 'androidx.appcompat:appcompat:1.2.0'

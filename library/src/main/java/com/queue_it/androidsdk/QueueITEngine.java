@@ -23,6 +23,7 @@ public class QueueITEngine {
     private final String _language;
     private final QueueListener _queueListener;
     private final QueueCache _queueCache;
+    private final QueueItEngineOptions _options;
     private Context _context;
     private final AtomicBoolean _requestInProgress;
     private boolean _isInQueue;
@@ -37,11 +38,28 @@ public class QueueITEngine {
     private int _isOnlineRetry = 0;
 
     public QueueITEngine(Activity applicationContext, String customerId, String eventOrAliasId, QueueListener queueListener) {
-        this(applicationContext, customerId, eventOrAliasId, "", "", queueListener);
+        this(applicationContext, customerId, eventOrAliasId, "", "", queueListener, QueueItEngineOptions.getDefault());
     }
 
-    public QueueITEngine(Activity activityContext, String customerId, String eventOrAliasId, String layoutName,
-                         String language, QueueListener queueListener) {
+    public QueueITEngine(Activity activityContext,
+                         String customerId,
+                         String eventOrAliasId,
+                         String layoutName,
+                         String language,
+                         QueueListener queueListener) {
+        this(activityContext, customerId, eventOrAliasId, layoutName, language, queueListener, QueueItEngineOptions.getDefault());
+    }
+
+    public QueueITEngine(Activity activityContext,
+                         String customerId,
+                         String eventOrAliasId,
+                         String layoutName,
+                         String language,
+                         QueueListener queueListener,
+                         QueueItEngineOptions options) {
+        if (options == null) {
+            options = QueueItEngineOptions.getDefault();
+        }
         _requestInProgress = new AtomicBoolean(false);
         UserAgentManager.initialize(activityContext);
         if (TextUtils.isEmpty(customerId)) {
@@ -59,6 +77,7 @@ public class QueueITEngine {
         _queueCache = new QueueCache(_context, customerId, eventOrAliasId);
         _deltaSec = INITIAL_WAIT_RETRY_SEC;
         _stateBroadcaster = new WaitingRoomStateBroadcaster(_context);
+        _options = options;
     }
 
     public void setViewDelay(int delayInterval) {
@@ -212,6 +231,7 @@ public class QueueITEngine {
         intent.putExtra("queueUrl", queueUrl);
         intent.putExtra("targetUrl", targetUrl);
         intent.putExtra("userId", getUserId());
+        intent.putExtra("options", _options);
         _context.startActivity(intent);
     }
 

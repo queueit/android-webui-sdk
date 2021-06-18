@@ -72,6 +72,7 @@ public class MainActivity extends AppCompatActivity {
                 editor.commit();
 
                 Toast.makeText(getApplicationContext(), "Please wait for your turn.", Toast.LENGTH_SHORT).show();
+                QueueItEngineOptions options = new QueueItEngineOptions();
 
                 QueueITEngine queueITEngine = new QueueITEngine(MainActivity.this, customerId, eventOrAliasId, layoutName, language, new QueueListener() {
                     @Override
@@ -114,7 +115,7 @@ public class MainActivity extends AppCompatActivity {
                         showResultActivity("WebView closed ", false);
                         queue_button.setEnabled(true);
                     }
-                });
+                }, options);
                 try {
                     queueITEngine.run(MainActivity.this, !enableCacheRadioButton.isChecked());
                 }

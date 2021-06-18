@@ -14,6 +14,14 @@ public class QueueActivity extends Activity {
     }
 
     @Override
+    public void onBackPressed() {
+        if (base.getOptions().isBackButtonDisabledFromWR()) {
+            return;
+        }
+        super.onBackPressed();
+    }
+
+    @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         base.saveInstanceState(outState);
