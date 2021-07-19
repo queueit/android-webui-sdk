@@ -2,7 +2,7 @@
 
 ## Sample app
 
-A sample app that shows an example of this integration can be found in the [demowithprotectedapi](https://github.com/queueit/android-sdk/demowithprotectedapi) page.
+A sample app that shows an example of this integration can be found in the [demowithprotectedapi](https://github.com/queueit/android-webui-sdk/tree/master/demowithprotectedapi) directory.
 There are a few OkHTTP interceptors in the `http` package that can be easily integrated.
 
 ## Implementation
