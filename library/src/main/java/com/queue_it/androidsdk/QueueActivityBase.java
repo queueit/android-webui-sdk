@@ -98,6 +98,12 @@ public class QueueActivityBase {
                     broadcaster.broadcastWebViewClosed();
                     disposeWebview(webview);
                 }
+
+                @Override
+                protected void onSessionRestart() {
+                    broadcaster.broadcastOnSessionRestart();
+                    disposeWebview(webview);
+                }
             });
         }
     };

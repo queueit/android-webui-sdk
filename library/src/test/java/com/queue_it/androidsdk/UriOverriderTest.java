@@ -44,11 +44,51 @@ public class UriOverriderTest {
             protected void onCloseClicked() {
                 closeHandled.set(true);
             }
+
+            @Override
+            protected void onSessionRestart() {
+
+            }
         });
 
         assertTrue(loadCancelled);
         assertFalse(queuePassed.get());
         assertTrue(closeHandled.get());
+    }
+
+    @Test
+    public void givenUserNavigatesToSessionRestartLink_ThenSessionRestartCallbackShouldBeCalled() {
+        UriOverrider testObj = new UriOverrider();
+        testObj.setQueue(Uri.parse("https://vavatest.queue-it.net/app/enqueue"));
+        testObj.setTarget(Uri.parse("https://google.com"));
+        WebView webView = mock(WebView.class);
+        final AtomicBoolean queuePassed = new AtomicBoolean(false);
+        final AtomicBoolean sessionRestarted = new AtomicBoolean(false);
+        boolean loadCancelled = testObj.handleNavigationRequest("queueit://restartSession", webView, new UriOverrideWrapper() {
+            @Override
+            protected void onQueueUrlChange(String uri) {
+                System.out.print(uri);
+            }
+
+            @Override
+            protected void onPassed(String queueItToken) {
+                queuePassed.set(true);
+            }
+
+            @Override
+            protected void onCloseClicked() {
+
+            }
+
+            @Override
+            protected void onSessionRestart() {
+                sessionRestarted.set(true);
+            }
+        });
+
+        assertTrue(loadCancelled);
+        assertFalse(queuePassed.get());
+        assertTrue(sessionRestarted.get());
     }
 
     @Test
@@ -72,6 +112,11 @@ public class UriOverriderTest {
 
             @Override
             protected void onCloseClicked() {
+
+            }
+
+            @Override
+            protected void onSessionRestart() {
 
             }
         });
@@ -104,6 +149,10 @@ public class UriOverriderTest {
             protected void onCloseClicked() {
 
             }
+
+            @Override
+            protected void onSessionRestart() {
+            }
         });
 
         assertTrue(loadCancelled);
@@ -130,6 +179,11 @@ public class UriOverriderTest {
 
             @Override
             protected void onCloseClicked() {
+
+            }
+
+            @Override
+            protected void onSessionRestart() {
 
             }
         });
@@ -163,6 +217,11 @@ public class UriOverriderTest {
             protected void onCloseClicked() {
 
             }
+
+            @Override
+            protected void onSessionRestart() {
+
+            }
         });
 
         assertTrue(loadCancelled);
@@ -194,6 +253,11 @@ public class UriOverriderTest {
             protected void onCloseClicked() {
 
             }
+
+            @Override
+            protected void onSessionRestart() {
+
+            }
         });
 
         assertTrue(loadCancelled);
@@ -220,6 +284,11 @@ public class UriOverriderTest {
 
             @Override
             protected void onCloseClicked() {
+
+            }
+
+            @Override
+            protected void onSessionRestart() {
 
             }
         });
@@ -263,6 +332,11 @@ public class UriOverriderTest {
             protected void onCloseClicked() {
 
             }
+
+            @Override
+            protected void onSessionRestart() {
+
+            }
         });
 
         assertTrue(loadCancelled);
@@ -292,6 +366,11 @@ public class UriOverriderTest {
 
             @Override
             protected void onCloseClicked() {
+
+            }
+
+            @Override
+            protected void onSessionRestart() {
 
             }
         });
@@ -324,6 +403,11 @@ public class UriOverriderTest {
 
             @Override
             protected void onCloseClicked() {
+
+            }
+
+            @Override
+            protected void onSessionRestart() {
 
             }
         });
@@ -359,6 +443,11 @@ public class UriOverriderTest {
                     protected void onCloseClicked() {
 
                     }
+
+                    @Override
+                    protected void onSessionRestart() {
+
+                    }
                 });
         assertTrue(loadCancelled);
         assertTrue(urlChangeHappened.get());
@@ -390,6 +479,11 @@ public class UriOverriderTest {
 
                     @Override
                     protected void onCloseClicked() {
+
+                    }
+
+                    @Override
+                    protected void onSessionRestart() {
 
                     }
                 });

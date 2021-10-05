@@ -8,9 +8,9 @@ public abstract class QueueListener {
     protected abstract void onQueueItUnavailable();
     protected abstract void onError(Error error, String errorMessage);
     protected void onWebViewClosed(){
-
     }
     protected void onUserExited(){
-
+    }
+    protected void onSessionRestart(QueueITEngine queueITEngine){
     }
 }

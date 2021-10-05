@@ -19,7 +19,8 @@ public class WaitingRoomStateBroadcaster implements IWaitingRoomStateBroadcaster
                                   BroadcastReceiver onActivityClosed,
                                   BroadcastReceiver onUserExited,
                                   BroadcastReceiver onError,
-                                  BroadcastReceiver onWebViewClosed) {
+                                  BroadcastReceiver onWebViewClosed,
+                                  BroadcastReceiver onSessionRestartReceiver) {
         LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(_context);
 
         localBroadcastManager.registerReceiver(onPassed, new IntentFilter("on-queue-passed"));
@@ -28,6 +29,7 @@ public class WaitingRoomStateBroadcaster implements IWaitingRoomStateBroadcaster
         localBroadcastManager.registerReceiver(onUserExited, new IntentFilter("queue-user-exited"));
         localBroadcastManager.registerReceiver(onError, new IntentFilter("on-queue-error"));
         localBroadcastManager.registerReceiver(onWebViewClosed, new IntentFilter("on-webview-close"));
+        localBroadcastManager.registerReceiver(onSessionRestartReceiver, new IntentFilter("on-session-restart"));
     }
 
     public void unregisterReceivers(BroadcastReceiver onPassed,
@@ -35,7 +37,8 @@ public class WaitingRoomStateBroadcaster implements IWaitingRoomStateBroadcaster
                                     BroadcastReceiver onActivityClosed,
                                     BroadcastReceiver onUserExited,
                                     BroadcastReceiver onError,
-                                    BroadcastReceiver onWebViewClosed) {
+                                    BroadcastReceiver onWebViewClosed,
+                                    BroadcastReceiver onSessionRestartReceiver) {
         LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(_context);
 
         localBroadcastManager.unregisterReceiver(onPassed);
@@ -44,6 +47,7 @@ public class WaitingRoomStateBroadcaster implements IWaitingRoomStateBroadcaster
         localBroadcastManager.unregisterReceiver(onUserExited);
         localBroadcastManager.unregisterReceiver(onError);
         localBroadcastManager.unregisterReceiver(onWebViewClosed);
+        localBroadcastManager.unregisterReceiver(onSessionRestartReceiver);
     }
 
     @Override
@@ -82,6 +86,12 @@ public class WaitingRoomStateBroadcaster implements IWaitingRoomStateBroadcaster
     @Override
     public void broadcastWebViewClosed() {
         Intent intent = new Intent("on-webview-close");
+        LocalBroadcastManager.getInstance(_context).sendBroadcast(intent);
+    }
+
+    @Override
+    public void broadcastOnSessionRestart() {
+        Intent intent = new Intent("on-session-restart");
         LocalBroadcastManager.getInstance(_context).sendBroadcast(intent);
     }
 }

@@ -94,6 +94,34 @@
                     android:layout_height="wrap_content"
                     android:gravity="right"
                     android:padding="10dip"
+                    android:text="Enqueue Token" />
+                <EditText
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="5dip"
+                    android:id="@+id/enqueuetoken_edittext"
+                    android:layout_weight="1" />
+            </TableRow>
+            <TableRow>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="right"
+                    android:padding="10dip"
+                    android:text="Enqueue Key" />
+                <EditText
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="5dip"
+                    android:id="@+id/enqueuekey_edittext"
+                    android:layout_weight="1" />
+            </TableRow>
+            <TableRow>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="right"
+                    android:padding="10dip"
                     android:text="Environment:" />
 
                 <RadioGroup

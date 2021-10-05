@@ -35,6 +35,8 @@ public class QueueService {
     private final String _sdkVersion;
     private final String _layoutName;
     private final String _language;
+    private final String _enqueueToken;
+    private final String _enqueueKey;
     private final QueueServiceListener _queueServiceListener;
 
     public static boolean IsTest = false;
@@ -54,9 +56,16 @@ public class QueueService {
                 .build().url();
     }
 
-    public QueueService(String customerId, String eventOrAliasId, String userId,
-                        String userAgent, String sdkVersion, String layoutName,
-                        String language, QueueServiceListener queueServiceListener) {
+    public QueueService(String customerId,
+                        String eventOrAliasId,
+                        String userId,
+                        String userAgent,
+                        String sdkVersion,
+                        String layoutName,
+                        String language,
+                        String enqueueToken,
+                        String enqueueKey,
+                        QueueServiceListener queueServiceListener){
         _customerId = customerId;
         _eventOrAliasId = eventOrAliasId;
         _userId = userId;
@@ -64,6 +73,8 @@ public class QueueService {
         _sdkVersion = sdkVersion;
         _layoutName = layoutName;
         _language = language;
+        _enqueueToken = enqueueToken;
+        _enqueueKey = enqueueKey;
         _queueServiceListener = queueServiceListener;
     }
 
@@ -170,6 +181,13 @@ public class QueueService {
             if (!TextUtils.isEmpty(_language)) {
                 jsonObject.put("language", _language);
             }
+            if(!TextUtils.isEmpty(_enqueueToken)){
+                jsonObject.put("enqueueToken", _enqueueToken);
+            }
+            if(!TextUtils.isEmpty(_enqueueKey)){
+                jsonObject.put("enqueueKey", _enqueueKey);
+            }
+
             return jsonObject;
         } catch (JSONException e) {
             throw new RuntimeException(e);

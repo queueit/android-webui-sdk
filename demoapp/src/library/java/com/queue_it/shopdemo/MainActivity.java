@@ -3,6 +3,7 @@ package com.queue_it.shopdemo;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import android.os.Bundle;
@@ -19,34 +20,59 @@ import com.queue_it.androidsdk.*;
 import com.queue_it.androidsdk.Error;
 
 public class MainActivity extends AppCompatActivity {
+    RadioButton enableCacheRadioButton;
+    FloatingActionButton queue_button;
+    EditText customerIdEditText;
+    EditText eventIdEditText;
+    EditText layoutNameEditText;
+    EditText languageEditText;
+    EditText enqueueTokenEditText;
+    EditText enqueueKeyEditText;
+    RadioButton testRadioButton;
+
+    private void runQueue(QueueITEngine queueITEngine) throws QueueITException {
+        String enqueueToken = enqueueTokenEditText.getText().toString();
+        String enqueueKey = enqueueKeyEditText.getText().toString();
+        if (enqueueToken.length() > 0) {
+            queueITEngine.runWithEnqueueToken(MainActivity.this, enqueueToken, !enableCacheRadioButton.isChecked());
+        } else if (enqueueKey.length() > 0) {
+            queueITEngine.runWithEnqueueKey(MainActivity.this, enqueueKey, !enableCacheRadioButton.isChecked());
+        } else {
+            queueITEngine.run(MainActivity.this, !enableCacheRadioButton.isChecked());
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        final FloatingActionButton queue_button = (FloatingActionButton)findViewById(R.id.queue_button);
-
-        final EditText customerIdEditText = (EditText)findViewById(R.id.customerid_edittext);
-        final EditText eventIdEditText = (EditText)findViewById(R.id.eventid_edittext);
-        final EditText layoutNameEditText = (EditText)findViewById(R.id.layoutname_edittext);
-        final EditText languageEditText = (EditText)findViewById(R.id.language_edittext);
-        final RadioButton testRadioButton = (RadioButton)findViewById(R.id.radio_environment_test);
-        final RadioButton enableCacheRadioButton = (RadioButton)findViewById(R.id.radio_cache_enabled);
-
+        queue_button = findViewById(R.id.queue_button);
+        customerIdEditText = findViewById(R.id.customerid_edittext);
+        eventIdEditText = findViewById(R.id.eventid_edittext);
+        layoutNameEditText = findViewById(R.id.layoutname_edittext);
+        languageEditText = findViewById(R.id.language_edittext);
+        testRadioButton = findViewById(R.id.radio_environment_test);
+        enableCacheRadioButton = findViewById(R.id.radio_cache_enabled);
         customerIdEditText.addTextChangedListener(getRequiredTextValidator(customerIdEditText));
         eventIdEditText.addTextChangedListener(getRequiredTextValidator(eventIdEditText));
+        enqueueTokenEditText = findViewById(R.id.enqueuetoken_edittext);
+        enqueueKeyEditText = findViewById(R.id.enqueuekey_edittext);
 
         final SharedPreferences sharedPreferences = getPreferences(Context.MODE_PRIVATE);
         String customerId = sharedPreferences.getString("customerId", "");
         String eventOrAliasId = sharedPreferences.getString("eventOrAliasId", "");
         String layoutName = sharedPreferences.getString("layoutName", "");
         String language = sharedPreferences.getString("language", "");
+        String enqueueToken = sharedPreferences.getString("enqueueToken", "");
+        String enqueueKey = sharedPreferences.getString("enqueueKey", "");
 
         customerIdEditText.setText(customerId);
         eventIdEditText.setText(eventOrAliasId);
         layoutNameEditText.setText(layoutName);
         languageEditText.setText(language);
+        enqueueTokenEditText.setText(enqueueToken);
+        enqueueKeyEditText.setText(enqueueKey);
 
         queue_button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -63,17 +89,32 @@ public class MainActivity extends AppCompatActivity {
                 String eventOrAliasId = eventIdEditText.getText().toString();
                 String layoutName = layoutNameEditText.getText().toString();
                 String language = languageEditText.getText().toString();
+                String enqueueToken = enqueueTokenEditText.getText().toString();
+                String enqueueKey = enqueueKeyEditText.getText().toString();
 
                 SharedPreferences.Editor editor = sharedPreferences.edit();
                 editor.putString("customerId", customerId);
                 editor.putString("eventOrAliasId", eventOrAliasId);
                 editor.putString("layoutName", layoutName);
                 editor.putString("language", language);
+                editor.putString("enqueueToken", enqueueToken);
+                editor.putString("enqueueKey", enqueueKey);
                 editor.commit();
 
                 Toast.makeText(getApplicationContext(), "Please wait for your turn.", Toast.LENGTH_SHORT).show();
 
                 QueueITEngine queueITEngine = new QueueITEngine(MainActivity.this, customerId, eventOrAliasId, layoutName, language, new QueueListener() {
+
+                    @Override
+                    public void onSessionRestart(QueueITEngine queueITEngine) {
+                        try {
+                            runQueue(queueITEngine);
+                        } catch (QueueITException e) {
+                            Toast.makeText(getApplicationContext(), "Please try again.", Toast.LENGTH_LONG).show();
+                            queue_button.setEnabled(true);
+                        }
+                    }
+
                     @Override
                     public void onQueuePassed(QueuePassedInfo queuePassedInfo) {
                         showResultActivity("You passed the queue! Your token: " + queuePassedInfo.getQueueItToken(), true);
@@ -111,9 +152,8 @@ public class MainActivity extends AppCompatActivity {
 
                 });
                 try {
-                    queueITEngine.run(MainActivity.this, !enableCacheRadioButton.isChecked());
-                }
-                catch (QueueITException e) {
+                    runQueue(queueITEngine);
+                } catch (QueueITException e) {
                     Toast.makeText(getApplicationContext(), "Please try again.", Toast.LENGTH_LONG).show();
                     queue_button.setEnabled(true);
                 }
@@ -121,38 +161,33 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void showResultActivity(String result, boolean success)
-    {
+    private void showResultActivity(String result, boolean success) {
         Intent intent = new Intent(this, ResultActivity.class);
         intent.putExtra("success", success);
         intent.putExtra("result", result);
         startActivity(intent);
     }
 
-    private boolean isAlphaNumeric(String s){
+    private boolean isAlphaNumeric(String s) {
         String pattern = "^[a-zA-Z0-9]*$";
         return s.matches(pattern);
     }
 
-    private void hideKeyboard()
-    {
+    private void hideKeyboard() {
         View view = this.getCurrentFocus();
         if (view != null) {
-            InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
     }
 
-    private TextValidator getRequiredTextValidator(TextView textView)
-    {
+    private TextValidator getRequiredTextValidator(TextView textView) {
         return new TextValidator(textView) {
-            @Override public void validate(TextView textView, String text) {
-                if (TextUtils.isEmpty(text))
-                {
+            @Override
+            public void validate(TextView textView, String text) {
+                if (TextUtils.isEmpty(text)) {
                     textView.setError("Field required");
-                }
-                else if (!isAlphaNumeric(text))
-                {
+                } else if (!isAlphaNumeric(text)) {
                     textView.setError("Must be alphanumeric");
                 }
             }

@@ -16,8 +16,11 @@ jobs:
         inputs:
           targetType: 'inline'
           script: |
-            echo "bintray.user=queueitdevs" > ./local.properties
-            echo "bintray.apiKey=${BINTRAY_APIKEY}" >> ./local.properties
+            echo "OSSRH_USERNAME=${OSSRH_USERNAME}" >> ./local.properties
+            echo "OSSRH_PASSWORD=${OSSRH_PASSWORD}" >> ./local.properties
+            echo "PGP_KEY=${PGP_KEY}" >> ./local.properties
+            echo "PGP_PASSWORD=${PGP_PASSWORD}" >> ./local.properties
+
         env:
           BINTRAY_APIKEY: $(BINTRAY_APIKEY)
 

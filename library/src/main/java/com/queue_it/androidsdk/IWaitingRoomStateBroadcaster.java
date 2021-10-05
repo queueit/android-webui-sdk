@@ -15,17 +15,21 @@ public interface IWaitingRoomStateBroadcaster {
 
     void broadcastWebViewClosed();
 
+    void broadcastOnSessionRestart();
+
     void registerReceivers(BroadcastReceiver queuePassedBroadcastReceiver,
                            BroadcastReceiver queueUrlChangedBroadcastReceiver,
                            BroadcastReceiver queueActivityClosedBroadcastReceiver,
                            BroadcastReceiver queueUserExitedBroadcastReceiver,
                            BroadcastReceiver queueErrorBroadcastReceiver,
-                           BroadcastReceiver webViewClosedBroadcastReceiver);
+                           BroadcastReceiver webViewClosedBroadcastReceiver,
+                           BroadcastReceiver onSessionRestartReceiver);
 
     void unregisterReceivers(BroadcastReceiver queuePassedBroadcastReceiver,
                              BroadcastReceiver queueUrlChangedBroadcastReceiver,
                              BroadcastReceiver queueActivityClosedBroadcastReceiver,
                              BroadcastReceiver queueUserExitedBroadcastReceiver,
                              BroadcastReceiver queueErrorBroadcastReceiver,
-                             BroadcastReceiver webViewClosedBroadcastReceiver);
+                             BroadcastReceiver webViewClosedBroadcastReceiver,
+                             BroadcastReceiver onSessionRestartReceiver);
 }

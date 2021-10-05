@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.os.Bundle;
 
 public class QueueActivity extends Activity {
-
     private QueueActivityBase base = new QueueActivityBase(this);
 
     @Override

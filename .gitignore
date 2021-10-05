@@ -15,3 +15,4 @@
 /public_key_sender.asc
 .idea
 *.gpg
+**/build

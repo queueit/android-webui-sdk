@@ -56,16 +56,30 @@ public class UriOverrider implements IUriOverrider {
                 && destinationPath.equals(targetPath);
     }
 
-    private boolean isCloseLink(Uri uri){
-        if(!uri.getScheme().equals("queueit")){
+    private boolean isQueueItUri(Uri uri) {
+        return uri.getScheme().equals("queueit");
+    }
+
+    private boolean isCloseLink(Uri uri) {
+        if (!isQueueItUri(uri)) {
             return false;
         }
         return uri.getHost().equals("close");
     }
 
-    private boolean handleDeepLink(WebView webview, Uri destinationUri, UriOverrideWrapper uriOverride){
-        if(isCloseLink(destinationUri)){
+    private boolean isSessionRestartLink(Uri uri) {
+        if (!isQueueItUri(uri)) {
+            return false;
+        }
+        return uri.getHost().equals("restartSession");
+    }
+
+    private boolean handleDeepLink(WebView webview, Uri destinationUri, UriOverrideWrapper uriOverride) {
+        if (isCloseLink(destinationUri)) {
             uriOverride.onCloseClicked();
+            return true;
+        } else if (isSessionRestartLink(destinationUri)) {
+            uriOverride.onSessionRestart();
             return true;
         }
         Intent browserIntent = new Intent(Intent.ACTION_VIEW, destinationUri);
