@@ -28,49 +28,56 @@ Invoke QueueITEngine as per example below. Parameters `layoutName`, `language` a
 ```java
 QueueITEngine engine = new QueueITEngine(YourActivity.this, customerId, eventIdOrAlias, layoutName, language,
   new QueueListener() {
-    
-    // This callback will be triggered when the user has been through the queue.
-    // Here you should store session information, so user will only be sent to queue again if the session has timed out. 
+    // This callback will be called when the user has been through the queue.
+    // Here you should store session information, so user will only be sent to queue again if the session has timed out.
     @Override
-    public void onQueuePassed(QueuePassedInfo queuePassedInfo) { 
+    public void onQueuePassed(QueuePassedInfo queuePassedInfo) {
     }
 
-    // This callback will be triggered just before the webview (hosting the queue page) will be shown.
-    // Here you can change some relevant UI elements. 
+    // This callback will be called just before the webview (hosting the queue page) will be shown.
+    // Here you can change some relevant UI elements.
     @Override
-    public void onQueueViewWillOpen() { 
+    public void onQueueViewWillOpen() {
     }
 
-    // This callback will be triggered when the queue used (event alias ID) is in the 'disabled' state.
-    // Most likely the application should still function, but the queue's 'disabled' state can be changed at any time, 
+    // This callback will be called when the queue used (event alias ID) is in the 'disabled' state.
+    // Most likely the application should still function, but the queue's 'disabled' state can be changed at any time,
     // so session handling is important.
     @Override
-    public void onQueueDisabled() { 
+    public void onQueueDisabled() {
     }
 
-    // This callback will be triggered when the mobile application can't reach Queue-it's servers.
+    // This callback will be called when the mobile application can't reach Queue-it's servers.
     // Most likely because the mobile device has no internet connection.
     // Here you decide if the application should function or not now that is has no queue-it protection.
     @Override
-    public void onQueueItUnavailable() { 
+    public void onQueueItUnavailable() {
     }
 
-    // This callback will be triggered when the mobile application can't reach Queue-it's servers.
+    // This callback will be called when the mobile application can't reach Queue-it's servers.
     // It can be any one of these scenarios:
     // 1) Queue-it's servers can't be reached (connectivity issue).
-    // 2) SSL connection error if custom queue domain is used having an invalid certificate. 
-    // 3) Client receives HTTP 4xx response. 
+    // 2) SSL connection error if custom queue domain is used having an invalid certificate.
+    // 3) Client receives HTTP 4xx response.
     // In all these cases is most likely a misconfiguration of the queue settings:
     // Invalid customer ID, event alias ID or cname setting on queue (GO Queue-it portal -> event settings).
     @Override
     public void onError(Error error, String errorMessage) {
     } // Called on connectivity problems
 
-    // This callback will be triggered after a user clicks a close link in the layout and the WebView closes.
+    // This callback will be called after a user clicks a close link in the layout and the WebView closes.
     // The close link is "queueit://close". Whenever the user navigates to this link, the SDK intercepts the navigation
     // and closes the WebView.
     @Override
     public void onWebViewClosed(){
+    }
+
+    // This callback will be called when the user clicks on a link to restart the session.
+    // The link is 'queueit://restartSession'. Whenever the user navigates to this link, the SDK intercepts the navigation,
+    // closes the WebView, clears the URL cache and calls this callback.
+    // In this callback you would normally call run/runWithToken/runWithKey in order to restart the queueing.
+    @Override
+    public void onSessionRestart(QueueITEngine queueITEngine) {
     }
   });
 
