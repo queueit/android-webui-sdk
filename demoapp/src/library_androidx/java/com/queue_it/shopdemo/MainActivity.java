@@ -35,11 +35,11 @@ public class MainActivity extends AppCompatActivity {
         String enqueueToken = enqueueTokenEditText.getText().toString();
         String enqueueKey = enqueueKeyEditText.getText().toString();
         if (enqueueToken.length() > 0) {
-            queueITEngine.runWithEnqueueToken(MainActivity.this, enqueueToken, !enableCacheRadioButton.isChecked());
+            queueITEngine.runWithEnqueueToken(this, enqueueToken, !enableCacheRadioButton.isChecked());
         } else if (enqueueKey.length() > 0) {
-            queueITEngine.runWithEnqueueKey(MainActivity.this, enqueueKey, !enableCacheRadioButton.isChecked());
+            queueITEngine.runWithEnqueueKey(this, enqueueKey, !enableCacheRadioButton.isChecked());
         } else {
-            queueITEngine.run(MainActivity.this, !enableCacheRadioButton.isChecked());
+            queueITEngine.run(this, !enableCacheRadioButton.isChecked());
         }
     }
 
@@ -136,8 +136,8 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                     @Override
-                    public void onQueueDisabled() {
-                        showResultActivity("The queue is disabled.", false);
+                    protected void onQueueDisabled(QueueDisabledInfo queueDisabledInfo) {
+                        showResultActivity("The queue is disabled. Your token: " + queueDisabledInfo.getQueueItToken(), false);
                         queue_button.setEnabled(true);
                     }
 

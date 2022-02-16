@@ -9,9 +9,8 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.0.0-alpha06'
+        classpath 'com.android.tools.build:gradle:7.1.1'
         classpath 'com.github.dcendents:android-maven-gradle-plugin:2.1'
-        classpath "gradle.plugin.xyz.tynn.buildsrc:publishing:0.1.2"
         classpath "io.codearte.gradle.nexus:gradle-nexus-staging-plugin:0.22.0"
         classpath "de.marcphilipp.gradle:nexus-publish-plugin:0.4.0"
     }
@@ -37,7 +36,7 @@ allprojects {
         groupId = 'com.queue-it.androidsdk'
         libraryName = 'com.queue_it.androidsdk'
         libraryDescription = 'Android SDK to integrate with Queue-it'
-        libraryVersion = "2.0.35"
+        libraryVersion = "2.0.36"
         organization = "Queue-it"
         organizationUrl = "https://queue-it.com"
 

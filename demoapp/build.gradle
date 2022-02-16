@@ -18,15 +18,16 @@ android {
         }
     }
 
-    lintOptions {
-        abortOnError false
-    }
 
     flavorDimensions "androidx"
     productFlavors{
         library_androidx
         //Note that this requires useAndroidx=false
         library
+    }
+    lint {
+        abortOnError false
+        checkReleaseBuilds false
     }
 }
 

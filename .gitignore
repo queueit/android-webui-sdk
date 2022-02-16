@@ -16,3 +16,8 @@
 .idea
 *.gpg
 **/build
+node_modules
+.classpath
+.project
+*.prefs
+dist

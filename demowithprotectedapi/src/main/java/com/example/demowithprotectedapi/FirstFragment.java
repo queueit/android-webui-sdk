@@ -16,9 +16,9 @@ import com.example.demowithprotectedapi.api.Product;
 import com.example.demowithprotectedapi.databinding.FragmentFirstBinding;
 import com.example.demowithprotectedapi.exceptions.MustBeQueued;
 import com.example.demowithprotectedapi.repos.IProductRepository;
-import com.example.demowithprotectedapi.repos.ProductRepository;
 import com.example.demowithprotectedapi.repos.RetrofitProductRepository;
 import com.queue_it.androidsdk.Error;
+import com.queue_it.androidsdk.QueueDisabledInfo;
 import com.queue_it.androidsdk.QueueITEngine;
 import com.queue_it.androidsdk.QueueITException;
 import com.queue_it.androidsdk.QueueListener;
@@ -40,10 +40,10 @@ public class FirstFragment extends Fragment {
 
     @Override
     public View onCreateView(
-            LayoutInflater inflater, ViewGroup container,
+            @NonNull LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState
     ) {
-        _productRepo = new RetrofitProductRepository();
+        _productRepo = new RetrofitProductRepository("https://fastly.v3.ticketania.com");
         binding = FragmentFirstBinding.inflate(inflater, container, false);
         return binding.getRoot();
     }
@@ -71,6 +71,16 @@ public class FirstFragment extends Fragment {
             QueueService.IsTest = true;
             final QueueITEngine q = new QueueITEngine(MainActivity.getInstance(), customerId, wrId, "", "", new QueueListener() {
                 @Override
+                protected void onSessionRestart(QueueITEngine queueITEngine) {
+                    try {
+                        queueITEngine.run(MainActivity.getInstance());
+                    } catch (QueueITException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+
+                @Override
                 protected void onQueuePassed(QueuePassedInfo queuePassedInfo) {
                     _productRepo.addQueueToken(queuePassedInfo.getQueueItToken());
                     _queuePassed.set(true);
@@ -91,8 +101,14 @@ public class FirstFragment extends Fragment {
                 }
 
                 @Override
-                public void onQueueDisabled() {
-                    Toast.makeText(MainActivity.getInstance(), "The queue is disabled.", Toast.LENGTH_SHORT).show();
+                public void onQueueDisabled(QueueDisabledInfo queueDisabledInfo) {
+                    Toast.makeText(MainActivity.getInstance(), "The queue is disabled. Your token: " + queueDisabledInfo.getQueueItToken()
+                            , Toast.LENGTH_SHORT).show();
+                    _productRepo.addQueueToken(queueDisabledInfo.getQueueItToken());
+                    _queuePassed.set(true);
+                    synchronized (queuedLock) {
+                        queuedLock.notify();
+                    }
                 }
 
                 @Override
@@ -130,9 +146,7 @@ public class FirstFragment extends Fragment {
                     }
                     assert e instanceof MustBeQueued;
                     Handler handler = new Handler(MainActivity.getInstance().getMainLooper());
-                    handler.post(() -> {
-                        queueUser(((MustBeQueued) e).getValue());
-                    });
+                    handler.post(() -> queueUser(((MustBeQueued) e).getValue()));
 
                     //Maybe wait for completion and repeat the call? This is optional.
                     try {

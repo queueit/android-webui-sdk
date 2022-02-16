@@ -28,6 +28,7 @@ Invoke QueueITEngine as per example below. Parameters `layoutName`, `language` a
 ```java
 QueueITEngine engine = new QueueITEngine(YourActivity.this, customerId, eventIdOrAlias, layoutName, language,
   new QueueListener() {
+
     // This callback will be called when the user has been through the queue.
     // Here you should store session information, so user will only be sent to queue again if the session has timed out.
     @Override

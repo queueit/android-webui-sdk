@@ -1,6 +1,5 @@
 package com.queue_it.androidsdk;
 
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -37,19 +36,41 @@ public class QueueITEngine {
     private Handler _checkConnectionHandler;
     private int _isOnlineRetry = 0;
 
-    public QueueITEngine(Activity applicationContext, String customerId, String eventOrAliasId,
+    public QueueITEngine(Context activityContext,
+                         String customerId,
+                         String eventOrAliasId,
                          QueueListener queueListener) {
-        this(applicationContext, customerId, eventOrAliasId, "", "", queueListener, QueueItEngineOptions.getDefault());
-    }
-
-    public QueueITEngine(Activity activityContext, String customerId, String eventOrAliasId, String layoutName,
-                         String language, QueueListener queueListener) {
-        this(activityContext, customerId, eventOrAliasId, layoutName, language, queueListener,
+        this(activityContext,
+                customerId,
+                eventOrAliasId,
+                "",
+                "",
+                queueListener,
                 QueueItEngineOptions.getDefault());
     }
 
-    public QueueITEngine(Activity activityContext, String customerId, String eventOrAliasId, String layoutName,
-                         String language, QueueListener queueListener, QueueItEngineOptions options) {
+    public QueueITEngine(Context activityContext,
+                         String customerId,
+                         String eventOrAliasId,
+                         String layoutName,
+                         String language,
+                         QueueListener queueListener) {
+        this(activityContext,
+                customerId,
+                eventOrAliasId,
+                layoutName,
+                language,
+                queueListener,
+                QueueItEngineOptions.getDefault());
+    }
+
+    public QueueITEngine(Context activityContext,
+                         String customerId,
+                         String eventOrAliasId,
+                         String layoutName,
+                         String language,
+                         QueueListener queueListener,
+                         QueueItEngineOptions options) {
         if (options == null) {
             options = QueueItEngineOptions.getDefault();
         }
@@ -94,14 +115,14 @@ public class QueueITEngine {
         return netInfo != null && netInfo.isConnected();
     }
 
-    public void run(Activity activityContext, boolean clearCache) throws QueueITException {
+    public void run(Context activityContext, boolean clearCache) throws QueueITException {
         if (clearCache) {
             _queueCache.clear();
         }
         run(activityContext);
     }
 
-    public void run(Activity activityContext) throws QueueITException {
+    public void run(Context activityContext) throws QueueITException {
         if (_requestInProgress.getAndSet(true)) {
             throw new QueueITException("Request is already in progress");
         }
@@ -111,11 +132,11 @@ public class QueueITEngine {
         _checkConnection.run();
     }
 
-    public void runWithEnqueueToken(Activity activityContext, String enqueueToken) throws QueueITException {
+    public void runWithEnqueueToken(Context activityContext, String enqueueToken) throws QueueITException {
         runWithEnqueueToken(activityContext, enqueueToken, false);
     }
 
-    public void runWithEnqueueToken(Activity activityContext, String enqueueToken, boolean clearCache)
+    public void runWithEnqueueToken(Context activityContext, String enqueueToken, boolean clearCache)
             throws QueueITException {
         if (_requestInProgress.getAndSet(true)) {
             throw new QueueITException("Request is already in progress");
@@ -129,11 +150,11 @@ public class QueueITEngine {
         _checkConnection.run();
     }
 
-    public void runWithEnqueueKey(Activity activityContext, String enqueueKey) throws QueueITException {
+    public void runWithEnqueueKey(Context activityContext, String enqueueKey) throws QueueITException {
         runWithEnqueueKey(activityContext, enqueueKey, false);
     }
 
-    public void runWithEnqueueKey(Activity activityContext, String enqueueKey, boolean clearCache)
+    public void runWithEnqueueKey(Context activityContext, String enqueueKey, boolean clearCache)
             throws QueueITException {
         if (_requestInProgress.getAndSet(true)) {
             throw new QueueITException("Request is already in progress");
@@ -268,9 +289,13 @@ public class QueueITEngine {
     }
 
     private void showQueue(String queueUrl, final String targetUrl) {
-        _stateBroadcaster.registerReceivers(_queuePassedBroadcastReceiver, _queueUrlChangedBroadcastReceiver,
-                _queueActivityClosedBroadcastReceiver, _queueUserExitedBroadcastReceiver, _queueErrorBroadcastReceiver,
-                _webViewClosedBroadcastReceiver, _webViewOnSessionRestartReceiver);
+        _stateBroadcaster.registerReceivers(_queuePassedBroadcastReceiver,
+                _queueUrlChangedBroadcastReceiver,
+                _queueActivityClosedBroadcastReceiver,
+                _queueUserExitedBroadcastReceiver,
+                _queueErrorBroadcastReceiver,
+                _webViewClosedBroadcastReceiver,
+                _webViewOnSessionRestartReceiver);
 
         Intent intent = new Intent(_context, QueueActivity.class);
         intent.putExtra("queueUrl", queueUrl);
@@ -293,12 +318,12 @@ public class QueueITEngine {
         _queueCache.clear();
         _queueListener.onQueuePassed(new QueuePassedInfo(queueItToken));
         _isInQueue = false;
-
         _requestInProgress.set(false);
     }
 
-    private void raiseQueueDisabled() {
-        _queueListener.onQueueDisabled();
+    private void raiseQueueDisabled(String queueItToken) {
+        _queueListener.onQueueDisabled(new QueueDisabledInfo(queueItToken));
+        _isInQueue = false;
     }
 
     private void raiseWebViewClosed() {
@@ -321,8 +346,11 @@ public class QueueITEngine {
 
         QueueServiceListener queueServiceListener = new QueueServiceListener() {
             @Override
-            public void onSuccess(String queueId, String queueUrlString, int queueUrlTtlInMinutes,
-                                  String eventTargetUrl, String queueItToken) {
+            public void onSuccess(String queueId,
+                                  String queueUrlString,
+                                  int queueUrlTtlInMinutes,
+                                  String eventTargetUrl,
+                                  String queueItToken) {
                 handleAppEnqueueResponse(queueId, queueUrlString, queueUrlTtlInMinutes, eventTargetUrl, queueItToken);
                 _requestInProgress.set(false);
             }
@@ -350,7 +378,7 @@ public class QueueITEngine {
             QueueITEngine.this.raiseQueuePassed(queueItToken);
             return;
         } else if (IsDisabled(queueId, queueUrlString)) {
-            QueueITEngine.this.raiseQueueDisabled();
+            QueueITEngine.this.raiseQueueDisabled(queueItToken);
             return;
         }
 

@@ -21,8 +21,8 @@ public class RetrofitProductRepository implements IProductRepository {
     private final String _baseUrl;
     private final QueueITInterceptor _queueItInterceptor;
 
-    public RetrofitProductRepository() {
-        _baseUrl = "https://fastly.v3.ticketania.com";
+    public RetrofitProductRepository(String baseUrl) {
+        _baseUrl = baseUrl;
         CookieStorage cookies = new CookieStorage();
         _queueItInterceptor = new QueueITInterceptor(cookies);
         OkHttpClient client = new OkHttpClient.Builder()

@@ -7,8 +7,6 @@ android {
     defaultConfig {
         minSdkVersion 15
         targetSdkVersion 30
-        versionCode 1
-        versionName libraryVersion
 
         buildConfigField 'String', 'VERSION_NAME', "\"$libraryVersion\""
     }
@@ -26,14 +24,14 @@ android {
         }
     }
 
-    lintOptions {
-        abortOnError false
-    }
 
     flavorDimensions "androidx"
     productFlavors{
         library_androidx
         library
+    }
+    lint {
+        abortOnError false
     }
 }
 
