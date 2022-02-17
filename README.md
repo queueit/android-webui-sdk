@@ -45,7 +45,7 @@ QueueITEngine engine = new QueueITEngine(YourActivity.this, customerId, eventIdO
     // Most likely the application should still function, but the queue's 'disabled' state can be changed at any time,
     // so session handling is important.
     @Override
-    public void onQueueDisabled() {
+    public void onQueueDisabled(QueueDisabledInfo queueDisabledInfo) {
     }
 
     // This callback will be called when the mobile application can't reach Queue-it's servers.
