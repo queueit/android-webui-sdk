@@ -119,3 +119,7 @@ options.setBackButtonDisabledFromWR(true);
 ```xml
 <activity android:name="com.queue_it.androidsdk.QueueActivity" />
 ```
+
+## License
+
+Refer to the LICENSE.md
