@@ -26,7 +26,7 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-public class QueueService {
+public class QueueITApiClient {
 
     private final String _customerId;
     private final String _eventOrAliasId;
@@ -37,7 +37,7 @@ public class QueueService {
     private final String _language;
     private final String _enqueueToken;
     private final String _enqueueKey;
-    private final QueueServiceListener _queueServiceListener;
+    private final QueueITApiClientListener _queueITApiClientListener;
 
     public static boolean IsTest = false;
 
@@ -56,16 +56,16 @@ public class QueueService {
                 .build().url();
     }
 
-    public QueueService(String customerId,
-                        String eventOrAliasId,
-                        String userId,
-                        String userAgent,
-                        String sdkVersion,
-                        String layoutName,
-                        String language,
-                        String enqueueToken,
-                        String enqueueKey,
-                        QueueServiceListener queueServiceListener){
+    public QueueITApiClient(String customerId,
+                            String eventOrAliasId,
+                            String userId,
+                            String userAgent,
+                            String sdkVersion,
+                            String layoutName,
+                            String language,
+                            String enqueueToken,
+                            String enqueueKey,
+                            QueueITApiClientListener queueITApiClientListener){
         _customerId = customerId;
         _eventOrAliasId = eventOrAliasId;
         _userId = userId;
@@ -75,7 +75,7 @@ public class QueueService {
         _language = language;
         _enqueueToken = enqueueToken;
         _enqueueKey = enqueueKey;
-        _queueServiceListener = queueServiceListener;
+        _queueITApiClientListener = queueITApiClientListener;
     }
 
     public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
@@ -86,7 +86,7 @@ public class QueueService {
         String putBody = getJsonObject().toString();
         RequestBody body = RequestBody.create(JSON, putBody);
 
-        Log.v("QueueService", "API call " + getISO8601StringForDate(Calendar.getInstance().getTime()) + ": " + enqueueUrl.toString() + ": " + putBody);
+        Log.v("QueueITApiClient", "API call " + getISO8601StringForDate(Calendar.getInstance().getTime()) + ": " + enqueueUrl.toString() + ": " + putBody);
 
         Request request = new Request.Builder()
                 .url(enqueueUrl)
@@ -101,7 +101,7 @@ public class QueueService {
                 mainHandler.post(new Runnable() {
                     @Override
                     public void run() {
-                        _queueServiceListener.onFailure(message, 0);
+                        _queueITApiClientListener.onFailure(message, 0);
                     }
                 });
             }
@@ -114,7 +114,7 @@ public class QueueService {
                     mainHandler.post(new Runnable() {
                         @Override
                         public void run() {
-                            _queueServiceListener.onFailure(errorMessage, code);
+                            _queueITApiClientListener.onFailure(errorMessage, code);
                         }
                     });
                     return;
@@ -134,14 +134,14 @@ public class QueueService {
                             String updatedQueueUrl = QueueUrlHelper.urlUpdateNeeded(queueUrl, _userId) ?
                                     QueueUrlHelper.updateUrl(queueUrl, _userId).toString() :
                                     queueUrl;
-                            _queueServiceListener.onSuccess(queueId, updatedQueueUrl, queueUrlTtlInMinutes, eventTargetUrl, queueItToken);
+                            _queueITApiClientListener.onSuccess(queueId, updatedQueueUrl, queueUrlTtlInMinutes, eventTargetUrl, queueItToken);
                         }
                     });
                 } catch (JSONException e) {
                     mainHandler.post(new Runnable() {
                         @Override
                         public void run() {
-                            _queueServiceListener.onFailure("Server did not return valid JSON: " + body, 0);
+                            _queueITApiClientListener.onFailure("Server did not return valid JSON: " + body, 0);
                         }
                     });
                 }
