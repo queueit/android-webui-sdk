@@ -151,7 +151,7 @@ public class QueueITWaitingRoomProvider {
         } else {
             _deltaSec = INITIAL_WAIT_RETRY_SEC;
             _requestInProgress.set(false);
-            _queueITWaitingRoomProviderListener.onFailure("Error! Queue is unavailable.", Error.NO_CONNECTION);
+            _queueITWaitingRoomProviderListener.onFailure("Error! Queue is unavailable.", Error.Queueit_NotAvailable);
         }
     }
 

@@ -12,7 +12,6 @@ public class QueueITWaitingRoomView {
     private final QueueListener _queueListener;
     private final QueueItEngineOptions _options;
     private Context _context;
-    private boolean _isInQueue;
 
     private int _delayInterval = 0;
 
@@ -57,10 +56,6 @@ public class QueueITWaitingRoomView {
         _delayInterval = delayInterval;
     }
 
-    public boolean isInQueue() {
-        return _isInQueue;
-    }
-
 
     private void showQueuePage(String queueUrl, final String targetUrl) {
         _stateBroadcaster.registerReceivers(_queuePassedBroadcastReceiver,
@@ -81,7 +76,6 @@ public class QueueITWaitingRoomView {
 
     private void raiseQueueViewWillOpen() {
         _queueListener.onQueueViewWillOpen();
-        _isInQueue = true;
     }
 
     private void raiseUserExited() {
@@ -90,7 +84,6 @@ public class QueueITWaitingRoomView {
 
     private void raiseQueuePassed(String queueItToken) {
         _queueListener.onQueuePassed(new QueuePassedInfo(queueItToken));
-        _isInQueue = false;
     }
 
     private void raiseWebViewClosed() {

@@ -125,6 +125,10 @@ public class QueueITEngine {
 
             @Override
             public void onFailure(String errorMessage, Error errorCode) {
+                if (errorCode == Error.Queueit_NotAvailable){
+                    _queueITEngineListener.onQueueItUnavailable();
+                    return;
+                }
                 _queueITEngineListener.onError(errorCode,errorMessage);
             }
         };
@@ -135,10 +139,6 @@ public class QueueITEngine {
 
     public void setViewDelay(int delayInterval) {
         _queueITWaitingRoomView.setViewDelay(delayInterval);
-    }
-
-    public boolean isInQueue() {
-        return _queueITWaitingRoomView.isInQueue();
     }
 
     public boolean IsRequestInProgress() {
