@@ -10,7 +10,7 @@ A sample app to try out functionality in the library can be found on the [Releas
 
 ## Installation
 
-Before starting please download the whitepaper **Mobile App Integration** from GO Queue-it Platform.
+Before starting please download the whitepaper "Mobile App Integration" from GO Queue-it Platform.
 This whitepaper contains the needed information to perform a successful integration.
 
 Using Gradle:
@@ -21,8 +21,16 @@ implementation 'com.queue-it.androidsdk:library:2.0.34'
 //implementation 'com.queue-it.androidsdk:library-androidx:2.0.34'
 ```
 
-## Usage
+## How to use the library
 
+As the App developer, you must manage the state (whether the user was previously queued up or not) inside the app's storage.
+
+After you have received the **onQueuePassed** callback, the app must remember to keep the state, possibly with a date/time expiration.
+When the user wants to navigate to specific pages of your concern on the app, you check this state, and only call **QueueITEngine.run** in the case where the user did not previously queue up.
+
+Please note that when the user clicks back, the same check needs to be done.
+
+### Sample code
 Invoke QueueITEngine as per example below. Parameters `layoutName`, `language` and `options` are optional.
 
 ```java
@@ -45,7 +53,7 @@ QueueITEngine engine = new QueueITEngine(YourActivity.this, customerId, eventIdO
     // Most likely the application should still function, but the queue's 'disabled' state can be changed at any time,
     // so session handling is important.
     @Override
-    public void onQueueDisabled(QueueDisabledInfo queueDisabledInfo) {
+    public void onQueueDisabled() {
     }
 
     // This callback will be called when the mobile application can't reach Queue-it's servers.
@@ -88,10 +96,7 @@ QueueITEngine engine = new QueueITEngine(YourActivity.this, customerId, eventIdO
   catch (QueueITException e) { } // Gets thrown when a request is already in progress. In general you can ignore this.
 ```
 
-As the App developer your must manage the state (whether user was previously queued up or not) inside the apps storage.
-After you have received the "onQueuePassed callback", the app must remember this, possibly with a date / time expiration.
-When the user goes to the next page - you check this state, and only call QueueITEngine.run in the case where the user did not previously queue up.
-When the user clicks back, the same check needs to be done.
+
 
 ![App Integration Flow](https://github.com/queueit/android-webui-sdk/blob/master/App%20integration%20flow.PNG "App Integration Flow")
 
@@ -106,6 +111,32 @@ QueueItEngineOptions options = new QueueItEngineOptions();
 // Use this if you want to disable the back button when the waiting room is shown
 options.setBackButtonDisabledFromWR(true);
 ```
+
+## Getting the status of a waiting room
+
+It is possible to get the status of a waiting room to make sure it is ready to be visited. To do this, one of the below methods from **QueueITWaitingRoomProvider** class could be used.
+
+- tryPass
+- tryPassWithEnqueueToken
+- tryPassWithEnqueueKey
+
+Calling any of these methods will result in executing **onSuccess** or **onFailure** callbacks. These two callbacks must be provided by implementing **QueueITWaitingRoomProviderListener** interface and passed to the constructor of **QueueITWaitingRoomProvider** class, and will lead to below:
+
+- If **isPassedThrough()** retuns true, queueittoken and more information will be available as an argument to **OnSuccess** function with type of **QueueTryPassResult**.
+- If **isPassedThrough()** returns false, it means that the waiting room is active. The waitingroom page should be shown to the visitor by calling **showQueue** method of the **QueueITWaitingRoomView**, then the visitor will wait for its turn. The **showQueue** method needs **QueryTryPassResult** object from **OnSuccess** function.
+
+## Showing the queue page to visitor
+
+When waiting room is queueing the visitors, each visitor has to visit the waiting room page once. The queue page could be shown to visitors when it is necessary using **showQueue** method of **QueueITWaitingRoomView** class. 
+Before calling **showQueue**, the status of the waiting room should be already retrieved as described in [Get waiting room status](#Get-waiting-room-status) to make sure that the waiting room is ready. 
+
+sample code for showing the queue page:
+
+```java
+QueueITWaitingRoomView queueITWaitingRoomView = new QueueITWaitingRoomView(MainActivity.this, queueListener, queueItEngineOptions);
+queueITWaitingRoomView.showQueue(_queuePassedInfo.getQueueUrl(), _queuePassedInfo.getTargetUrl());
+```
+
 
 ## Required permissions
 
