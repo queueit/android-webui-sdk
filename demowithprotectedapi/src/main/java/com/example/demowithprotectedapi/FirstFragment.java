@@ -19,11 +19,11 @@ import com.example.demowithprotectedapi.repos.IProductRepository;
 import com.example.demowithprotectedapi.repos.RetrofitProductRepository;
 import com.queue_it.androidsdk.Error;
 import com.queue_it.androidsdk.QueueDisabledInfo;
+import com.queue_it.androidsdk.QueueITApiClient;
 import com.queue_it.androidsdk.QueueITEngine;
 import com.queue_it.androidsdk.QueueITException;
 import com.queue_it.androidsdk.QueueListener;
 import com.queue_it.androidsdk.QueuePassedInfo;
-import com.queue_it.androidsdk.QueueService;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -68,7 +68,7 @@ public class FirstFragment extends Fragment {
             Uri valueUri = Uri.parse(URLDecoder.decode(value, StandardCharsets.UTF_8.name()));
             String customerId = valueUri.getQueryParameter("c");
             String wrId = valueUri.getQueryParameter("e");
-            QueueService.IsTest = true;
+            QueueITApiClient.IsTest = true;
             final QueueITEngine q = new QueueITEngine(MainActivity.getInstance(), customerId, wrId, "", "", new QueueListener() {
                 @Override
                 protected void onSessionRestart(QueueITEngine queueITEngine) {

@@ -4,5 +4,6 @@ public enum Error
 {
     NO_CONNECTION,
     INVALID_RESPONSE,
-    SSL_ERROR
+    SSL_ERROR,
+    Queueit_NotAvailable
 }
