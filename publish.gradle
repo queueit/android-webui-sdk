@@ -76,9 +76,9 @@ afterEvaluate {
                         root.dependencies.removeAll { dep ->
                             dep.scope == "test"
                         }
-                        def pomfile = file("/home/vsts/work/1/s/app-sdk-android/library/build/generated-library-pom.xml")
+                        // def pomfile = file("/home/vsts/work/1/s/app-sdk-android/library/build/generated-library-pom.xml")
                         // Create a signed pom if we need it
-                        // def pomfile = file("${project.buildDir}/generated-${variant.flavorName}-pom.xml")
+                        def pomfile = file("${project.buildDir}/library/build/generated-${variant.flavorName}-pom.xml")
                         writeTo(pomFile)
                         signing.sign(pomFile)
                     }
