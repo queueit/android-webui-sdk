@@ -16,9 +16,9 @@ This whitepaper contains the needed information to perform a successful integrat
 Using Gradle:
 
 ```gradle
-implementation 'com.queue-it.androidsdk:library:2.0.34'
+implementation 'com.queue-it.androidsdk:library:2.1.0'
 //For AndroidX
-//implementation 'com.queue-it.androidsdk:library-androidx:2.0.34'
+//implementation 'com.queue-it.androidsdk:library-androidx:2.1.0'
 ```
 
 ## How to use the library
@@ -53,7 +53,7 @@ QueueITEngine engine = new QueueITEngine(YourActivity.this, customerId, eventIdO
     // Most likely the application should still function, but the queue's 'disabled' state can be changed at any time,
     // so session handling is important.
     @Override
-    public void onQueueDisabled() {
+    public void onQueueDisabled(QueueDisabledInfo queueDisabledInfo) {
     }
 
     // This callback will be called when the mobile application can't reach Queue-it's servers.
