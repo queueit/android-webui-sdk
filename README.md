@@ -7,6 +7,7 @@ Library for integrating Queue-it's virtual waiting room into an Android app writ
 ## Sample app
 
 A sample app to try out functionality in the library can be found on the [Releases](https://github.com/queueit/android-sdk/releases) page.
+This sample app uses the first approach of integration calling QueueITEngine run method. 
 
 ## Installation
 
@@ -21,16 +22,17 @@ implementation 'com.queue-it.androidsdk:library:2.1.0'
 //implementation 'com.queue-it.androidsdk:library-androidx:2.1.0'
 ```
 
-## How to use the library
+## How to use the library (Mobile SDK integration only, no API protection)
 
 As the App developer, you must manage the state (whether the user was previously queued up or not) inside the app's storage.
 
 After you have received the **onQueuePassed** callback, the app must remember to keep the state, possibly with a date/time expiration.
-When the user wants to navigate to specific pages of your concern on the app, you check this state, and only call **QueueITEngine.run** in the case where the user did not previously queue up.
+When the user wants to navigate to specific screens on the app which needs Queue-it protection, your code check this state/variable, and only call SDK methods / **QueueITEngine.run** in the case where the user did not previously queue up.
 
-Please note that when the user clicks back, the same check needs to be done.
+Please note that when the user clicks back to navigate back to a protected screen, the same check needs to be done.
 
-### Sample code
+### Simple SDK integration using run method. 
+The simplest mobile SDK integration requires you to call one method, run() before showing the protected screen and potentially calling server API which needs peak traffic protection. 
 Invoke QueueITEngine as per example below. Parameters `layoutName`, `language` and `options` are optional.
 
 ```java
@@ -100,7 +102,6 @@ QueueITEngine engine = new QueueITEngine(YourActivity.this, customerId, eventIdO
 
 ![App Integration Flow](https://github.com/queueit/android-webui-sdk/blob/master/App%20integration%20flow.PNG "App Integration Flow")
 
-If your application is using an API that's protected by a Queue-it connector (KnownUser) you can check out [this documentation](https://github.com/queueit/android-webui-sdk/blob/master/documentation/protected_apis.md).
 
 ### QueueITEngine options
 
@@ -112,7 +113,13 @@ QueueItEngineOptions options = new QueueItEngineOptions();
 options.setBackButtonDisabledFromWR(true);
 ```
 
-## Getting the status of a waiting room
+## Mobile SDK integration with tryPass and showQueue methods: 
+
+If you need finner granularity control over the mobile integration, you can use tryPass and showQue instead of just using run method which will open a webview to the Queue when needed. 
+
+This provides you more control of the logic before potentially opening the webview and showing the Queue page, as well as more control over the webview showing the queue page. 
+
+### Checking status of Waiting room
 
 It is possible to get the status of a waiting room to make sure it is ready to be visited. To do this, one of the below methods from **QueueITWaitingRoomProvider** class could be used.
 
@@ -136,7 +143,8 @@ sample code for showing the queue page:
 QueueITWaitingRoomView queueITWaitingRoomView = new QueueITWaitingRoomView(MainActivity.this, queueListener, queueItEngineOptions);
 queueITWaitingRoomView.showQueue(_queuePassedInfo.getQueueUrl(), _queuePassedInfo.getTargetUrl());
 ```
-
+## Mobile SDK Integration with proteced API (Queue-it connector on server side): 
+If your application is using an API that's protected by a Queue-it connector (KnownUser) you can check out [this documentation](https://github.com/queueit/android-webui-sdk/blob/master/documentation/protected_apis.md).
 
 ## Required permissions
 
