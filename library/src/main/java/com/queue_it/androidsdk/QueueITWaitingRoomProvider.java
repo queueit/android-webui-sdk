@@ -126,6 +126,7 @@ public class QueueITWaitingRoomProvider {
                 Log.v("WaitingRoomProvider", String.format("Error: %s: %s", errorCode, errorMessage));
                 if (errorCode >= 400 && errorCode < 500) {
                     _queueITWaitingRoomProviderListener.onFailure(String.format("Error %s (%s)",errorMessage , errorCode), Error.INVALID_RESPONSE);
+                    _requestInProgress.set(false);
                 } else {
                     QueueITWaitingRoomProvider.this.enqueueRetryMonitor(enqueueToken, enqueueKey);
                 }
@@ -190,6 +191,7 @@ public class QueueITWaitingRoomProvider {
             _isOnlineRetry++;
             if (_isOnlineRetry > 5) {
                 _queueITWaitingRoomProviderListener.onFailure( "No connection", Error.NO_CONNECTION);
+                _requestInProgress.set(false);
                 return;
             }
 
