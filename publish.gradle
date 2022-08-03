@@ -87,9 +87,18 @@ afterEvaluate {
     }
 }
 
+Properties localProps = new Properties()
+if (rootProject.file("local.properties").exists()) {
+    localProps.load(rootProject.file("local.properties").newDataInputStream())
+}
+
 //Sign all of our publications with our PGP private key
 signing {
-    useInMemoryPgpKeys(PGP_KEY, PGP_PASSWORD)
+    def pgpKey = localProps.getProperty("PGP_KEY") ?: System.getenv("PGP_KEY")
+    println 'PGP Key follows:'
+    println pgpKey
+    println PGP_KEY
+    useInMemoryPgpKeys(pgpKey, PGP_PASSWORD)
     publishing.publications.all { publication ->
         sign(publication)
     }
