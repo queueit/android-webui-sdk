@@ -94,11 +94,7 @@ if (rootProject.file("local.properties").exists()) {
 
 //Sign all of our publications with our PGP private key
 signing {
-    def pgpKey = localProps.getProperty("PGP_KEY") ?: System.getenv("PGP_KEY")
-    println 'PGP Key follows:'
-    println pgpKey
-    println PGP_KEY
-    useInMemoryPgpKeys(pgpKey, PGP_PASSWORD)
+    useInMemoryPgpKeys(PGP_KEY, PGP_PASSWORD)
     publishing.publications.all { publication ->
         sign(publication)
     }
@@ -106,6 +102,8 @@ signing {
 
 nexusPublishing {
     repositories {
+        println OSSRH_USERNAME
+        println OSSRH_PASSWORD
         sonatype {
             username.set(OSSRH_USERNAME)
             password.set(OSSRH_PASSWORD)

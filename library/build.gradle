@@ -43,7 +43,7 @@ dependencies {
     testImplementation 'pl.pragmatists:JUnitParams:1.0.5'
     testImplementation 'org.robolectric:robolectric:4.4'
 
-    implementation 'com.squareup.okhttp3:okhttp:4.9.0'
+    implementation 'com.squareup.okhttp3:okhttp:4.9.2'
     library_androidxApi 'androidx.appcompat:appcompat:1.2.0'
     library_androidxApi 'androidx.localbroadcastmanager:localbroadcastmanager:1.0.0'
 
