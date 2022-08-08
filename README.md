@@ -17,9 +17,9 @@ This whitepaper contains the needed information to perform a successful integrat
 Using Gradle:
 
 ```gradle
-implementation 'com.queue-it.androidsdk:library:2.1.2'
+implementation 'com.queue-it.androidsdk:library:2.1.3'
 //For AndroidX
-//implementation 'com.queue-it.androidsdk:library-androidx:2.1.2'
+//implementation 'com.queue-it.androidsdk:library-androidx:2.1.3'
 ```
 
 ## How to use the library (Mobile SDK integration only, no API protection)
