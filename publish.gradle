@@ -102,8 +102,6 @@ signing {
 
 nexusPublishing {
     repositories {
-        println OSSRH_USERNAME
-        println OSSRH_PASSWORD
         sonatype {
             username.set(OSSRH_USERNAME)
             password.set(OSSRH_PASSWORD)

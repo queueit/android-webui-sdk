@@ -113,7 +113,7 @@ public class QueueITEngine {
                     queueITQueueListener.onQueuePassed(new QueuePassedInfo(queueTryPassResult.getQueueItToken()));
                     return;
                 }
-                if (queueTryPassResult.getRedirectType() == RedirectType.disabled){
+                if (queueTryPassResult.getRedirectType() == RedirectType.disabled || queueTryPassResult.getRedirectType() == RedirectType.afterevent || queueTryPassResult.getRedirectType() == RedirectType.idle) {
                     queueITQueueListener.onQueueDisabled(new QueueDisabledInfo(queueTryPassResult.getQueueItToken()));
                     return;
                 }
