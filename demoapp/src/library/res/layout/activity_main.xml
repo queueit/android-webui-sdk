@@ -145,36 +145,7 @@
                 </RadioGroup>
 
             </TableRow>
-            <TableRow>
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:gravity="right"
-                    android:padding="10dip"
-                    android:text="Cache:" />
-
-                <RadioGroup
-                    android:orientation="horizontal"
-                    android:checkedButton="@+id/radio_cache_enabled"
-                    >
-                    <RadioButton
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Enabled"
-                        android:id="@+id/radio_cache_enabled"
-                        android:layout_column="1" />
-
-                    <RadioButton
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Disabled"
-                        android:id="@+id/radio_cache_disabled"
-                        android:layout_column="1" />
-
-                </RadioGroup>
-
-            </TableRow>
         </TableLayout>
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton

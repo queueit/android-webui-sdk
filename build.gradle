@@ -36,7 +36,7 @@ allprojects {
         groupId = 'com.queue-it.androidsdk'
         libraryName = 'com.queue_it.androidsdk'
         libraryDescription = 'Android SDK to integrate with Queue-it'
-        libraryVersion = "2.1.3"
+        libraryVersion = "2.1.4"
         organization = "Queue-it"
         organizationUrl = "https://queue-it.com"
 

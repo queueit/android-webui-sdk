@@ -9,8 +9,6 @@ public class QueueITEngine {
     private QueueITWaitingRoomProvider _queueITWaitingRoomProvider;
     private QueueITWaitingRoomView _queueITWaitingRoomView;
 
-    private final QueueCache _queueCache;
-
     private QueueListener _queueITEngineListener;
     private QueueTryPassResult _queueTryPassResult;
 
@@ -53,13 +51,11 @@ public class QueueITEngine {
             options = QueueItEngineOptions.getDefault();
         }
         UserAgentManager.initialize(activityContext);
-        _queueCache = new QueueCache(activityContext, customerId, eventOrAliasId);
         _queueITEngineListener = queueListener;
 
         QueueListener queueITQueueListener = new QueueListener() {
             @Override
             protected void onQueuePassed(QueuePassedInfo queuePassedInfo) {
-                _queueCache.clear();
                 _queueITEngineListener.onQueuePassed(queuePassedInfo);
             }
 
@@ -85,7 +81,6 @@ public class QueueITEngine {
 
             @Override
             public void onSessionRestart(QueueITEngine queueITEngine) {
-                _queueCache.clear();
                 _queueITEngineListener.onSessionRestart(QueueITEngine.this);
             }
 
@@ -102,7 +97,6 @@ public class QueueITEngine {
             @Override
             protected void onQueueUrlChanged(String url) {
                 _queueITEngineListener.onQueueUrlChanged(url);
-                updateQueuePageUrl(url);
             }
         };
 
@@ -120,7 +114,6 @@ public class QueueITEngine {
 
                 _queueTryPassResult = queueTryPassResult;
                 _queueITWaitingRoomView.showQueue(_queueTryPassResult);
-                _queueCache.update(queueTryPassResult.getQueueUrl(), queueTryPassResult.getUrlTTLInMinutes(), queueTryPassResult.getTargetUrl());
             }
 
             @Override
@@ -145,76 +138,32 @@ public class QueueITEngine {
         return _queueITWaitingRoomProvider.IsRequestInProgress();
     }
 
-    public void run(Context activityContext, boolean clearCache) throws QueueITException {
-        if (clearCache) {
-            _queueCache.clear();
-        }
-        run(activityContext);
-    }
+
 
     public void run(Context activityContext) throws QueueITException {
-        if(!tryToShowQueueFromCache()){
             _queueITWaitingRoomProvider.tryPass();
-        }
+
     }
 
-    public void runWithEnqueueToken(Context activityContext, String enqueueToken) throws QueueITException {
-        runWithEnqueueToken(activityContext, enqueueToken, false);
-    }
 
-    public void runWithEnqueueToken(Context activityContext, String enqueueToken, boolean clearCache)
+    public void runWithEnqueueToken(Context activityContext, String enqueueToken)
             throws QueueITException {
         if (_queueITWaitingRoomProvider.IsRequestInProgress()){
             throw new QueueITException("Request is already in progress");
         }
-        if (clearCache) {
-            _queueCache.clear();
-        }
 
-        if(!tryToShowQueueFromCache()){
             _queueITWaitingRoomProvider.tryPassWithEnqueueToken(enqueueToken);
-        }
 
     }
 
-    public void runWithEnqueueKey(Context activityContext, String enqueueKey) throws QueueITException {
-        runWithEnqueueKey(activityContext, enqueueKey, false);
-    }
 
-    public void runWithEnqueueKey(Context activityContext, String enqueueKey, boolean clearCache)
+    public void runWithEnqueueKey(Context activityContext, String enqueueKey)
             throws QueueITException {
         if (_queueITWaitingRoomProvider.IsRequestInProgress()){
             throw new QueueITException("Request is already in progress");
         }
-        if (clearCache) {
-            _queueCache.clear();
-        }
-        if(!tryToShowQueueFromCache()){
-            _queueITWaitingRoomProvider.tryPassWithEnqueueKey(enqueueKey);
-        }
-    }
 
-    private boolean tryToShowQueueFromCache() {
-        if (_queueCache.isEmpty()) {
-            return false;
-        }
-
-        Calendar cachedTime = _queueCache.getUrlTtl();
-        Calendar currentTime = Calendar.getInstance();
-
-        if (currentTime.compareTo(cachedTime) < 0) {
-            String queueUrl = _queueCache.getQueueUrl();
-            Log.v("QueueITEngine", String.format("Using queueUrl from cache: %s", queueUrl));
-            _queueITWaitingRoomView.showQueue(_queueTryPassResult);
-            return true;
-        }
-        return false;
-    }
-
-    private void updateQueuePageUrl(String queueUrl) {
-        if (!_queueCache.isEmpty()) {
-            _queueCache.update(queueUrl, _queueCache.getUrlTtl(), _queueCache.getTargetUrl());
-        }
+        _queueITWaitingRoomProvider.tryPassWithEnqueueKey(enqueueKey);
     }
 
     public String getSdkVersion() {

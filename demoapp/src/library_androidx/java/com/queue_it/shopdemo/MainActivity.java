@@ -23,7 +23,6 @@ import com.queue_it.androidsdk.*;
 import com.queue_it.androidsdk.Error;
 
 public class MainActivity extends AppCompatActivity {
-    RadioButton enableCacheRadioButton;
     FloatingActionButton queue_button;
     FloatingActionButton queueSession_button;
     FloatingActionButton show_queue_button;
@@ -95,11 +94,11 @@ public class MainActivity extends AppCompatActivity {
         String enqueueToken = enqueueTokenEditText.getText().toString();
         String enqueueKey = enqueueKeyEditText.getText().toString();
         if (enqueueToken.length() > 0) {
-            queueITEngine.runWithEnqueueToken(this, enqueueToken, !enableCacheRadioButton.isChecked());
+            queueITEngine.runWithEnqueueToken(this, enqueueToken);
         } else if (enqueueKey.length() > 0) {
-            queueITEngine.runWithEnqueueKey(this, enqueueKey, !enableCacheRadioButton.isChecked());
+            queueITEngine.runWithEnqueueKey(this, enqueueKey);
         } else {
-            queueITEngine.run(this, !enableCacheRadioButton.isChecked());
+            queueITEngine.run(this);
         }
     }
 
@@ -128,7 +127,6 @@ public class MainActivity extends AppCompatActivity {
         layoutNameEditText = findViewById(R.id.layoutname_edittext);
         languageEditText = findViewById(R.id.language_edittext);
         testRadioButton = findViewById(R.id.radio_environment_test);
-        enableCacheRadioButton = findViewById(R.id.radio_cache_enabled);
         customerIdEditText.addTextChangedListener(getRequiredTextValidator(customerIdEditText));
         eventIdEditText.addTextChangedListener(getRequiredTextValidator(eventIdEditText));
         enqueueTokenEditText = findViewById(R.id.enqueuetoken_edittext);

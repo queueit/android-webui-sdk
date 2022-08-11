@@ -20,7 +20,6 @@ import com.queue_it.androidsdk.*;
 import com.queue_it.androidsdk.Error;
 
 public class MainActivity extends AppCompatActivity {
-    RadioButton enableCacheRadioButton;
     FloatingActionButton queue_button;
     EditText customerIdEditText;
     EditText eventIdEditText;
@@ -34,11 +33,11 @@ public class MainActivity extends AppCompatActivity {
         String enqueueToken = enqueueTokenEditText.getText().toString();
         String enqueueKey = enqueueKeyEditText.getText().toString();
         if (enqueueToken.length() > 0) {
-            queueITEngine.runWithEnqueueToken(MainActivity.this, enqueueToken, !enableCacheRadioButton.isChecked());
+            queueITEngine.runWithEnqueueToken(MainActivity.this, enqueueToken);
         } else if (enqueueKey.length() > 0) {
-            queueITEngine.runWithEnqueueKey(MainActivity.this, enqueueKey, !enableCacheRadioButton.isChecked());
+            queueITEngine.runWithEnqueueKey(MainActivity.this, enqueueKey);
         } else {
-            queueITEngine.run(MainActivity.this, !enableCacheRadioButton.isChecked());
+            queueITEngine.run(MainActivity.this);
         }
     }
 
@@ -53,7 +52,6 @@ public class MainActivity extends AppCompatActivity {
         layoutNameEditText = findViewById(R.id.layoutname_edittext);
         languageEditText = findViewById(R.id.language_edittext);
         testRadioButton = findViewById(R.id.radio_environment_test);
-        enableCacheRadioButton = findViewById(R.id.radio_cache_enabled);
         customerIdEditText.addTextChangedListener(getRequiredTextValidator(customerIdEditText));
         eventIdEditText.addTextChangedListener(getRequiredTextValidator(eventIdEditText));
         enqueueTokenEditText = findViewById(R.id.enqueuetoken_edittext);
