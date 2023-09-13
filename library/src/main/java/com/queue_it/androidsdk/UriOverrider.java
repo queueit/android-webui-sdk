@@ -102,7 +102,7 @@ public class UriOverrider implements IUriOverrider {
 
         String navigationHost = destinationUri.getHost();
         String queueHost = queue.getHost();
-        boolean isQueueItUrl = navigationHost != null && queueHost != null && queueHost.contains(navigationHost);
+        boolean isQueueItUrl = navigationHost != null && queueHost != null && queueHost.equals(navigationHost);
         if (isQueueItUrl) {
             boolean needsRewrite = QueueUrlHelper.urlUpdateNeeded(destinationUri, userId);
             if (needsRewrite) {

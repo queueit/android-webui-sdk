@@ -491,5 +491,4 @@ public class UriOverriderTest {
         verify(webView).loadUrl(argument.capture());
         assertEquals(expectedRewrittenUrl, argument.getValue());
     }
-
 }
