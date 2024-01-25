@@ -145,16 +145,3 @@ queueITWaitingRoomView.showQueue(_queuePassedInfo.getQueueUrl(), _queuePassedInf
 ```
 ## Mobile SDK Integration with proteced API (Queue-it connector on server side): 
 If your application is using an API that's protected by a Queue-it connector (KnownUser) you can check out [this documentation](https://github.com/queueit/android-webui-sdk/blob/master/documentation/protected_apis.md).
-
-## Required permissions
-
-```xml
-<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-<uses-permission android:name="android.permission.INTERNET"/>
-```
-
-## Activities to include in your manifest
-
-```xml
-<activity android:name="com.queue_it.androidsdk.QueueActivity" />
-```
