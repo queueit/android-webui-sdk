@@ -231,6 +231,44 @@ public class UriOverriderTest {
     }
 
     @Test
+    public void givenUserIsNavigatingToOtherPathThenLoadShouldBeCancelledAndIntentShouldBeStarted() {
+        UriOverrider testObj = new UriOverrider();
+        testObj.setQueue(Uri.parse("https://useraccount.queue-it.net/app/enqueue"));
+        testObj.setTarget(Uri.parse("https://www.qoqa.ch/"));
+        WebView webView = getMockedWebview();
+        final AtomicBoolean queuePassed = new AtomicBoolean(false);
+        ArgumentCaptor<Intent> argument = ArgumentCaptor.forClass(Intent.class);
+        String otherPage = "https://www.qoqa.ch/concept";
+
+        boolean loadCancelled = testObj.handleNavigationRequest(otherPage, webView, new UriOverrideWrapper() {
+            @Override
+            protected void onQueueUrlChange(String uri) {
+                System.out.print(uri);
+            }
+
+            @Override
+            protected void onPassed(String queueItToken) {
+                queuePassed.set(true);
+            }
+
+            @Override
+            protected void onCloseClicked() {
+
+            }
+
+            @Override
+            protected void onSessionRestart() {
+
+            }
+        });
+
+        assertTrue(loadCancelled);
+        assertFalse(queuePassed.get());
+
+        verify(webView.getContext()).startActivity(argument.capture());
+    }
+
+    @Test
     public void givenAppUserIsRedirectedToDeepLinkThenLoadShouldBeCancelled() {
         UriOverrider testObj = new UriOverrider();
         testObj.setQueue(Uri.parse("qapp://enqueue"));
