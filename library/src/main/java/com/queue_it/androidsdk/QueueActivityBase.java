@@ -142,7 +142,7 @@ public class QueueActivityBase {
         });
         webview.setWebViewClient(webviewClient);
         Log.v("QueueITEngine", "Loading initial URL: " + queueUrl);
-        setUserAgent(UserAgentManager.getUserAgent());
+        setUserAgent();
         webview.loadUrl(queueUrl);
     }
 
@@ -185,7 +185,14 @@ public class QueueActivityBase {
         _context.finish();
     }
 
-    private void setUserAgent(String userAgent) {
+    private void setUserAgent() {
+        String userAgent;
+        if (_context.getApplication() instanceof UserAgentProvider) {
+            userAgent = ((UserAgentProvider) _context.getApplication()).getUserAgent();
+        } else {
+            userAgent = UserAgentManager.getUserAgent();
+        }
+
         System.setProperty("http.agent", userAgent);
         webview.getSettings().setUserAgentString(userAgent);
     }
