@@ -8,6 +8,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.webkit.CookieSyncManager;
 import android.webkit.SslErrorHandler;
 import android.webkit.WebChromeClient;
@@ -118,6 +119,7 @@ public class QueueActivityBase {
     public void initialize(Bundle savedInstanceState) {
         uriOverrider = new UriOverrider();
         _context.setContentView(R.layout.activity_queue);
+        _context.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         readActivityExtras(savedInstanceState);
         cleanupWebView();
         final ProgressBar progressBar = _context.findViewById(R.id.progressBar);
