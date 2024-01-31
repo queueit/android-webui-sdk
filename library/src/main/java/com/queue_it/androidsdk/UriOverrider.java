@@ -50,7 +50,7 @@ public class UriOverrider implements IUriOverrider {
         String destinationPath = destinationUri.getPath();
 
         String targetHost = target.getHost();
-        String targetPath = destinationUri.getPath();
+        String targetPath = target.getPath();
 
         return destinationHost.equalsIgnoreCase(targetHost)
                 && destinationPath.equals(targetPath);
