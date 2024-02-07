@@ -178,7 +178,7 @@ public class MainActivity extends AppCompatActivity {
                     QueueItEngineOptions queueItEngineOptions = getQueueItEngineOptions();
                     QueueITWaitingRoomView queueITWaitingRoomView =
                             new QueueITWaitingRoomView(MainActivity.this, queueListener, queueItEngineOptions);
-                    queueITWaitingRoomView.showQueue(_queueTryPassResult);
+                    queueITWaitingRoomView.showQueue(_queueTryPassResult, queueItEngineOptions.getWebViewUserAgent() );
                     _queueTryPassResult = null;
                 }
             }

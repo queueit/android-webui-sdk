@@ -24,6 +24,7 @@ public class QueueActivityBase {
     private String queueUrl;
     private String targetUrl;
     private WebView webview;
+    private String webViewUserAgent;
     @SuppressLint("StaticFieldLeak")
     private static WebView previousWebView;
     private IUriOverrider uriOverrider;
@@ -142,13 +143,14 @@ public class QueueActivityBase {
         });
         webview.setWebViewClient(webviewClient);
         Log.v("QueueITEngine", "Loading initial URL: " + queueUrl);
-        setUserAgent(UserAgentManager.getUserAgent());
+        setUserAgent(webViewUserAgent);
         webview.loadUrl(queueUrl);
     }
 
     public void saveInstanceState(Bundle outState) {
         outState.putString("queueUrl", queueUrl);
         outState.putString("targetUrl", targetUrl);
+        outState.putString("webViewUserAgent", webViewUserAgent);
         outState.putString("userId", uriOverrider.getUserId());
     }
 
@@ -164,15 +166,18 @@ public class QueueActivityBase {
             if (extras == null) {
                 queueUrl = null;
                 targetUrl = null;
+                webViewUserAgent = null;
             } else {
                 queueUrl = extras.getString("queueUrl");
                 targetUrl = extras.getString("targetUrl");
+                webViewUserAgent = extras.getString("webViewUserAgent");
                 uriOverrider.setUserId(extras.getString("userId"));
                 options = (QueueItEngineOptions)extras.getParcelable("options");
             }
         } else {
             queueUrl = (String) savedInstanceState.getSerializable("queueUrl");
             targetUrl = (String) savedInstanceState.getSerializable("targetUrl");
+            webViewUserAgent = (String) savedInstanceState.getSerializable("webViewUserAgent");
             uriOverrider.setUserId((String) savedInstanceState.getSerializable("userId"));
         }
 
@@ -186,6 +191,7 @@ public class QueueActivityBase {
     }
 
     private void setUserAgent(String userAgent) {
+        userAgent = (userAgent != null) ? userAgent : UserAgentManager.getUserAgent();
         System.setProperty("http.agent", userAgent);
         webview.getSettings().setUserAgentString(userAgent);
     }

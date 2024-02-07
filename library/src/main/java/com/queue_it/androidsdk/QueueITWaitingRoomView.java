@@ -35,7 +35,7 @@ public class QueueITWaitingRoomView {
         _options = options;
     }
 
-    public void showQueue(final QueueTryPassResult queueTryPassResult) {
+    public void showQueue(final QueueTryPassResult queueTryPassResult, String webViewUserAgent) {
         if(queueTryPassResult == null){
             Log.e("QueueITWaitingRoomView", "queuePassedInfo parameter is empty");
             return;
@@ -45,7 +45,7 @@ public class QueueITWaitingRoomView {
         Handler handler = new Handler();
         Runnable r = new Runnable() {
             public void run() {
-                showQueuePage(queueTryPassResult.getQueueUrl(), queueTryPassResult.getTargetUrl());
+                showQueuePage(queueTryPassResult.getQueueUrl(), queueTryPassResult.getTargetUrl(), webViewUserAgent);
             }
         };
         handler.postDelayed(r, _delayInterval);
@@ -57,7 +57,7 @@ public class QueueITWaitingRoomView {
     }
 
 
-    private void showQueuePage(String queueUrl, final String targetUrl) {
+    private void showQueuePage(String queueUrl, final String targetUrl, String webViewUserAgent) {
         _stateBroadcaster.registerReceivers(_queuePassedBroadcastReceiver,
                 _queueUrlChangedBroadcastReceiver,
                 _queueActivityClosedBroadcastReceiver,
@@ -69,6 +69,7 @@ public class QueueITWaitingRoomView {
         Intent intent = new Intent(_context, QueueActivity.class);
         intent.putExtra("queueUrl", queueUrl);
         intent.putExtra("targetUrl", targetUrl);
+        intent.putExtra("webViewUserAgent", webViewUserAgent);
         intent.putExtra("userId", getUserId());
         intent.putExtra("options", _options);
         _context.startActivity(intent);

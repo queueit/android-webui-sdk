@@ -100,6 +100,8 @@ public class QueueITEngine {
             }
         };
 
+        final String webViewUserAgent = options.getWebViewUserAgent();
+
         QueueITWaitingRoomProviderListener queueITWaitingRoomProviderListener = new QueueITWaitingRoomProviderListener() {
             @Override
             public void onSuccess(QueueTryPassResult queueTryPassResult) {
@@ -113,7 +115,7 @@ public class QueueITEngine {
                 }
 
                 _queueTryPassResult = queueTryPassResult;
-                _queueITWaitingRoomView.showQueue(_queueTryPassResult);
+                _queueITWaitingRoomView.showQueue(_queueTryPassResult, webViewUserAgent);
             }
 
             @Override
