@@ -22,4 +22,3 @@ The integration can be described in the following steps:
 4. Scenario 2, user should not be queued  
 4.1. We store the Queue-it cookies from the response
 
-![API Integration Flow](https://github.com/queueit/android-webui-sdk/blob/master/documentation/App%20+%20Connector%20integration%20with%20QueueITToken.png "App Integration Flow")
