@@ -121,6 +121,14 @@ public class QueueActivityBase {
         _context.setContentView(R.layout.activity_queue);
         readActivityExtras(savedInstanceState);
         cleanupWebView();
+
+        if (queueUrl == null || targetUrl == null) {
+            broadcaster.broadcastQueueError("Failed to load the queue. Queue Url or Target Url are missing from the running Activity. " +
+                    "Please, check the error logs for more details.");
+            _context.finish();
+            return;
+        }
+
         final ProgressBar progressBar = _context.findViewById(R.id.progressBar);
 
         FrameLayout layout = _context.findViewById(R.id.relativeLayout);
@@ -152,6 +160,12 @@ public class QueueActivityBase {
         outState.putString("targetUrl", targetUrl);
         outState.putString("webViewUserAgent", webViewUserAgent);
         outState.putString("userId", uriOverrider.getUserId());
+
+        Log.i("QueueITEngine", "Saving instance state:");
+        Log.i("QueueITEngine", "queueUrl: " + queueUrl);
+        Log.i("QueueITEngine", "targetUrl: " + targetUrl);
+        Log.i("QueueITEngine", "webViewUserAgent: " + webViewUserAgent);
+        Log.i("QueueITEngine", "userId: " + uriOverrider.getUserId());
     }
 
     public void destroy() {
@@ -181,8 +195,17 @@ public class QueueActivityBase {
             uriOverrider.setUserId((String) savedInstanceState.getSerializable("userId"));
         }
 
-        uriOverrider.setTarget(Uri.parse(targetUrl));
-        uriOverrider.setQueue(Uri.parse(queueUrl));
+        if (targetUrl != null) {
+            uriOverrider.setTarget(Uri.parse(targetUrl));
+        } else {
+            Log.e("QueueITEngine", "targetUrl is null, cannot set target Uri");
+        }
+
+        if (queueUrl != null) {
+            uriOverrider.setQueue(Uri.parse(queueUrl));
+        } else {
+            Log.e("QueueITEngine", "queueUrl is null, cannot set queue Uri");
+        }
     }
 
     private void disposeWebview(WebView webView) {

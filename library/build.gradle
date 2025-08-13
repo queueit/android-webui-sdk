@@ -76,11 +76,4 @@ artifacts {
     archives sourcesJar
 }
 
-nexusStaging {
-    stagingProfileId = "219f8fe296e7e"
-    packageGroup = groupId
-    username = OSSRH_USERNAME
-    password = OSSRH_PASSWORD
-}
-
 apply from: '../publish.gradle' // Makes this library publishable
