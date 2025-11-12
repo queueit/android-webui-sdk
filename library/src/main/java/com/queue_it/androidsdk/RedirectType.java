@@ -7,5 +7,7 @@ public enum RedirectType {
     afterevent,
     disabled,
     directLink,
-    idle
+    idle,
+    debug,
+    bypass
 }

@@ -72,6 +72,7 @@ public class QueueITWaitingRoomView {
         intent.putExtra("webViewUserAgent", webViewUserAgent);
         intent.putExtra("userId", getUserId());
         intent.putExtra("options", _options);
+
         _context.startActivity(intent);
     }
 

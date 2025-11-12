@@ -2,7 +2,6 @@ package com.queue_it.androidsdk;
 
 public class QueueTryPassResult {
     private final String _queueItToken;
-
     private final boolean _isPassedThrough;
     private final String _queueUrl;
     private final String _targetUrl;

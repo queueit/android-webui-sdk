@@ -40,13 +40,7 @@ afterEvaluate {
         android.libraryVariants.all { variant ->
             if (variant.buildType.name == "debug") return // Prevents publishing debug library
 
-            def flavored = !variant.flavorName.isEmpty()
-
-            /**
-             * Translates "_" in flavor names to "-" for artifactIds, because "-" in flavor name is an
-             * illegal character, but is well used in artifactId names.
-             */
-            def variantArtifactId = flavored ? variant.flavorName.replace('_', '-') : project.name
+            def variantArtifactId = project.name
             def publicationName = "android-webui-sdk-${variant.name.capitalize()}"
 
             def sourceDirs = variant.sourceSets.collect {
@@ -55,11 +49,11 @@ afterEvaluate {
             def sourcesJar = task("${variant.name}SourcesJar", type: Jar) {
                 description "Puts sources for ${variant.name} in a jar."
                 from sourceDirs
-                classifier = 'sources'
+                archiveClassifier = 'sources'
             }
 
             "$publicationName"(MavenPublication) {
-                from components."${variant.flavorName}Release"
+                from components.release
                 artifactId variantArtifactId
                 group groupId
                 version libraryVersion
@@ -76,7 +70,7 @@ afterEvaluate {
                             dep.scope == "test"
                         }
                         // Create a signed pom if we need it
-                        def pomFile = file("${project.buildDir}/generated-${variant.flavorName}-pom.xml")
+                        def pomFile = file("${project.buildDir}/generated-${variant.name}-pom.xml")
                         writeTo(pomFile)
                         signing.sign(pomFile)
                     }

@@ -23,8 +23,10 @@ public class RetrofitProductRepository implements IProductRepository {
 
     public RetrofitProductRepository(String baseUrl) {
         _baseUrl = baseUrl;
+
         CookieStorage cookies = new CookieStorage();
         _queueItInterceptor = new QueueITInterceptor(cookies);
+
         OkHttpClient client = new OkHttpClient.Builder()
                 .addInterceptor(_queueItInterceptor)
                 .addInterceptor(new AddCookiesInterceptor(cookies))
@@ -39,6 +41,7 @@ public class RetrofitProductRepository implements IProductRepository {
                 .baseUrl(_baseUrl)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
+
         _service = retrofit.create(ProductsService.class);
     }
 

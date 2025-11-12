@@ -5,9 +5,9 @@ import java.io.IOException;
 public class MustBeQueued extends IOException {
     private final String value;
 
-    public MustBeQueued(String s) {
-        super("Must be queued in: " + s);
-        this.value = s;
+    public MustBeQueued(String queueUrl) {
+        super("Must be queued in: " + queueUrl);
+        this.value = queueUrl;
     }
 
     public String getValue() {

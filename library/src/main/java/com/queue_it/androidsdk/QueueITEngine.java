@@ -1,55 +1,29 @@
 package com.queue_it.androidsdk;
 
 import android.content.Context;
-import android.util.Log;
-import java.util.Calendar;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 public class QueueITEngine {
-
     private QueueITWaitingRoomProvider _queueITWaitingRoomProvider;
     private QueueITWaitingRoomView _queueITWaitingRoomView;
 
     private QueueListener _queueITEngineListener;
     private QueueTryPassResult _queueTryPassResult;
 
-    public QueueITEngine(Context activityContext,
-                         String customerId,
-                         String eventOrAliasId,
-                         QueueListener queueListener) {
-        this(activityContext,
-                customerId,
-                eventOrAliasId,
-                "",
-                "",
-                queueListener,
-                QueueItEngineOptions.getDefault());
-    }
-
-    public QueueITEngine(Context activityContext,
-                         String customerId,
-                         String eventOrAliasId,
-                         String layoutName,
-                         String language,
-                         QueueListener queueListener) {
-        this(activityContext,
-                customerId,
-                eventOrAliasId,
-                layoutName,
-                language,
-                queueListener,
-                QueueItEngineOptions.getDefault());
-    }
-
-    public QueueITEngine(Context activityContext,
-                         String customerId,
-                         String eventOrAliasId,
-                         String layoutName,
-                         String language,
-                         QueueListener queueListener,
-                         QueueItEngineOptions options) {
+    public QueueITEngine(@NonNull Context activityContext,
+                         @NonNull String customerId,
+                         @NonNull String eventOrAliasId,
+                         @Nullable String layoutName,
+                         @Nullable String language,
+                         @Nullable String waitingRoomDomain,
+                         @Nullable String queuePathPrefix,
+                         @NonNull QueueListener queueListener,
+                         @Nullable QueueItEngineOptions options) {
         if (options == null) {
             options = QueueItEngineOptions.getDefault();
         }
+
         UserAgentManager.initialize(activityContext);
         _queueITEngineListener = queueListener;
 
@@ -128,7 +102,17 @@ public class QueueITEngine {
             }
         };
 
-        _queueITWaitingRoomProvider = new QueueITWaitingRoomProvider(activityContext, customerId,eventOrAliasId,layoutName,language, queueITWaitingRoomProviderListener);
+        _queueITWaitingRoomProvider = new QueueITWaitingRoomProvider(
+                activityContext,
+                customerId,
+                eventOrAliasId,
+                layoutName,
+                language,
+                waitingRoomDomain,
+                queuePathPrefix,
+                queueITWaitingRoomProviderListener
+        );
+
         _queueITWaitingRoomView = new QueueITWaitingRoomView(activityContext, queueITQueueListener, options);
     }
 
@@ -140,27 +124,19 @@ public class QueueITEngine {
         return _queueITWaitingRoomProvider.IsRequestInProgress();
     }
 
-
-
     public void run(Context activityContext) throws QueueITException {
             _queueITWaitingRoomProvider.tryPass();
-
     }
 
-
-    public void runWithEnqueueToken(Context activityContext, String enqueueToken)
-            throws QueueITException {
-        if (_queueITWaitingRoomProvider.IsRequestInProgress()){
+    public void runWithEnqueueToken(Context activityContext, String enqueueToken) throws QueueITException {
+        if (_queueITWaitingRoomProvider.IsRequestInProgress()) {
             throw new QueueITException("Request is already in progress");
         }
 
-            _queueITWaitingRoomProvider.tryPassWithEnqueueToken(enqueueToken);
-
+        _queueITWaitingRoomProvider.tryPassWithEnqueueToken(enqueueToken);
     }
 
-
-    public void runWithEnqueueKey(Context activityContext, String enqueueKey)
-            throws QueueITException {
+    public void runWithEnqueueKey(Context activityContext, String enqueueKey) throws QueueITException {
         if (_queueITWaitingRoomProvider.IsRequestInProgress()){
             throw new QueueITException("Request is already in progress");
         }

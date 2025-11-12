@@ -7,8 +7,7 @@ public class UserAgentManager {
     public static final String SDKVersion = com.queue_it.androidsdk.BuildConfig.LIBRARY_PACKAGE_NAME + "@" + BuildConfig.VERSION_NAME;
     private static String DeviceUserAgent;
 
-    private UserAgentManager(){
-    }
+    private UserAgentManager() { }
 
     public static void initialize(Context context) {
         DeviceUserAgent = new WebView(context).getSettings().getUserAgentString();

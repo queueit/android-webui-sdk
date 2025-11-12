@@ -40,11 +40,12 @@ public class FirstFragment extends Fragment {
 
     @Override
     public View onCreateView(
-            @NonNull LayoutInflater inflater, ViewGroup container,
+            @NonNull LayoutInflater inflater,
+            ViewGroup container,
             Bundle savedInstanceState
     ) {
-        _productRepo = new RetrofitProductRepository("https://fastly.v3.ticketania.com");
         binding = FragmentFirstBinding.inflate(inflater, container, false);
+
         return binding.getRoot();
     }
 
@@ -52,6 +53,13 @@ public class FirstFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         binding.buttonFirst.setOnClickListener(view1 -> {
+            _productRepo = new RetrofitProductRepository("https://fastly.v3.ticketania.com");
+            ProductHandler productHandler = new ProductHandler();
+            productHandler.execute();
+        });
+
+        binding.buttonCdn.setOnClickListener(view1 -> {
+            _productRepo = new RetrofitProductRepository("https://akamai-cdn.v4.ticketania.com");
             ProductHandler productHandler = new ProductHandler();
             productHandler.execute();
         });
@@ -66,10 +74,18 @@ public class FirstFragment extends Fragment {
     private void queueUser(String value) {
         try {
             Uri valueUri = Uri.parse(URLDecoder.decode(value, StandardCharsets.UTF_8.name()));
+
             String customerId = valueUri.getQueryParameter("c");
-            String wrId = valueUri.getQueryParameter("e");
-            QueueITApiClient.IsTest = true;
-            final QueueITEngine q = new QueueITEngine(MainActivity.getInstance(), customerId, wrId, "", "", new QueueListener() {
+            String waitingRoomId = valueUri.getQueryParameter("e");
+
+            String cultureId = valueUri.getQueryParameter("cid");
+            String layoutName = valueUri.getQueryParameter("l");
+            String enqueueToken = valueUri.getQueryParameter("enqueuetoken");
+
+            String waitingRoomDomain = valueUri.getAuthority();
+            String queuePathPrefix = valueUri.getPath();
+
+            QueueListener queueListener = new QueueListener() {
                 @Override
                 protected void onSessionRestart(QueueITEngine queueITEngine) {
                     try {
@@ -77,7 +93,6 @@ public class FirstFragment extends Fragment {
                     } catch (QueueITException e) {
                         e.printStackTrace();
                     }
-
                 }
 
                 @Override
@@ -125,16 +140,33 @@ public class FirstFragment extends Fragment {
                 public void onWebViewClosed() {
                     Toast.makeText(MainActivity.getInstance(), "WebView closed", Toast.LENGTH_SHORT).show();
                 }
-            });
-            q.run(MainActivity.getInstance());
+            };
+
+            final QueueITEngine queueitEngine = new QueueITEngine(
+                    MainActivity.getInstance(),
+                    customerId,
+                    waitingRoomId,
+                    layoutName,
+                    cultureId,
+                    waitingRoomDomain,
+                    queuePathPrefix,
+                    queueListener,
+                    null
+            );
+
+            if (enqueueToken != null) {
+                queueitEngine.runWithEnqueueToken(MainActivity.getInstance(), enqueueToken);
+            }
+            else {
+                queueitEngine.run(MainActivity.getInstance());
+            }
+
         } catch (QueueITException | UnsupportedEncodingException e) {
             e.printStackTrace();
         }
     }
 
     public class ProductHandler extends AsyncTask<Void, Void, Product> {
-
-
         @Override
         protected Product doInBackground(Void[] objects) {
             synchronized (queuedLock) {
@@ -144,6 +176,7 @@ public class FirstFragment extends Fragment {
                     if (!(e instanceof MustBeQueued)) {
                         e.printStackTrace();
                     }
+
                     assert e instanceof MustBeQueued;
                     Handler handler = new Handler(MainActivity.getInstance().getMainLooper());
                     handler.post(() -> queueUser(((MustBeQueued) e).getValue()));
@@ -153,7 +186,9 @@ public class FirstFragment extends Fragment {
                         while (!_queuePassed.get()) {
                             queuedLock.wait();
                         }
+
                         Thread.sleep(1000);
+
                         return _productRepo.getProduct();
                     } catch (InterruptedException | IOException ex) {
                         ex.printStackTrace();

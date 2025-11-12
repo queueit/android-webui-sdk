@@ -7,6 +7,8 @@ import android.os.Handler;
 import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.Log;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
@@ -18,6 +20,8 @@ public class QueueITWaitingRoomProvider {
     private final String _eventOrAliasId;
     private final String _layoutName;
     private final String _language;
+    private final String _waitingRoomDomain;
+    private final String _queuePathPrefix;
     private final QueueITWaitingRoomProviderListener _queueITWaitingRoomProviderListener;
     private Context _context;
     private final AtomicBoolean _requestInProgress;
@@ -32,54 +36,48 @@ public class QueueITWaitingRoomProvider {
 
     private static final Pattern pattern = Pattern.compile("\\~rt_(.*?)\\~");
 
-    public QueueITWaitingRoomProvider(Context activityContext,
-                                      String customerId,
-                                      String eventOrAliasId,
-                                      QueueITWaitingRoomProviderListener queueITWaitingRoomProviderListener) {
-        this(activityContext,
-                customerId,
-                eventOrAliasId,
-                "",
-                "",
-                queueITWaitingRoomProviderListener
-        );
-    }
-
-    public QueueITWaitingRoomProvider(Context activityContext,
-                                      String customerId,
-                                      String eventOrAliasId,
-                                      String layoutName,
-                                      String language,
-                                      QueueITWaitingRoomProviderListener queueITWaitingRoomProviderListener) {
+    public QueueITWaitingRoomProvider(@NonNull Context activityContext,
+                                      @NonNull String customerId,
+                                      @NonNull String eventOrAliasId,
+                                      @Nullable String layoutName,
+                                      @Nullable String language,
+                                      @Nullable String waitingRoomDomain,
+                                      @Nullable String queuePathPrefix,
+                                      @NonNull QueueITWaitingRoomProviderListener queueITWaitingRoomProviderListener) {
         _requestInProgress = new AtomicBoolean(false);
+
         UserAgentManager.initialize(activityContext);
+
         if (TextUtils.isEmpty(customerId)) {
             throw new IllegalArgumentException("customerId must have a value");
         }
+
         if (TextUtils.isEmpty(eventOrAliasId)) {
             throw new IllegalArgumentException("eventOrAliasId must have a value");
         }
+
         _context = activityContext;
         _customerId = customerId;
         _eventOrAliasId = eventOrAliasId;
         _layoutName = layoutName;
         _language = language;
+        _waitingRoomDomain = waitingRoomDomain;
+        _queuePathPrefix = queuePathPrefix;
         _queueITWaitingRoomProviderListener = queueITWaitingRoomProviderListener;
         _deltaSec = INITIAL_WAIT_RETRY_SEC;
     }
-
 
     public void tryPass() throws QueueITException {
         if (_requestInProgress.getAndSet(true)) {
             throw new QueueITException("Request is already in progress");
         }
+
         _checkConnectionRunner = new QueueITWaitingRoomProvider.EnqueueRunner();
         _checkConnectionHandler = new Handler();
         _checkConnectionRunner.run();
     }
 
-    public void tryPassWithEnqueueToken(String enqueueToken)
-            throws QueueITException {
+    public void tryPassWithEnqueueToken(String enqueueToken) throws QueueITException {
         if (_requestInProgress.getAndSet(true)) {
             throw new QueueITException("Request is already in progress");
         }
@@ -89,8 +87,7 @@ public class QueueITWaitingRoomProvider {
         _checkConnectionRunner.run();
     }
 
-    public void tryPassWithEnqueueKey(String enqueueKey)
-            throws QueueITException {
+    public void tryPassWithEnqueueKey(String enqueueKey) throws QueueITException {
         if (_requestInProgress.getAndSet(true)) {
             throw new QueueITException("Request is already in progress");
         }
@@ -124,32 +121,49 @@ public class QueueITWaitingRoomProvider {
             @Override
             public void onFailure(String errorMessage, int errorCode) {
                 Log.v("WaitingRoomProvider", String.format("Error: %s: %s", errorCode, errorMessage));
+
                 if (errorCode >= 400 && errorCode < 500) {
                     _queueITWaitingRoomProviderListener.onFailure(String.format("Error %s (%s)",errorMessage , errorCode), Error.INVALID_RESPONSE);
                     _requestInProgress.set(false);
-                } else {
+                }
+                else {
                     QueueITWaitingRoomProvider.this.enqueueRetryMonitor(enqueueToken, enqueueKey);
                 }
             }
         };
 
-        QueueITApiClient queueITApiClient = new QueueITApiClient(_customerId, _eventOrAliasId, userId, userAgent, sdkVersion,
-                _layoutName, _language, enqueueToken, enqueueKey, queueITApiClientListener);
+        QueueITApiClient queueITApiClient = new QueueITApiClient(
+                _customerId,
+                _eventOrAliasId,
+                userId,
+                userAgent,
+                sdkVersion,
+                _layoutName,
+                _language,
+                enqueueToken,
+                enqueueKey,
+                _waitingRoomDomain,
+                _queuePathPrefix,
+                queueITApiClientListener
+        );
+
         queueITApiClient.init(_context);
     }
 
     private void enqueueRetryMonitor(String enqueueToken, String enqueueKey) {
         if (_deltaSec < MAX_RETRY_SEC) {
             Handler handler = new Handler();
+
             Runnable r = new Runnable() {
                 public void run() {
                     tryEnqueue(enqueueToken, enqueueKey);
                 }
             };
-            handler.postDelayed(r, _deltaSec * 1000);
 
+            handler.postDelayed(r, _deltaSec * 1000);
             _deltaSec = _deltaSec * 2;
-        } else {
+        }
+        else {
             _deltaSec = INITIAL_WAIT_RETRY_SEC;
             _requestInProgress.set(false);
             _queueITWaitingRoomProviderListener.onFailure("Error! Queue is unavailable.", Error.Queueit_NotAvailable);
@@ -160,12 +174,19 @@ public class QueueITWaitingRoomProvider {
         return _requestInProgress.get();
     }
 
-    private void handleAppEnqueueResponse(String queueId, String queueUrlString, int queueUrlTtlInMinutes,
-                                          String eventTargetUrl, String queueItToken) {
+    private void handleAppEnqueueResponse(
+            String queueId,
+            String queueUrlString,
+            int queueUrlTtlInMinutes,
+            String eventTargetUrl,
+            String queueItToken) {
         Boolean isPassedThrough = queueItToken != null && !queueItToken.isEmpty();
         RedirectType redirectType = getRedirectTypeFromToken(queueItToken);
+
         QueueTryPassResult queueTryPassResult = new QueueTryPassResult(queueItToken, queueUrlString, eventTargetUrl, queueUrlTtlInMinutes, isPassedThrough, redirectType);
+
         _queueITWaitingRoomProviderListener.onSuccess(queueTryPassResult);
+
         _requestInProgress.set(false);
     }
 
@@ -186,12 +207,16 @@ public class QueueITWaitingRoomProvider {
         public void run() {
             if (isOnline()) {
                 runWithConnection(_enqueueToken, _enqueueKey);
+
                 return;
             }
+
             _isOnlineRetry++;
+
             if (_isOnlineRetry > 5) {
                 _queueITWaitingRoomProviderListener.onFailure( "No connection", Error.NO_CONNECTION);
                 _requestInProgress.set(false);
+
                 return;
             }
 
@@ -201,10 +226,13 @@ public class QueueITWaitingRoomProvider {
 
     private boolean isOnline() {
         ConnectivityManager cm = (ConnectivityManager) _context.getSystemService(Context.CONNECTIVITY_SERVICE);
+
         if (cm == null) {
             return true;
         }
+
         NetworkInfo netInfo = cm.getActiveNetworkInfo();
+
         return netInfo != null && netInfo.isConnected();
     }
 
@@ -213,7 +241,7 @@ public class QueueITWaitingRoomProvider {
     }
 
     private static RedirectType getRedirectTypeFromToken(String queueItToken){
-        if(queueItToken == null || queueItToken.isEmpty()){
+        if (queueItToken == null || queueItToken.isEmpty()) {
             return RedirectType.queue;
         }
 
@@ -222,9 +250,12 @@ public class QueueITWaitingRoomProvider {
         if (matcher.find()) {
             String matchGroups = matcher.group(0);
             String statusString = matchGroups.length() > 0 ? matchGroups.replace("~rt_", "").replace("~", "") : "";
+
             return RedirectType.valueOf(statusString);
-        }else {
+        }
+        else {
             Log.e("QueueEngine", String.format("Waiting room status not found in the token: %s", queueItToken));
+
             return RedirectType.unknown;
         }
     }

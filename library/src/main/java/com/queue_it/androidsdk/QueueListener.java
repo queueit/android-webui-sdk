@@ -1,6 +1,5 @@
 package com.queue_it.androidsdk;
 
-
 public abstract class QueueListener {
     protected abstract void onQueuePassed(QueuePassedInfo queuePassedInfo);
     protected abstract void onQueueViewWillOpen();

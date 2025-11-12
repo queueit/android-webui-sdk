@@ -8,7 +8,7 @@ import retrofit2.http.GET;
 import retrofit2.http.POST;
 
 public interface ProductsService {
-    @GET("safeaction?queue-event1-nodomain=t")
+    @GET("safeaction?queue-event1-nodomain&enqueuetoken_enabled")
     Call<Product> getProduct();
 }
 

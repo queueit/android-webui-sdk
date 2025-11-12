@@ -5,6 +5,9 @@ import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -37,17 +40,21 @@ public class QueueITApiClient {
     private final String _language;
     private final String _enqueueToken;
     private final String _enqueueKey;
+    private final String _waitingRoomDomain;
+    private final String _queuePathPrefix;
     private final QueueITApiClientListener _queueITApiClientListener;
 
-    public static boolean IsTest = false;
-
     private URL getApiUrl() {
-        String hostname = String.format(IsTest ?
-                        "%s.test.queue-it.net" :
-                        "%s.queue-it.net",
-                _customerId);
+        boolean hasCustomDomain = _waitingRoomDomain != null && !_waitingRoomDomain.isEmpty();
 
-        String path = String.format("api/mobileapp/queue/%s/%s/enqueue", _customerId, _eventOrAliasId);
+        String hostname = hasCustomDomain
+                ? _waitingRoomDomain
+                : String.format("%s.queue-it.net", _customerId);
+
+        String sanitizedPrefix = getSanitizeQueuePathPrefix();
+
+        String path = String.format("%sapi/mobileapp/queue/%s/%s/enqueue", sanitizedPrefix, _customerId, _eventOrAliasId);
+
         return new HttpUrl.Builder()
                 .scheme("https")
                 .host(hostname)
@@ -56,16 +63,40 @@ public class QueueITApiClient {
                 .build().url();
     }
 
-    public QueueITApiClient(String customerId,
-                            String eventOrAliasId,
-                            String userId,
-                            String userAgent,
-                            String sdkVersion,
-                            String layoutName,
-                            String language,
-                            String enqueueToken,
-                            String enqueueKey,
-                            QueueITApiClientListener queueITApiClientListener){
+    private String getSanitizeQueuePathPrefix() {
+        if (_waitingRoomDomain == null || _waitingRoomDomain.isEmpty() || _queuePathPrefix == null) {
+            return "";
+        }
+
+        String queuePathPrefix = _queuePathPrefix;
+
+        if (queuePathPrefix.startsWith("/")) {
+            queuePathPrefix = queuePathPrefix.substring(1);
+        }
+
+        if (queuePathPrefix.endsWith("/")) {
+            queuePathPrefix = queuePathPrefix.substring(0, queuePathPrefix.length() - 1);
+        }
+
+        if (queuePathPrefix.isEmpty()) {
+            return "";
+        }
+
+        return queuePathPrefix + "/";
+    }
+
+    public QueueITApiClient(@NonNull String customerId,
+                            @NonNull String eventOrAliasId,
+                            @Nullable String userId,
+                            @Nullable String userAgent,
+                            @Nullable String sdkVersion,
+                            @Nullable String layoutName,
+                            @Nullable String language,
+                            @Nullable String enqueueToken,
+                            @Nullable String enqueueKey,
+                            @Nullable String waitingRoomDomain,
+                            @Nullable String queuePathPrefix,
+                            @NonNull QueueITApiClientListener queueITApiClientListener) {
         _customerId = customerId;
         _eventOrAliasId = eventOrAliasId;
         _userId = userId;
@@ -75,6 +106,8 @@ public class QueueITApiClient {
         _language = language;
         _enqueueToken = enqueueToken;
         _enqueueKey = enqueueKey;
+        _waitingRoomDomain = waitingRoomDomain;
+        _queuePathPrefix = queuePathPrefix;
         _queueITApiClientListener = queueITApiClientListener;
     }
 
@@ -92,6 +125,7 @@ public class QueueITApiClient {
                 .url(enqueueUrl)
                 .post(body)
                 .build();
+
         client.newCall(request).enqueue(new Callback() {
             final Handler mainHandler = new Handler(context.getMainLooper());
 
@@ -121,6 +155,7 @@ public class QueueITApiClient {
                 }
 
                 final String body = response.body().string();
+
                 try {
                     JSONObject jsonObject = new JSONObject(body);
                     final String queueId = optString(jsonObject, "QueueId");
@@ -128,12 +163,14 @@ public class QueueITApiClient {
                     final int queueUrlTtlInMinutes = optInt(jsonObject, "QueueUrlTTLInMinutes");
                     final String eventTargetUrl = optString(jsonObject, "EventTargetUrl");
                     final String queueItToken = optString(jsonObject, "QueueitToken");
+
                     mainHandler.post(new Runnable() {
                         @Override
                         public void run() {
-                            String updatedQueueUrl = QueueUrlHelper.urlUpdateNeeded(queueUrl, _userId) ?
-                                    QueueUrlHelper.updateUrl(queueUrl, _userId).toString() :
-                                    queueUrl;
+                            String updatedQueueUrl = QueueUrlHelper.urlUpdateNeeded(queueUrl, _userId)
+                                    ? QueueUrlHelper.updateUrl(queueUrl, _userId).toString()
+                                    : queueUrl;
+
                             _queueITApiClientListener.onSuccess(queueId, updatedQueueUrl, queueUrlTtlInMinutes, eventTargetUrl, queueItToken);
                         }
                     });

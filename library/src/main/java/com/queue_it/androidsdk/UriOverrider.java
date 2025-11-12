@@ -52,8 +52,7 @@ public class UriOverrider implements IUriOverrider {
         String targetHost = target.getHost();
         String targetPath = target.getPath();
 
-        return destinationHost.equalsIgnoreCase(targetHost)
-                && destinationPath.equals(targetPath);
+        return destinationHost.equalsIgnoreCase(targetHost) && destinationPath.equals(targetPath);
     }
 
     private boolean isQueueItUri(Uri uri) {
@@ -64,6 +63,7 @@ public class UriOverrider implements IUriOverrider {
         if (!isQueueItUri(uri)) {
             return false;
         }
+
         return uri.getHost().equals("close");
     }
 
@@ -71,6 +71,7 @@ public class UriOverrider implements IUriOverrider {
         if (!isQueueItUri(uri)) {
             return false;
         }
+
         return uri.getHost().equals("restartSession");
     }
 
@@ -78,38 +79,50 @@ public class UriOverrider implements IUriOverrider {
         if (isCloseLink(destinationUri)) {
             uriOverride.onCloseClicked();
             return true;
-        } else if (isSessionRestartLink(destinationUri)) {
+        }
+        else if (isSessionRestartLink(destinationUri)) {
             uriOverride.onSessionRestart();
             return true;
         }
+
         Intent browserIntent = new Intent(Intent.ACTION_VIEW, destinationUri);
         webview.getContext().startActivity(browserIntent);
+
         return true;
     }
 
     @Override
     public boolean handleNavigationRequest(final String destinationUrlStr, WebView webview, UriOverrideWrapper uriOverride) {
         Log.v("QueueITEngine", "URI loading: " + destinationUrlStr);
+
         Uri destinationUri = Uri.parse(destinationUrlStr);
-        boolean isWeb = destinationUri.getScheme() != null && (destinationUri.getScheme().equals("http")
-                || destinationUri.getScheme().equals("https"));
+
+        boolean isWeb = destinationUri.getScheme() != null &&
+                (destinationUri.getScheme().equals("http") || destinationUri.getScheme().equals("https"));
+
         if (!isWeb) {
             return handleDeepLink(webview, destinationUri, uriOverride);
         }
+
         if (isBlockedUri(destinationUri)) {
             return true;
         }
 
         String navigationHost = destinationUri.getHost();
         String queueHost = queue.getHost();
+
         boolean isQueueItUrl = navigationHost != null && queueHost != null && queueHost.equals(navigationHost);
+
         if (isQueueItUrl) {
             boolean needsRewrite = QueueUrlHelper.urlUpdateNeeded(destinationUri, userId);
+
             if (needsRewrite) {
                 destinationUri = QueueUrlHelper.updateUrl(destinationUri, userId);
                 Log.v("QueueITEngine", "URL intercepting: " + destinationUri);
             }
+
             uriOverride.onQueueUrlChange(destinationUri.toString());
+
             if (needsRewrite) {
                 webview.loadUrl(destinationUri.toString());
                 return true;
@@ -119,13 +132,17 @@ public class UriOverrider implements IUriOverrider {
         if (isTargetUri(destinationUri)) {
             String queueItToken = destinationUri.getQueryParameter("queueittoken");
             uriOverride.onPassed(queueItToken);
+
             return true;
         }
+
         if (!isQueueItUrl) {
             Intent browserIntent = new Intent(Intent.ACTION_VIEW, destinationUri);
             webview.getContext().startActivity(browserIntent);
+
             return true;
         }
+
         return false;
     }
 }

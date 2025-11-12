@@ -16,7 +16,8 @@
         <activity
             android:name=".DeepActivity"
             android:label="@string/title_activity_deep"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme.NoActionBar"
+            android:exported="true">
             <intent-filter android:label="view deep activity">
                 <action android:name="android.intent.action.VIEW" />
 
@@ -36,7 +37,8 @@
                     android:scheme="myapp" />
             </intent-filter>
         </activity>
-        <activity android:name=".MainActivity">
+        <activity android:name=".MainActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
