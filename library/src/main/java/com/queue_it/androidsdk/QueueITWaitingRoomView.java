@@ -28,7 +28,7 @@ public class QueueITWaitingRoomView {
         if (options == null) {
             options = QueueItEngineOptions.getDefault();
         }
-        UserAgentManager.initialize(activityContext);
+        UserAgentManager.initialize(activityContext, options.getSdkUserAgent());
         _context = activityContext;
         _queueListener = queueListener;
         _stateBroadcaster = new WaitingRoomStateBroadcaster(_context);

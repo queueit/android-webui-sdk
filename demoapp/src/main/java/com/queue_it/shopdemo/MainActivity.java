@@ -187,7 +187,7 @@ public class MainActivity extends AppCompatActivity {
                 if(_queueTryPassResult != null && _queueTryPassResult.getRedirectType() == RedirectType.queue) {
                     QueueItEngineOptions queueItEngineOptions = getQueueItEngineOptions();
                     QueueITWaitingRoomView queueITWaitingRoomView = new QueueITWaitingRoomView(MainActivity.this, queueListener, queueItEngineOptions);
-                    queueITWaitingRoomView.showQueue(_queueTryPassResult, queueItEngineOptions.getWebViewUserAgent());
+                    queueITWaitingRoomView.showQueue(_queueTryPassResult, queueItEngineOptions.getSdkUserAgent());
                     _queueTryPassResult = null;
                 }
             }
@@ -301,6 +301,7 @@ public class MainActivity extends AppCompatActivity {
                 language,
                 waitingRoomDomain,
                 queuePathPrefix,
+                getQueueItEngineOptions().getSdkUserAgent(),
                 queueITWaitingRoomProviderListener
         );
     }

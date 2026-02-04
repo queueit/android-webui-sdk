@@ -36,6 +36,11 @@ public class QueueITWaitingRoomProvider {
 
     private static final Pattern pattern = Pattern.compile("\\~rt_(.*?)\\~");
 
+    /**
+     * @deprecated Use {@link #QueueITWaitingRoomProvider(Context, String, String, String, String, String, String, String, QueueITWaitingRoomProviderListener)} 
+     *             instead. This constructor will be removed in a future version.
+     */
+    @Deprecated
     public QueueITWaitingRoomProvider(@NonNull Context activityContext,
                                       @NonNull String customerId,
                                       @NonNull String eventOrAliasId,
@@ -43,10 +48,32 @@ public class QueueITWaitingRoomProvider {
                                       @Nullable String language,
                                       @Nullable String waitingRoomDomain,
                                       @Nullable String queuePathPrefix,
+                                      @NonNull QueueITWaitingRoomProviderListener queueITWaitingRoomProviderListener){
+        this(
+                activityContext,
+                customerId,
+                eventOrAliasId,
+                layoutName,
+                language,
+                waitingRoomDomain,
+                queuePathPrefix,
+                null,
+                queueITWaitingRoomProviderListener
+        );
+    }
+
+    public QueueITWaitingRoomProvider(@NonNull Context activityContext,
+                                      @NonNull String customerId,
+                                      @NonNull String eventOrAliasId,
+                                      @Nullable String layoutName,
+                                      @Nullable String language,
+                                      @Nullable String waitingRoomDomain,
+                                      @Nullable String queuePathPrefix,
+                                      @Nullable String userAgent,
                                       @NonNull QueueITWaitingRoomProviderListener queueITWaitingRoomProviderListener) {
         _requestInProgress = new AtomicBoolean(false);
 
-        UserAgentManager.initialize(activityContext);
+        UserAgentManager.initialize(activityContext, userAgent);
 
         if (TextUtils.isEmpty(customerId)) {
             throw new IllegalArgumentException("customerId must have a value");

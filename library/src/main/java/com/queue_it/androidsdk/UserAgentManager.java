@@ -1,6 +1,7 @@
 package com.queue_it.androidsdk;
 
 import android.content.Context;
+import android.text.TextUtils;
 import android.webkit.WebView;
 
 public class UserAgentManager {
@@ -9,8 +10,10 @@ public class UserAgentManager {
 
     private UserAgentManager() { }
 
-    public static void initialize(Context context) {
-        DeviceUserAgent = new WebView(context).getSettings().getUserAgentString();
+    public static void initialize(Context context, String customUserAgent) {
+        DeviceUserAgent = !TextUtils.isEmpty(customUserAgent)
+                ? customUserAgent
+                : new WebView(context).getSettings().getUserAgentString();
     }
 
     public static String getUserAgent() {

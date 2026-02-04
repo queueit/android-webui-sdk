@@ -5,27 +5,29 @@ import android.os.Parcelable;
 
 public class QueueItEngineOptions implements Parcelable {
     private boolean disableBackButtonFromWR;
-    private String webViewUserAgent;
+    private String sdkUserAgent;
 
     public QueueItEngineOptions() {
     }
 
     public QueueItEngineOptions(boolean disableBackButtonFromWR) {
         this.disableBackButtonFromWR = disableBackButtonFromWR;
-        this.webViewUserAgent = "";
+        this.sdkUserAgent = "";
     }
-    public QueueItEngineOptions(String webViewUserAgent) {
+
+    public QueueItEngineOptions(String sdkUserAgent) {
         this.disableBackButtonFromWR = true;
-        this.webViewUserAgent = webViewUserAgent;
+        this.sdkUserAgent = sdkUserAgent;
     }
-    public QueueItEngineOptions(boolean disableBackButtonFromWR, String webViewUserAgent) {
+
+    public QueueItEngineOptions(boolean disableBackButtonFromWR, String sdkUserAgent) {
         this.disableBackButtonFromWR = disableBackButtonFromWR;
-        this.webViewUserAgent = webViewUserAgent;
+        this.sdkUserAgent = sdkUserAgent;
     }
 
     protected QueueItEngineOptions(Parcel in) {
         disableBackButtonFromWR = in.readInt() != 0;
-        webViewUserAgent = in.readString();
+        sdkUserAgent = in.readString();
     }
 
     public static final Creator<QueueItEngineOptions> CREATOR = new Creator<QueueItEngineOptions>() {
@@ -48,12 +50,28 @@ public class QueueItEngineOptions implements Parcelable {
         this.disableBackButtonFromWR = disableBackButtonFromWR;
     }
 
+    /**
+     * @deprecated Use {@link #getSdkUserAgent()} instead. This method will be removed in a future version.
+     */
+    @Deprecated
     public String getWebViewUserAgent() {
-        return webViewUserAgent;
+        return sdkUserAgent;
     }
 
-    public void setWebViewUserAgent(String webViewUserAgent) {
-        this.webViewUserAgent = webViewUserAgent;
+    /**
+     * @deprecated Use {@link #setSdkUserAgent(String sdkUserAgent)} instead. This method will be removed in a future version.
+     */
+    @Deprecated
+    public void setWebViewUserAgent(String sdkUserAgent) {
+        this.sdkUserAgent = sdkUserAgent;
+    }
+
+    public String getSdkUserAgent() {
+        return sdkUserAgent;
+    }
+
+    public void setSdkUserAgent(String sdkUserAgent) {
+        this.sdkUserAgent = sdkUserAgent;
     }
 
     public static QueueItEngineOptions getDefault() {
@@ -68,6 +86,6 @@ public class QueueItEngineOptions implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeInt(this.disableBackButtonFromWR ? 1 : 0);
-        dest.writeString(this.webViewUserAgent);
+        dest.writeString(this.sdkUserAgent);
     }
 }

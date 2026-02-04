@@ -24,7 +24,7 @@ public class QueueITEngine {
             options = QueueItEngineOptions.getDefault();
         }
 
-        UserAgentManager.initialize(activityContext);
+        UserAgentManager.initialize(activityContext, options.getSdkUserAgent());
         _queueITEngineListener = queueListener;
 
         QueueListener queueITQueueListener = new QueueListener() {
@@ -74,7 +74,7 @@ public class QueueITEngine {
             }
         };
 
-        final String webViewUserAgent = options.getWebViewUserAgent();
+        final String webViewUserAgent = UserAgentManager.getUserAgent();
 
         QueueITWaitingRoomProviderListener queueITWaitingRoomProviderListener = new QueueITWaitingRoomProviderListener() {
             @Override
@@ -110,6 +110,7 @@ public class QueueITEngine {
                 language,
                 waitingRoomDomain,
                 queuePathPrefix,
+                options.getSdkUserAgent(),
                 queueITWaitingRoomProviderListener
         );
 

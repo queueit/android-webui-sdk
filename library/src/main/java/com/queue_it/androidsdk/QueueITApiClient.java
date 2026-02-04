@@ -121,10 +121,13 @@ public class QueueITApiClient {
 
         Log.v("QueueITApiClient", "API call " + getISO8601StringForDate(Calendar.getInstance().getTime()) + ": " + enqueueUrl.toString() + ": " + putBody);
 
-        Request request = new Request.Builder()
-                .url(enqueueUrl)
-                .post(body)
-                .build();
+        Request.Builder requestBuilder = new Request.Builder().url(enqueueUrl).post(body);
+
+        if(_userAgent != null && !_userAgent.isEmpty()){
+            requestBuilder.header("User-Agent", _userAgent);
+        }
+
+        Request request = requestBuilder.build();
 
         client.newCall(request).enqueue(new Callback() {
             final Handler mainHandler = new Handler(context.getMainLooper());

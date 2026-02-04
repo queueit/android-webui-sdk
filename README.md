@@ -17,7 +17,7 @@ This whitepaper contains the needed information to perform a successful integrat
 Using Gradle:
 
 ```gradle
-implementation 'com.queue-it.androidsdk:library:2.2.1'
+implementation 'com.queue-it.androidsdk:library:2.2.2'
 ```
 
 ## How to use the library (Mobile SDK integration only, no API protection)
@@ -122,7 +122,7 @@ catch (QueueITException e) { } // Gets thrown when a request is already in progr
 | waitingRoomDomain | No (`{customerId}.queue-it.net`)         | Custom Waiting Room domain to use for the requests from Mobile to Queue-it. Can be a Proxy Domain, if you are running Queue-it Behind Proxy                                                   |
 | queuePathPrefix   | No (none)                                | Queue Path Prefix to use, if you are running Waiting Room on same domain as your normal website. Requires waitingRoomDomain to also be provided. If not, then this parameter will be ignored. |
 | queueListener     | Yes                                      | Listener with callback functions. Must implement the `QueueListener` interface.                                                                                                               |
-| options           | No (`QueueItEngineOptions.getDefault()`) | Allows you to configure the WebView used to show the Waiting Room. Can disable back button (default: disabled) and set a custom User Agent (default: "")                                      |
+| options           | No (`QueueItEngineOptions.getDefault()`) | Allows you to configure the SDK. Can disable back button (default: disabled) and set a custom User Agent (default: "") for the web view and the http client.                                  |
 
 ![App Integration Flow](https://github.com/queueit/android-webui-sdk/blob/master/App%20integration%20flow.PNG "App Integration Flow")
 
@@ -132,11 +132,13 @@ The QueueITEngine can be configured if you use the `options` argument in it's co
 
 ```java
 QueueItEngineOptions options = new QueueItEngineOptions();
+
 // Use this if you want to disable the back button when the waiting room is shown
 options.setBackButtonDisabledFromWR(true);
 
-// Use this if you want to set a custom User Agent for the WebView when the waiting room is shown
-options.setWebViewUserAgent("<user-agent>");
+// Use this if you want to set a custom User Agent. 
+// The user agent will be used by the WebView when the waiting room is shown, and for requests from the mobile app to Queue-it.
+options.setSdkUserAgent("<user-agent>");
 
 // ------ //
 
@@ -166,18 +168,19 @@ Calling any of these methods will result in executing `onSuccess` or `onFailure`
 
 ### `QueueITWaitingRoomProvider` parameters
 
-> Note the parameters are constructor parameters. The tree `tryPass` variants has different parameters (none, `enqueueToken` and `enqueueKey`).
+> Note the parameters are constructor parameters. The three `tryPass` variants has different parameters (none, `enqueueToken` and `enqueueKey`).
 
-| Parameter                          | Required (Default value)             | Description                                                                                                                                                                                   |
-| ---------------------------------- | ------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| activityContext                    | Yes                                  | Your `Context`                                                                                                                                                                                |
-| customerId                         | Yes                                  | Your customer id                                                                                                                                                                              |
-| eventIdOrAlias                     | Yes                                  | Id of the waiting room or alias                                                                                                                                                               |
-| layoutName                         | No (Waiting Room's default theme)    | Layout name to use for the waiting room. If omitted, the Waiting Room's default layout will be used                                                                                           |
-| language                           | No (Waiting Room's default language) | Language id to use for the waiting room. If omitted, the Waiting Room's default language will be used                                                                                         |
-| waitingRoomDomain                  | No (`{customerId}.queue-it.net`)     | Custom Waiting Room domain to use for the requests from Mobile to Queue-it. Can be a Proxy Domain, if you are running Queue-it Behind Proxy                                                   |
-| queuePathPrefix                    | No (none)                            | Queue Path Prefix to use, if you are running Waiting Room on same domain as your normal website. Requires waitingRoomDomain to also be provided. If not, then this parameter will be ignored. |
-| queueITWaitingRoomProviderListener | Yes                                  | Listener with callback functions. Must implement the `QueueITWaitingRoomProviderListener` interface.                                                                                          |
+| Parameter                          | Required (Default value)                       | Description                                                                                                                                                                                  |
+| ---------------------------------- |------------------------------------------------| -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| activityContext                    | Yes                                            | Your `Context`                                                                                                                                                                               |
+| customerId                         | Yes                                            | Your customer id                                                                                                                                                                             |
+| eventIdOrAlias                     | Yes                                            | Id of the waiting room or alias                                                                                                                                                              |
+| layoutName                         | No (Waiting Room's default theme)              | Layout name to use for the waiting room. If omitted, the Waiting Room's default layout will be used                                                                                          |
+| language                           | No (Waiting Room's default language)           | Language id to use for the waiting room. If omitted, the Waiting Room's default language will be used                                                                                        |
+| waitingRoomDomain                  | No (`{customerId}.queue-it.net`)               | Custom Waiting Room domain to use for the requests from Mobile to Queue-it. Can be a Proxy Domain, if you are running Queue-it Behind Proxy                                                  |
+| queuePathPrefix                    | No (none)                                      | Queue Path Prefix to use, if you are running Waiting Room on same domain as your normal website. Requires waitingRoomDomain to also be provided. If not, then this parameter will be ignored.|
+| userAgent                          | No (User agent of the Mobile's default webview)| Custom User Agent to use for requests from Mobile to Queue-it.                                                                                                                               |
+| queueITWaitingRoomProviderListener | Yes                                            | Listener with callback functions. Must implement the `QueueITWaitingRoomProviderListener` interface.                                                                                         |
 
 ### Showing the queue page to visitor
 
@@ -188,7 +191,7 @@ sample code for showing the queue page:
 
 ```java
 QueueITWaitingRoomView queueITWaitingRoomView = new QueueITWaitingRoomView(MainActivity.this, queueListener, queueItEngineOptions);
-queueITWaitingRoomView.showQueue(_queuePassedInfo.getQueueUrl(), _queuePassedInfo.getTargetUrl());
+queueITWaitingRoomView.showQueue(_queueTryPassResult, queueItEngineOptions.getSdkUserAgent());
 ```
 
 ## Client-side mobile integration with Queue-it Behind Proxy (Bring your own CDN)
