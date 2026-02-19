@@ -108,6 +108,13 @@ public class UriOverrider implements IUriOverrider {
             return true;
         }
 
+        if (isTargetUri(destinationUri)) {
+            String queueItToken = destinationUri.getQueryParameter("queueittoken");
+            uriOverride.onPassed(queueItToken);
+
+            return true;
+        }
+
         String navigationHost = destinationUri.getHost();
         String queueHost = queue.getHost();
 
@@ -127,13 +134,6 @@ public class UriOverrider implements IUriOverrider {
                 webview.loadUrl(destinationUri.toString());
                 return true;
             }
-        }
-
-        if (isTargetUri(destinationUri)) {
-            String queueItToken = destinationUri.getQueryParameter("queueittoken");
-            uriOverride.onPassed(queueItToken);
-
-            return true;
         }
 
         if (!isQueueItUrl) {

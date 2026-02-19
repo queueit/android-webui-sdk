@@ -126,7 +126,7 @@ public class UriOverriderTest {
     }
 
     @Test
-    public void givenuserIsNavigatingToUrlOnTargetDomainButNotTargetUrl_ThenQueueSHouldNotBePassedAndWebBrowserShouldOpen() {
+    public void givenUserIsNavigatingToUrlOnTargetDomainButNotTargetUrl_ThenQueueShouldNotBePassedAndWebBrowserShouldOpen() {
         String destinationUrl = "https://queue-it.com/what-is-this.html?customerId=vavatest&eventId=testendedroom&queueId=00000000-0000-0000-0000-000000000000&language=en-US";
         UriOverrider testObj = new UriOverrider();
         testObj.setQueue(Uri.parse("https://vavatest.queue-it.net/app/enqueue"));
@@ -167,6 +167,39 @@ public class UriOverriderTest {
         WebView webView = getMockedWebview();
         final AtomicBoolean queuePassed = new AtomicBoolean(false);
         boolean loadCancelled = testObj.handleNavigationRequest("https://google.com?queueittoken=a", webView, new UriOverrideWrapper() {
+            @Override
+            protected void onQueueUrlChange(String uri) {
+                System.out.print(uri);
+            }
+
+            @Override
+            protected void onPassed(String queueItToken) {
+                queuePassed.set(true);
+            }
+
+            @Override
+            protected void onCloseClicked() {
+
+            }
+
+            @Override
+            protected void onSessionRestart() {
+
+            }
+        });
+
+        assertTrue(loadCancelled);
+        assertTrue(queuePassed.get());
+    }
+
+    @Test
+    public void givenUserIsRedirectedToTargetInSameDomainLoadShouldBeCancelled() {
+        UriOverrider testObj = new UriOverrider();
+        testObj.setQueue(Uri.parse("https://useraccount.queue-it.net/app/enqueue"));
+        testObj.setTarget(Uri.parse("https://useraccount.queue-it.net/"));
+        WebView webView = getMockedWebview();
+        final AtomicBoolean queuePassed = new AtomicBoolean(false);
+        boolean loadCancelled = testObj.handleNavigationRequest("https://useraccount.queue-it.net/?queueittoken=a", webView, new UriOverrideWrapper() {
             @Override
             protected void onQueueUrlChange(String uri) {
                 System.out.print(uri);
