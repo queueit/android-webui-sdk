@@ -17,7 +17,7 @@ This whitepaper contains the needed information to perform a successful integrat
 Using Gradle:
 
 ```gradle
-implementation 'com.queue-it.androidsdk:library:2.2.3'
+implementation 'com.queue-it.androidsdk:library:2.2.4'
 ```
 
 ## How to use the library (Mobile SDK integration only, no API protection)
@@ -191,6 +191,11 @@ sample code for showing the queue page:
 
 ```java
 QueueITWaitingRoomView queueITWaitingRoomView = new QueueITWaitingRoomView(MainActivity.this, queueListener, queueItEngineOptions);
+queueITWaitingRoomView.showQueue(_queueTryPassResult, queueItEngineOptions.getSdkUserAgent());
+```
+If you are using Behind Your Own CDN feature you must pass your `waitingRoomDomain` and `queuePathPrefix`:
+```java
+QueueITWaitingRoomView queueITWaitingRoomView = new QueueITWaitingRoomView(MainActivity.this, queueListener, queueItEngineOptions, waitingRoomDomain, queuePathPrefix);
 queueITWaitingRoomView.showQueue(_queueTryPassResult, queueItEngineOptions.getSdkUserAgent());
 ```
 

@@ -114,7 +114,7 @@ public class QueueITEngine {
                 queueITWaitingRoomProviderListener
         );
 
-        _queueITWaitingRoomView = new QueueITWaitingRoomView(activityContext, queueITQueueListener, options);
+        _queueITWaitingRoomView = new QueueITWaitingRoomView(activityContext, queueITQueueListener, options, waitingRoomDomain, queuePathPrefix);
     }
 
     public void setViewDelay(int delayInterval) {

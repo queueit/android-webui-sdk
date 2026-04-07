@@ -420,7 +420,7 @@ public class UriOverriderTest {
         testObj.setQueue(Uri.parse("https://useraccount.queue-it.net/app/enqueue"));
         testObj.setTarget(Uri.parse("https://google.com"));
         testObj.setUserId("myuser1");
-        WebView webView = mock(WebView.class);
+        WebView webView = getMockedWebview();
 
         final AtomicBoolean urlChangeHappened = new AtomicBoolean(false);
         boolean loadCancelled = testObj.handleNavigationRequest("https://useraccount.queue-it.net/app/leaveLine", webView, new UriOverrideWrapper() {
@@ -455,7 +455,7 @@ public class UriOverriderTest {
         testObj.setQueue(Uri.parse("https://customer.queue-it.net/app/enqueue"));
         testObj.setTarget(Uri.parse("http://localhost:3000"));
         testObj.setUserId("myuser1");
-        WebView webView = mock(WebView.class);
+        WebView webView = getMockedWebview();
 
         final AtomicBoolean urlChangeHappened = new AtomicBoolean(false);
         final AtomicBoolean queuePassed = new AtomicBoolean(false);
@@ -487,14 +487,13 @@ public class UriOverriderTest {
         assertFalse(queuePassed.get());
     }
 
-
     @Test
     public void givenUserIsNavigatingToQueueItPageUrlShouldIncludeUserId() {
         UriOverrider testObj = new UriOverrider();
         testObj.setQueue(Uri.parse("https://customer.queue-it.net/app/enqueue"));
         testObj.setTarget(Uri.parse("http://localhost:3000"));
         testObj.setUserId("myuser1");
-        WebView webView = mock(WebView.class);
+        WebView webView = getMockedWebview();
 
         ArgumentCaptor<String> argument = ArgumentCaptor.forClass(String.class);
         final String expectedRewrittenUrl = "http://customer.queue-it.net/exitline.aspx?userId=myuser1&c=customer&e=otherroom2&q=qid&cid=en-US&l=myLayout&sdkv=Android-2.0.22";
@@ -523,5 +522,140 @@ public class UriOverriderTest {
 
         verify(webView).loadUrl(argument.capture());
         assertEquals(expectedRewrittenUrl, argument.getValue());
+    }
+
+    @Test
+    public void givenBehindProxy_WhenNavigatingToQueueUrlWithPrefix_ThenShouldBeRecognizedAsQueueItUrl() {
+        UriOverrider testObj = new UriOverrider();
+        testObj.setQueue(Uri.parse("https://proxy.example.com/myprefix/app/enqueue"));
+        testObj.setTarget(Uri.parse("https://google.com"));
+        testObj.setWaitingRoomDomain("proxy.example.com");
+        testObj.setQueuePathPrefix("myprefix");
+        testObj.setUserId("myuser1");
+        WebView webView = getMockedWebview();
+
+        final AtomicBoolean urlChangeHappened = new AtomicBoolean(false);
+        boolean loadCancelled = testObj.handleNavigationRequest("https://proxy.example.com/myprefix/app/leaveLine", webView, new UriOverrideWrapper() {
+            @Override
+            protected void onQueueUrlChange(String uri) {
+                urlChangeHappened.set(true);
+            }
+
+            @Override
+            protected void onPassed(String queueItToken) {
+            }
+
+            @Override
+            protected void onCloseClicked() {
+            }
+
+            @Override
+            protected void onSessionRestart() {
+            }
+        });
+
+        assertTrue(loadCancelled);
+        assertTrue(urlChangeHappened.get());
+    }
+
+    @Test
+    public void givenBehindProxy_WhenNavigatingToSameDomainWithoutPrefix_ThenShouldNotBeRecognizedAsQueueItUrl() {
+        UriOverrider testObj = new UriOverrider();
+        testObj.setQueue(Uri.parse("https://proxy.example.com/myprefix/app/enqueue"));
+        testObj.setTarget(Uri.parse("https://google.com"));
+        testObj.setWaitingRoomDomain("proxy.example.com");
+        testObj.setQueuePathPrefix("myprefix");
+        WebView webView = getMockedWebview();
+
+        final AtomicBoolean urlChangeHappened = new AtomicBoolean(false);
+        ArgumentCaptor<Intent> argument = ArgumentCaptor.forClass(Intent.class);
+
+        boolean loadCancelled = testObj.handleNavigationRequest("https://proxy.example.com/other/page", webView, new UriOverrideWrapper() {
+            @Override
+            protected void onQueueUrlChange(String uri) {
+                urlChangeHappened.set(true);
+            }
+
+            @Override
+            protected void onPassed(String queueItToken) {
+            }
+
+            @Override
+            protected void onCloseClicked() {
+            }
+
+            @Override
+            protected void onSessionRestart() {
+            }
+        });
+
+        assertTrue(loadCancelled);
+        assertFalse(urlChangeHappened.get());
+        verify(webView.getContext()).startActivity(argument.capture());
+    }
+
+    @Test
+    public void givenBehindProxyWithoutPrefix_WhenNavigatingToProxyDomain_ThenShouldBeRecognizedAsQueueItUrl() {
+        UriOverrider testObj = new UriOverrider();
+        testObj.setQueue(Uri.parse("https://proxy.example.com/app/enqueue"));
+        testObj.setTarget(Uri.parse("https://google.com"));
+        testObj.setWaitingRoomDomain("proxy.example.com");
+        testObj.setUserId("myuser1");
+        WebView webView = getMockedWebview();
+
+        final AtomicBoolean urlChangeHappened = new AtomicBoolean(false);
+        boolean loadCancelled = testObj.handleNavigationRequest("https://proxy.example.com/app/leaveLine", webView, new UriOverrideWrapper() {
+            @Override
+            protected void onQueueUrlChange(String uri) {
+                urlChangeHappened.set(true);
+            }
+
+            @Override
+            protected void onPassed(String queueItToken) {
+            }
+
+            @Override
+            protected void onCloseClicked() {
+            }
+
+            @Override
+            protected void onSessionRestart() {
+            }
+        });
+
+        assertTrue(loadCancelled);
+        assertTrue(urlChangeHappened.get());
+    }
+
+    @Test
+    public void givenNotBehindProxy_WhenNavigatingToQueueDomain_ThenShouldBeRecognizedAsQueueItUrl() {
+        UriOverrider testObj = new UriOverrider();
+        testObj.setQueue(Uri.parse("https://customer.queue-it.net/app/enqueue"));
+        testObj.setTarget(Uri.parse("https://google.com"));
+        testObj.setUserId("myuser1");
+        WebView webView = getMockedWebview();
+
+        final AtomicBoolean urlChangeHappened = new AtomicBoolean(false);
+        boolean loadCancelled = testObj.handleNavigationRequest("https://customer.queue-it.net/app/leaveLine", webView, new UriOverrideWrapper() {
+            @Override
+            protected void onQueueUrlChange(String uri) {
+                urlChangeHappened.set(true);
+            }
+
+            @Override
+            protected void onPassed(String queueItToken) {
+            }
+
+            @Override
+            protected void onCloseClicked() {
+            }
+
+            @Override
+            protected void onSessionRestart() {
+            }
+        });
+
+        assertTrue(loadCancelled);
+        assertTrue(urlChangeHappened.get());
     }
 }

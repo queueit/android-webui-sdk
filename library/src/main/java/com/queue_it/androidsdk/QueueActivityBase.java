@@ -25,6 +25,8 @@ public class QueueActivityBase {
     private String targetUrl;
     private WebView webview;
     private String webViewUserAgent;
+    private String waitingRoomDomain;
+    private String queuePathPrefix;
     @SuppressLint("StaticFieldLeak")
     private static WebView previousWebView;
     private IUriOverrider uriOverrider;
@@ -160,6 +162,8 @@ public class QueueActivityBase {
         outState.putString("targetUrl", targetUrl);
         outState.putString("webViewUserAgent", webViewUserAgent);
         outState.putString("userId", uriOverrider.getUserId());
+        outState.putString("waitingRoomDomain", waitingRoomDomain);
+        outState.putString("queuePathPrefix", queuePathPrefix);
 
         Log.i("QueueITEngine", "Saving instance state:");
         Log.i("QueueITEngine", "queueUrl: " + queueUrl);
@@ -187,12 +191,16 @@ public class QueueActivityBase {
                 webViewUserAgent = extras.getString("webViewUserAgent");
                 uriOverrider.setUserId(extras.getString("userId"));
                 options = (QueueItEngineOptions)extras.getParcelable("options");
+                waitingRoomDomain = extras.getString("waitingRoomDomain");
+                queuePathPrefix = extras.getString("queuePathPrefix");
             }
         } else {
             queueUrl = (String) savedInstanceState.getSerializable("queueUrl");
             targetUrl = (String) savedInstanceState.getSerializable("targetUrl");
             webViewUserAgent = (String) savedInstanceState.getSerializable("webViewUserAgent");
             uriOverrider.setUserId((String) savedInstanceState.getSerializable("userId"));
+            waitingRoomDomain = (String) savedInstanceState.getSerializable("waitingRoomDomain");
+            queuePathPrefix = (String) savedInstanceState.getSerializable("queuePathPrefix");
         }
 
         if (targetUrl != null) {
@@ -206,6 +214,9 @@ public class QueueActivityBase {
         } else {
             Log.e("QueueITEngine", "queueUrl is null, cannot set queue Uri");
         }
+
+        uriOverrider.setWaitingRoomDomain(waitingRoomDomain);
+        uriOverrider.setQueuePathPrefix(queuePathPrefix);
     }
 
     private void disposeWebview(WebView webView) {

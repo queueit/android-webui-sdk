@@ -9,6 +9,8 @@ public class UriOverrider implements IUriOverrider {
     private Uri queue;
     private Uri target;
     private String userId;
+    private String waitingRoomDomain;
+    private String queuePathPrefix;
 
     @Override
     public Uri getQueue() {
@@ -38,6 +40,42 @@ public class UriOverrider implements IUriOverrider {
     @Override
     public void setUserId(String userId) {
         this.userId = userId;
+    }
+
+    @Override
+    public void setWaitingRoomDomain(String waitingRoomDomain) {
+        this.waitingRoomDomain = waitingRoomDomain;
+    }
+
+    @Override
+    public void setQueuePathPrefix(String queuePathPrefix) {
+        this.queuePathPrefix = queuePathPrefix;
+    }
+
+    private boolean isBehindProxy() {
+        return waitingRoomDomain != null && !waitingRoomDomain.isEmpty();
+    }
+
+    private String getSanitizedQueuePathPrefix() {
+        if (!isBehindProxy() || queuePathPrefix == null) {
+            return "";
+        }
+
+        String prefix = queuePathPrefix;
+
+        if (prefix.startsWith("/")) {
+            prefix = prefix.substring(1);
+        }
+
+        if (prefix.endsWith("/")) {
+            prefix = prefix.substring(0, prefix.length() - 1);
+        }
+
+        if (prefix.isEmpty()) {
+            return "";
+        }
+
+        return prefix + "/";
     }
 
     private boolean isBlockedUri(Uri uri) {
@@ -119,6 +157,14 @@ public class UriOverrider implements IUriOverrider {
         String queueHost = queue.getHost();
 
         boolean isQueueItUrl = navigationHost != null && queueHost != null && queueHost.equals(navigationHost);
+
+        if (isQueueItUrl && isBehindProxy()) {
+            String sanitizedPrefix = getSanitizedQueuePathPrefix();
+            if (!sanitizedPrefix.isEmpty()) {
+                String navigationPath = destinationUri.getPath();
+                isQueueItUrl = navigationPath != null && navigationPath.startsWith("/" + sanitizedPrefix);
+            }
+        }
 
         if (isQueueItUrl) {
             boolean needsRewrite = QueueUrlHelper.urlUpdateNeeded(destinationUri, userId);

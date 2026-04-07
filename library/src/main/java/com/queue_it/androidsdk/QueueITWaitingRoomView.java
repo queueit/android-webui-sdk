@@ -12,6 +12,8 @@ public class QueueITWaitingRoomView {
     private final QueueListener _queueListener;
     private final QueueItEngineOptions _options;
     private Context _context;
+    private String _waitingRoomDomain;
+    private String _queuePathPrefix;
 
     private int _delayInterval = 0;
 
@@ -25,6 +27,14 @@ public class QueueITWaitingRoomView {
     public QueueITWaitingRoomView(Context activityContext,
                                   QueueListener queueListener,
                                   QueueItEngineOptions options) {
+        this(activityContext, queueListener, options, null, null);
+    }
+
+    public QueueITWaitingRoomView(Context activityContext,
+                                  QueueListener queueListener,
+                                  QueueItEngineOptions options,
+                                  String waitingRoomDomain,
+                                  String queuePathPrefix) {
         if (options == null) {
             options = QueueItEngineOptions.getDefault();
         }
@@ -33,6 +43,8 @@ public class QueueITWaitingRoomView {
         _queueListener = queueListener;
         _stateBroadcaster = new WaitingRoomStateBroadcaster(_context);
         _options = options;
+        _waitingRoomDomain = waitingRoomDomain;
+        _queuePathPrefix = queuePathPrefix;
     }
 
     public void showQueue(final QueueTryPassResult queueTryPassResult, String webViewUserAgent) {
@@ -72,6 +84,8 @@ public class QueueITWaitingRoomView {
         intent.putExtra("webViewUserAgent", webViewUserAgent);
         intent.putExtra("userId", getUserId());
         intent.putExtra("options", _options);
+        intent.putExtra("waitingRoomDomain", _waitingRoomDomain);
+        intent.putExtra("queuePathPrefix", _queuePathPrefix);
 
         _context.startActivity(intent);
     }

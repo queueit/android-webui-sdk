@@ -16,5 +16,9 @@ public interface IUriOverrider {
 
   void setUserId(String userId);
 
+  void setWaitingRoomDomain(String waitingRoomDomain);
+
+  void setQueuePathPrefix(String queuePathPrefix);
+
   boolean handleNavigationRequest(String uriString, WebView webview, UriOverrideWrapper uriOverride);
 }

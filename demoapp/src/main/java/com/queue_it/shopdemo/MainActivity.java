@@ -186,7 +186,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if(_queueTryPassResult != null && _queueTryPassResult.getRedirectType() == RedirectType.queue) {
                     QueueItEngineOptions queueItEngineOptions = getQueueItEngineOptions();
-                    QueueITWaitingRoomView queueITWaitingRoomView = new QueueITWaitingRoomView(MainActivity.this, queueListener, queueItEngineOptions);
+                    QueueITWaitingRoomView queueITWaitingRoomView = new QueueITWaitingRoomView(MainActivity.this, queueListener, queueItEngineOptions, waitingRoomDomain, queuePathPrefix);
                     queueITWaitingRoomView.showQueue(_queueTryPassResult, queueItEngineOptions.getSdkUserAgent());
                     _queueTryPassResult = null;
                 }
