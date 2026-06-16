@@ -38,11 +38,23 @@
             </intent-filter>
         </activity>
         <activity android:name=".MainActivity"
-            android:exported="true">
+            android:exported="true"
+            android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <!--
+              Demo intent filter for IOWR invite-code deep links.
+              Replace android:host with a domain you control before testing.
+              See LOCAL_SETUP.md for the `adb shell am start` recipe to trigger it.
+            -->
+            <intent-filter android:label="invite link">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="https" android:host="example.com" />
             </intent-filter>
         </activity>
         <activity android:name=".ResultActivity" />

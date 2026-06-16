@@ -5,16 +5,16 @@ import okhttp3.HttpUrl;
 
 public abstract class QueueUrlHelper {
 
-    public static Uri updateUrl(String queueUrl, String userId) {
+    public static Uri updateUrl(String queueUrl, String userId, String inviteCode) {
         try {
-            return updateUrl(Uri.parse(queueUrl), userId);
+            return updateUrl(Uri.parse(queueUrl), userId, inviteCode);
         } catch (Exception ex) {
             ex.printStackTrace();
             return Uri.parse(queueUrl);
         }
     }
 
-    public static Uri updateUrl(Uri queueUrl, String userId) {
+    public static Uri updateUrl(Uri queueUrl, String userId, String inviteCode) {
         String encodedQuery = queueUrl.getEncodedQuery();
 
         if (encodedQuery == null) {
@@ -22,6 +22,9 @@ public abstract class QueueUrlHelper {
         }
         if (!encodedQuery.contains("userId=")){
             encodedQuery = "userId=" + userId + "&" + encodedQuery;
+        }
+        if (inviteCode != null && !inviteCode.isEmpty() && !encodedQuery.contains("code=")) {
+            encodedQuery = encodedQuery + (encodedQuery.isEmpty() ? "" : "&") + "code=" + Uri.encode(inviteCode);
         }
 
         String updatedUrl = new HttpUrl.Builder()
@@ -35,17 +38,17 @@ public abstract class QueueUrlHelper {
         return Uri.parse(updatedUrl);
     }
 
-    public static boolean urlUpdateNeeded(String queueUrl, String userId) {
+    public static boolean urlUpdateNeeded(String queueUrl, String userId, String inviteCode) {
         if (queueUrl == null || userId == null){
             return false;
         }
 
         Uri uri = Uri.parse(queueUrl);
 
-        return urlUpdateNeeded(uri, userId);
+        return urlUpdateNeeded(uri, userId, inviteCode);
     }
 
-    public static boolean urlUpdateNeeded(Uri queueUrl, String userId) {
+    public static boolean urlUpdateNeeded(Uri queueUrl, String userId, String inviteCode) {
         if (queueUrl == null) return false;
 
         String query = queueUrl.getQuery();
@@ -55,6 +58,11 @@ public abstract class QueueUrlHelper {
         String userIdQuery = String.format("userId=%s", userId);
         boolean containsUserId = query.startsWith(userIdQuery) || query.contains("&" + userIdQuery);
 
-        return !containsUserId;
+        boolean needsInviteCode = false;
+        if (inviteCode != null && !inviteCode.isEmpty()) {
+            needsInviteCode = !query.contains("code=");
+        }
+
+        return !containsUserId || needsInviteCode;
     }
 }

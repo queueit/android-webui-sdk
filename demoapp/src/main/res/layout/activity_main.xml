@@ -144,6 +144,20 @@
                     android:id="@+id/queuePathPrefix_edittext"
                     android:layout_weight="1" />
             </TableRow>
+            <TableRow>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="end"
+                    android:padding="5dip"
+                    android:text="Invite Code" />
+                <EditText
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="5dip"
+                    android:id="@+id/inviteCode_edittext"
+                    android:layout_weight="1" />
+            </TableRow>
         </TableLayout>
 
     <TableLayout

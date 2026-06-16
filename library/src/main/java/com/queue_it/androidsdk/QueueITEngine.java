@@ -121,6 +121,10 @@ public class QueueITEngine {
         _queueITWaitingRoomView.setViewDelay(delayInterval);
     }
 
+    public void setInviteCode(String inviteCode) {
+        _queueITWaitingRoomProvider.setInviteCode(inviteCode);
+    }
+
     public boolean IsRequestInProgress() {
         return _queueITWaitingRoomProvider.IsRequestInProgress();
     }

@@ -42,6 +42,7 @@ public class QueueITApiClient {
     private final String _enqueueKey;
     private final String _waitingRoomDomain;
     private final String _queuePathPrefix;
+    private final String _inviteCode;
     private final QueueITApiClientListener _queueITApiClientListener;
 
     private URL getApiUrl() {
@@ -96,6 +97,7 @@ public class QueueITApiClient {
                             @Nullable String enqueueKey,
                             @Nullable String waitingRoomDomain,
                             @Nullable String queuePathPrefix,
+                            @Nullable String inviteCode,
                             @NonNull QueueITApiClientListener queueITApiClientListener) {
         _customerId = customerId;
         _eventOrAliasId = eventOrAliasId;
@@ -108,6 +110,7 @@ public class QueueITApiClient {
         _enqueueKey = enqueueKey;
         _waitingRoomDomain = waitingRoomDomain;
         _queuePathPrefix = queuePathPrefix;
+        _inviteCode = inviteCode;
         _queueITApiClientListener = queueITApiClientListener;
     }
 
@@ -170,8 +173,8 @@ public class QueueITApiClient {
                     mainHandler.post(new Runnable() {
                         @Override
                         public void run() {
-                            String updatedQueueUrl = QueueUrlHelper.urlUpdateNeeded(queueUrl, _userId)
-                                    ? QueueUrlHelper.updateUrl(queueUrl, _userId).toString()
+                            String updatedQueueUrl = QueueUrlHelper.urlUpdateNeeded(queueUrl, _userId, _inviteCode)
+                                    ? QueueUrlHelper.updateUrl(queueUrl, _userId, _inviteCode).toString()
                                     : queueUrl;
 
                             _queueITApiClientListener.onSuccess(queueId, updatedQueueUrl, queueUrlTtlInMinutes, eventTargetUrl, queueItToken);

@@ -3,6 +3,7 @@ package com.queue_it.shopdemo;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -31,6 +32,7 @@ public class MainActivity extends AppCompatActivity {
     EditText enqueueKeyEditText;
     EditText waitingRoomDomainEditText;
     EditText queuePathPrefixEditText;
+    EditText inviteCodeEditText;
 
     FloatingActionButton queue_button;
     FloatingActionButton queueSession_button;
@@ -133,6 +135,7 @@ public class MainActivity extends AppCompatActivity {
         enqueueKeyEditText = findViewById(R.id.enqueueKey_edittext);
         waitingRoomDomainEditText = findViewById(R.id.waitingRoomDomain_edittext);
         queuePathPrefixEditText = findViewById(R.id.queuePathPrefix_edittext);
+        inviteCodeEditText = findViewById(R.id.inviteCode_edittext);
 
         queue_button = findViewById(R.id.queue_button);
         queueSession_button = findViewById(R.id.queueSession_button);
@@ -156,6 +159,8 @@ public class MainActivity extends AppCompatActivity {
         enqueueKeyEditText.setText(enqueueKey);
         waitingRoomDomainEditText.setText(waitingRoomDomain);
         queuePathPrefixEditText.setText(queuePathPrefix);
+
+        applyDeepLinkParams(getIntent());
 
         queue_button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -226,7 +231,7 @@ public class MainActivity extends AppCompatActivity {
 
         QueueItEngineOptions options = getQueueItEngineOptions();
 
-        return new QueueITEngine(
+        QueueITEngine engine = new QueueITEngine(
                 MainActivity.this,
                 customerId,
                 eventOrAliasId,
@@ -237,6 +242,13 @@ public class MainActivity extends AppCompatActivity {
                 queueListener,
                 options
         );
+
+        String inviteCode = inviteCodeEditText.getText().toString();
+        if (!TextUtils.isEmpty(inviteCode)) {
+            engine.setInviteCode(inviteCode);
+        }
+
+        return engine;
     }
 
     @NonNull
@@ -306,6 +318,28 @@ public class MainActivity extends AppCompatActivity {
         );
     }
 
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        applyDeepLinkParams(intent);
+    }
+
+    private void applyDeepLinkParams(Intent intent) {
+        if (intent == null) return;
+        Uri uri = intent.getData();
+        if (uri == null) return;
+
+        String customerId = uri.getQueryParameter("customerId");
+        if (!TextUtils.isEmpty(customerId)) customerIdEditText.setText(customerId);
+
+        String eventId = uri.getQueryParameter("eventId");
+        if (!TextUtils.isEmpty(eventId)) eventIdEditText.setText(eventId);
+
+        String code = uri.getQueryParameter("code");
+        if (!TextUtils.isEmpty(code)) inviteCodeEditText.setText(code);
+    }
 
     private void showResultActivity(String result, boolean success) {
         Intent intent = new Intent(this, ResultActivity.class);

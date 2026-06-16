@@ -167,10 +167,10 @@ public class UriOverrider implements IUriOverrider {
         }
 
         if (isQueueItUrl) {
-            boolean needsRewrite = QueueUrlHelper.urlUpdateNeeded(destinationUri, userId);
+            boolean needsRewrite = QueueUrlHelper.urlUpdateNeeded(destinationUri, userId, null);
 
             if (needsRewrite) {
-                destinationUri = QueueUrlHelper.updateUrl(destinationUri, userId);
+                destinationUri = QueueUrlHelper.updateUrl(destinationUri, userId, null);
                 Log.v("QueueITEngine", "URL intercepting: " + destinationUri);
             }
 

@@ -25,6 +25,7 @@ public class QueueITWaitingRoomProvider {
     private final QueueITWaitingRoomProviderListener _queueITWaitingRoomProviderListener;
     private Context _context;
     private final AtomicBoolean _requestInProgress;
+    private String _inviteCode;
 
     private static final int INITIAL_WAIT_RETRY_SEC = 1;
     private static final int MAX_RETRY_SEC = 10;
@@ -35,32 +36,6 @@ public class QueueITWaitingRoomProvider {
     private Handler _checkConnectionHandler;
 
     private static final Pattern pattern = Pattern.compile("\\~rt_(.*?)\\~");
-
-    /**
-     * @deprecated Use {@link #QueueITWaitingRoomProvider(Context, String, String, String, String, String, String, String, QueueITWaitingRoomProviderListener)} 
-     *             instead. This constructor will be removed in a future version.
-     */
-    @Deprecated
-    public QueueITWaitingRoomProvider(@NonNull Context activityContext,
-                                      @NonNull String customerId,
-                                      @NonNull String eventOrAliasId,
-                                      @Nullable String layoutName,
-                                      @Nullable String language,
-                                      @Nullable String waitingRoomDomain,
-                                      @Nullable String queuePathPrefix,
-                                      @NonNull QueueITWaitingRoomProviderListener queueITWaitingRoomProviderListener){
-        this(
-                activityContext,
-                customerId,
-                eventOrAliasId,
-                layoutName,
-                language,
-                waitingRoomDomain,
-                queuePathPrefix,
-                null,
-                queueITWaitingRoomProviderListener
-        );
-    }
 
     public QueueITWaitingRoomProvider(@NonNull Context activityContext,
                                       @NonNull String customerId,
@@ -92,6 +67,10 @@ public class QueueITWaitingRoomProvider {
         _queuePathPrefix = queuePathPrefix;
         _queueITWaitingRoomProviderListener = queueITWaitingRoomProviderListener;
         _deltaSec = INITIAL_WAIT_RETRY_SEC;
+    }
+
+    public void setInviteCode(String inviteCode) {
+        _inviteCode = inviteCode;
     }
 
     public void tryPass() throws QueueITException {
@@ -171,6 +150,7 @@ public class QueueITWaitingRoomProvider {
                 enqueueKey,
                 _waitingRoomDomain,
                 _queuePathPrefix,
+                _inviteCode,
                 queueITApiClientListener
         );
 
