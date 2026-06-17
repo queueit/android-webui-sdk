@@ -146,6 +146,50 @@ options.setSdkUserAgent("<user-agent>");
 QueueItEngineOptions.getDefault();
 ```
 
+### Invite-only waiting rooms
+
+If your waiting room is configured as invite-only, visitors need to present an invite code (the `code` query parameter on the waiting-room URL). Pass that code to the engine before calling `run()` (or `tryPass()`), and the SDK will append it to the queue URL it loads:
+
+```java
+engine.setInviteCode("<your-invite-code>");
+engine.run(YourActivity.this);
+```
+
+`setInviteCode` accepts a `String`; passing `null` or an empty string clears any previously-set code.
+
+#### Capturing the invite code from a deep link
+
+Capturing the code from the link your user opened (App Link, custom URL scheme, push payload, manually pasted text, etc.) is the app's responsibility — the SDK only consumes the resulting string. A minimal example pulling `code` from the launching `Intent`:
+
+```java
+@Override
+protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    // ...
+    applyInviteCode(getIntent());
+}
+
+@Override
+protected void onNewIntent(Intent intent) {
+    super.onNewIntent(intent);
+    setIntent(intent);
+    applyInviteCode(intent);
+}
+
+private void applyInviteCode(Intent intent) {
+    if (intent == null) return;
+    Uri data = intent.getData();
+    if (data == null) return;
+
+    String code = data.getQueryParameter("code");
+    if (!TextUtils.isEmpty(code)) {
+        engine.setInviteCode(code);
+    }
+}
+```
+
+You also need an `<intent-filter>` in your `AndroidManifest.xml` matching the URL pattern you want to handle. See the `demoapp/` module for a working example.
+
 ## Mobile SDK integration with tryPass and showQueue methods:
 
 If you need finer granularity control over the mobile integration, you can use tryPass and showQueue instead of just using run method (which will open a webview to the Queue when needed).
