@@ -2,6 +2,7 @@ package com.queue_it.androidsdk;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.graphics.Color;
 import android.net.Uri;
 import android.net.http.SslError;
 import android.os.Build;
@@ -220,6 +221,7 @@ public class QueueActivityBase {
     }
 
     private void disposeWebview(WebView webView) {
+        webView.setBackgroundColor(Color.TRANSPARENT);
         webView.loadUrl("about:blank");
         _context.finish();
     }
