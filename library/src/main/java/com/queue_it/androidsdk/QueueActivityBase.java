@@ -220,6 +220,7 @@ public class QueueActivityBase {
     }
 
     private void disposeWebview(WebView webView) {
+        webView.setBackgroundColor(Color.TRANSPARENT);
         webView.loadUrl("about:blank");
         _context.finish();
     }
