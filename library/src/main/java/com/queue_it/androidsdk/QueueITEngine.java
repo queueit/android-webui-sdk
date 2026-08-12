@@ -152,4 +152,31 @@ public class QueueITEngine {
     public String getSdkVersion() {
         return _queueITWaitingRoomProvider.getSdkVersion();
     }
+
+    /**
+     * Delivers a queue pass that was captured while the app process was dead.
+     *
+     * <p>When the OS kills a backgrounded app while the user is in the waiting
+     * room, the in-memory listener that normally receives {@code onQueuePassed}
+     * is destroyed. The SDK persists the token when the pass completes; call this
+     * from your launching Activity's {@code onResume()}/{@code onCreate()} to
+     * receive any such pass and let the user proceed without restarting the app.
+     *
+     * <p>Safe to call every resume: it is a no-op when there is nothing pending,
+     * and the token is cleared once delivered so {@code onQueuePassed} fires only
+     * once (it will not double-fire with the live delivery path).
+     *
+     * @param context  any context (application context is used internally)
+     * @param listener the listener to notify; its {@code onQueuePassed} is called
+     *                 if a pass was pending
+     * @return {@code true} if a pending pass was delivered, {@code false} otherwise
+     */
+    public static boolean consumePendingPass(@NonNull Context context, @NonNull QueueListener listener) {
+        String queueItToken = PendingPassStore.takeToken(context);
+        if (queueItToken == null) {
+            return false;
+        }
+        listener.onQueuePassed(new QueuePassedInfo(queueItToken));
+        return true;
+    }
 }

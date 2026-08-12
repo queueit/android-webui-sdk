@@ -7,11 +7,11 @@ import android.content.IntentFilter;
 
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
-public class WaitingRoomStateBroadcaster implements IWaitingRoomStateBroadcaster {
+class WaitingRoomStateBroadcaster {
 
     private final Context _context;
 
-    public WaitingRoomStateBroadcaster(Context context) {
+    WaitingRoomStateBroadcaster(Context context) {
         _context = context;
     }
 
@@ -51,46 +51,40 @@ public class WaitingRoomStateBroadcaster implements IWaitingRoomStateBroadcaster
         localBroadcastManager.unregisterReceiver(onSessionRestartReceiver);
     }
 
-    @Override
     public void broadcastChangedQueueUrl(String urlString) {
         Intent intentChangedQueueUrl = new Intent("on-changed-queue-url");
         intentChangedQueueUrl.putExtra("url", urlString);
         LocalBroadcastManager.getInstance(_context).sendBroadcast(intentChangedQueueUrl);
     }
 
-    @Override
-    public void broadcastQueuePassed(String queueItToken) {
+    public void broadcastQueuePassed() {
+        // Signal only: the token is delivered durably via PendingPassStore. This
+        // broadcast just triggers immediate delivery while the process is alive.
         Intent intent = new Intent("on-queue-passed");
-        intent.putExtra("queue-it-token", queueItToken);
         LocalBroadcastManager.getInstance(_context).sendBroadcast(intent);
     }
 
-    @Override
     public void broadcastQueueActivityClosed() {
         Intent intent = new Intent("queue-activity-closed");
         LocalBroadcastManager.getInstance(_context).sendBroadcast(intent);
     }
 
-    @Override
     public void broadcastUserExited() {
         Intent intent = new Intent("queue-user-exited");
         LocalBroadcastManager.getInstance(_context).sendBroadcast(intent);
     }
 
-    @Override
     public void broadcastQueueError(String errorMessage) {
         Intent intent = new Intent("on-queue-error");
         intent.putExtra("error-message", errorMessage);
         LocalBroadcastManager.getInstance(_context).sendBroadcast(intent);
     }
 
-    @Override
     public void broadcastWebViewClosed() {
         Intent intent = new Intent("on-webview-close");
         LocalBroadcastManager.getInstance(_context).sendBroadcast(intent);
     }
 
-    @Override
     public void broadcastOnSessionRestart() {
         Intent intent = new Intent("on-session-restart");
         LocalBroadcastManager.getInstance(_context).sendBroadcast(intent);

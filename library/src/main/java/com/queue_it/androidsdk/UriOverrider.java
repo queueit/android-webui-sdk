@@ -5,49 +5,41 @@ import android.net.Uri;
 import android.util.Log;
 import android.webkit.WebView;
 
-public class UriOverrider implements IUriOverrider {
+class UriOverrider {
     private Uri queue;
     private Uri target;
     private String userId;
     private String waitingRoomDomain;
     private String queuePathPrefix;
 
-    @Override
     public Uri getQueue() {
         return queue;
     }
 
-    @Override
     public void setQueue(Uri queue) {
         this.queue = queue;
     }
 
-    @Override
     public Uri getTarget() {
         return target;
     }
 
-    @Override
     public void setTarget(Uri target) {
         this.target = target;
     }
 
-    @Override
     public String getUserId() {
         return userId;
     }
 
-    @Override
     public void setUserId(String userId) {
         this.userId = userId;
     }
 
-    @Override
     public void setWaitingRoomDomain(String waitingRoomDomain) {
         this.waitingRoomDomain = waitingRoomDomain;
     }
 
-    @Override
     public void setQueuePathPrefix(String queuePathPrefix) {
         this.queuePathPrefix = queuePathPrefix;
     }
@@ -129,7 +121,6 @@ public class UriOverrider implements IUriOverrider {
         return true;
     }
 
-    @Override
     public boolean handleNavigationRequest(final String destinationUrlStr, WebView webview, UriOverrideWrapper uriOverride) {
         Log.v("QueueITEngine", "URI loading: " + destinationUrlStr);
 

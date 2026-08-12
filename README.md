@@ -17,8 +17,10 @@ This whitepaper contains the needed information to perform a successful integrat
 Using Gradle:
 
 ```gradle
-implementation 'com.queue-it.androidsdk:library:2.3.1'
+implementation 'com.queue-it.androidsdk:webui:3.0.0'
 ```
+
+> **Artifact renamed in 3.0.0.** The SDK is now published as `com.queue-it.androidsdk:webui`. The previous artifact ids `com.queue-it.androidsdk:library` and `com.queue-it.androidsdk:library-androidx` are **discontinued** and relocate to `:webui` — update your dependency to the coordinate above.
 
 ## How to use the library (Mobile SDK integration only, no API protection)
 
@@ -125,6 +127,25 @@ catch (QueueITException e) { } // Gets thrown when a request is already in progr
 | options           | No (`QueueItEngineOptions.getDefault()`) | Allows you to configure the SDK. Can disable back button (default: disabled) and set a custom User Agent (default: "") for the web view and the http client.                                  |
 
 ![App Integration Flow](https://github.com/queueit/android-webui-sdk/blob/master/App%20integration%20flow.PNG "App Integration Flow")
+
+### Recovering a queue pass after the app is killed (process death)
+
+While a user is in the waiting room, Android may kill your app's process if it is backgrounded and the device is low on memory (common on low-RAM devices and aggressive OEM battery managers). If the user is passed through the queue around that time, the pass would otherwise be lost — the in-memory `QueueListener` no longer exists, so the user returns to your app but is never let in and has to restart the app.
+
+To handle this, the SDK persists the pass to disk (best-effort) the moment it completes. Call `QueueITEngine.consumePendingPass(context, queueListener)` from your launching Activity's `onResume()` (or `onCreate()`):
+
+```java
+@Override
+protected void onResume() {
+    super.onResume();
+    // Deliver a queue pass that completed while our process was killed in the background.
+    QueueITEngine.consumePendingPass(this, queueListener);
+}
+```
+
+If a pass completed while your process was gone, it is delivered to your listener's `onQueuePassed(...)`; otherwise it does nothing. It is safe to call on every resume: the stored token is read-and-cleared atomically, so a pass is delivered **at most once** and will not double-fire with the live delivery path. Returns `true` if a pending pass was delivered, `false` otherwise.
+
+> **Note:** the token is cleared *before* your `onQueuePassed(...)` runs, so if your handler throws, the pass is **not** redelivered on a later resume — keep the handler robust. Persistence is best-effort (a failed disk write is not retried), so treat this recovery as a safety net on top of your own session handling, not a guaranteed transaction.
 
 ### QueueITEngine options
 

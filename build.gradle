@@ -35,11 +35,11 @@ allprojects {
         groupId = 'com.queue-it.androidsdk'
         libraryName = 'com.queue_it.androidsdk'
         libraryDescription = 'Android SDK to integrate with Queue-it'
-        libraryVersion = "2.3.1"
+        libraryVersion = "3.0.0"
         organization = "Queue-it"
         organizationUrl = "https://queue-it.com"
 
-        artifact = 'library'
+        artifact = 'webui'
         siteUrl = "https://github.com/queueit/android-webui-sdk"
         gitUrl = "https://github.com/queueit/android-webui-sdk.git"
 

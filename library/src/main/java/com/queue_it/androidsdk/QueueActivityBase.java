@@ -2,11 +2,19 @@ package com.queue_it.androidsdk;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
+import android.net.NetworkRequest;
 import android.net.Uri;
 import android.net.http.SslError;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.webkit.CookieSyncManager;
@@ -30,9 +38,19 @@ public class QueueActivityBase {
     private String queuePathPrefix;
     @SuppressLint("StaticFieldLeak")
     private static WebView previousWebView;
-    private IUriOverrider uriOverrider;
-    private final IWaitingRoomStateBroadcaster broadcaster;
+    private UriOverrider uriOverrider;
+    private final WaitingRoomStateBroadcaster broadcaster;
     private QueueItEngineOptions options;
+
+    private static final long RELOAD_BASE_DELAY_MS = 1000;
+    private static final long RELOAD_MAX_DELAY_MS = 30000;
+    // Stop retrying after the backoff reaches its cap (delays 1,2,4,8,16,30s).
+    private static final int MAX_RELOAD_ATTEMPTS = 6;
+    private final Handler mainHandler = new Handler(Looper.getMainLooper());
+    private ConnectivityManager connectivityManager;
+    private ConnectivityManager.NetworkCallback networkCallback;
+    private int reloadAttempts = 0;
+    private boolean currentLoadErrored = false;
 
     public QueueActivityBase(Activity context) {
         _context = context;
@@ -47,9 +65,20 @@ public class QueueActivityBase {
     WebViewClient webviewClient = new WebViewClient() {
 
         @Override
+        public void onPageStarted(WebView view, String url, Bitmap favicon) {
+            super.onPageStarted(view, url, favicon);
+            currentLoadErrored = false;
+        }
+
+        @Override
         public void onPageFinished(WebView view, String url) {
             super.onPageFinished(view, url);
             CookieSyncManager.getInstance().sync();
+            if (!currentLoadErrored) {
+                // Successful load: stop any pending reconnect attempts.
+                reloadAttempts = 0;
+                stopReconnect();
+            }
         }
 
         @Override
@@ -74,6 +103,19 @@ public class QueueActivityBase {
             }
             Log.v("QueueActivity", String.format("%s: %s", "onReceivedError", errorMessage));
             super.onReceivedError(view, request, error);
+
+            // A main-frame load failure (e.g. the cold-network reload right after the
+            // OS restarted the process) would otherwise leave the user stuck on the
+            // Chromium error page with no recovery. Retry with backoff and reload as
+            // soon as connectivity returns.
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && request.isForMainFrame()) {
+                currentLoadErrored = true;
+                if (reloadAttempts >= MAX_RELOAD_ATTEMPTS) {
+                    giveUpReloading();
+                } else {
+                    scheduleQueueReload();
+                }
+            }
         }
 
         @Override
@@ -93,7 +135,11 @@ public class QueueActivityBase {
 
                 @Override
                 protected void onPassed(String queueItToken) {
-                    broadcaster.broadcastQueuePassed(queueItToken);
+                    // Persist the token durably before disposing the WebView, so the
+                    // pass survives the app process being killed while backgrounded.
+                    // Recovered on the next resume via QueueITEngine.consumePendingPass().
+                    PendingPassStore.save(_context, queueItToken);
+                    broadcaster.broadcastQueuePassed();
                     disposeWebview(webview);
                 }
 
@@ -174,6 +220,7 @@ public class QueueActivityBase {
     }
 
     public void destroy() {
+        stopReconnect();
         if (_context.isFinishing()) {
             broadcaster.broadcastQueueActivityClosed();
         }
@@ -218,6 +265,74 @@ public class QueueActivityBase {
 
         uriOverrider.setWaitingRoomDomain(waitingRoomDomain);
         uriOverrider.setQueuePathPrefix(queuePathPrefix);
+    }
+
+    private final Runnable reloadRunnable = new Runnable() {
+        @Override
+        public void run() {
+            mainHandler.removeCallbacks(this);
+            if (_context.isFinishing()) {
+                return;
+            }
+            if (webview != null && queueUrl != null) {
+                Log.v("QueueITEngine", "Retrying queue reload (attempt " + reloadAttempts + "): " + queueUrl);
+                webview.loadUrl(queueUrl);
+            }
+        }
+    };
+
+    private void scheduleQueueReload() {
+        registerNetworkCallbackIfNeeded();
+        long delay = Math.min(RELOAD_MAX_DELAY_MS,
+                RELOAD_BASE_DELAY_MS * (1L << Math.min(reloadAttempts, 5)));
+        reloadAttempts++;
+        mainHandler.removeCallbacks(reloadRunnable);
+        mainHandler.postDelayed(reloadRunnable, delay);
+    }
+
+    private void registerNetworkCallbackIfNeeded() {
+        if (networkCallback != null) {
+            return;
+        }
+        connectivityManager = (ConnectivityManager) _context.getApplicationContext()
+                .getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (connectivityManager == null) {
+            return;
+        }
+        networkCallback = new ConnectivityManager.NetworkCallback() {
+            @Override
+            public void onAvailable(Network network) {
+                // Connectivity is back: reload immediately instead of waiting for the backoff timer.
+                mainHandler.post(reloadRunnable);
+            }
+        };
+        try {
+            NetworkRequest request = new NetworkRequest.Builder()
+                    .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+                    .build();
+            connectivityManager.registerNetworkCallback(request, networkCallback);
+        } catch (RuntimeException e) {
+            // Missing ACCESS_NETWORK_STATE or too many callbacks: fall back to the backoff timer.
+            networkCallback = null;
+        }
+    }
+
+    private void giveUpReloading() {
+        // Stop retrying after the cap so a permanently-failing load does not
+        // drain the battery. The WebView stays on its error page.
+        Log.v("QueueITEngine", "Giving up queue reload after " + reloadAttempts + " attempts");
+        stopReconnect();
+    }
+
+    private void stopReconnect() {
+        mainHandler.removeCallbacks(reloadRunnable);
+        if (connectivityManager != null && networkCallback != null) {
+            try {
+                connectivityManager.unregisterNetworkCallback(networkCallback);
+            } catch (RuntimeException ignored) {
+            }
+        }
+        networkCallback = null;
     }
 
     private void disposeWebview(WebView webView) {

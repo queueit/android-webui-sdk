@@ -8,7 +8,7 @@ import android.provider.Settings;
 import android.util.Log;
 
 public class QueueITWaitingRoomView {
-    private final IWaitingRoomStateBroadcaster _stateBroadcaster;
+    private final WaitingRoomStateBroadcaster _stateBroadcaster;
     private final QueueListener _queueListener;
     private final QueueItEngineOptions _options;
     private Context _context;
@@ -118,7 +118,14 @@ public class QueueITWaitingRoomView {
     private final BroadcastReceiver _queuePassedBroadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            raiseQueuePassed(intent.getStringExtra("queue-it-token"));
+            // Deliver via the durable store (read-and-clear) so the pass is
+            // delivered exactly once, whether it is received here (process alive)
+            // or recovered later via QueueITEngine.consumePendingPass() after the
+            // process was killed. Whichever runs first wins; the other finds nothing.
+            String queueItToken = PendingPassStore.takeToken(_context);
+            if (queueItToken != null) {
+                raiseQueuePassed(queueItToken);
+            }
         }
     };
 

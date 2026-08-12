@@ -40,7 +40,7 @@ afterEvaluate {
         android.libraryVariants.all { variant ->
             if (variant.buildType.name == "debug") return // Prevents publishing debug library
 
-            def variantArtifactId = project.name
+            def variantArtifactId = artifact
             def publicationName = "android-webui-sdk-${variant.name.capitalize()}"
 
             def sourceDirs = variant.sourceSets.collect {
@@ -73,6 +73,58 @@ afterEvaluate {
                         def pomFile = file("${project.buildDir}/generated-${variant.name}-pom.xml")
                         writeTo(pomFile)
                         signing.sign(pomFile)
+                    }
+                }
+            }
+        }
+
+        // Relocation stubs: the previous artifact ids (`library`, `library-androidx`)
+        // are discontinued and now point to the renamed artifact (`artifact` in
+        // build.gradle). Consumers still on the old coordinates get a "relocated"
+        // warning at build time and should switch to the new artifact id.
+        def newArtifactId = artifact
+        def grp = groupId
+        def ver = libraryVersion
+        def libName = libraryName
+        def site = siteUrl
+        def scmUrl = gitUrl
+        def licName = licenseName
+        def licUrl = licenseUrl
+        ['library', 'library-androidx'].each { oldArtifactId ->
+            def pubName = 'relocation' + oldArtifactId.split('-').collect { it.capitalize() }.join()
+            "$pubName"(MavenPublication) {
+                groupId = grp
+                artifactId = oldArtifactId
+                version = ver
+                pom {
+                    packaging = 'pom'
+                    name = "${libName}:${oldArtifactId}"
+                    description = "Discontinued: relocated to ${grp}:${newArtifactId}."
+                    url = site
+                    licenses {
+                        license {
+                            name = licName
+                            url = licUrl
+                        }
+                    }
+                    scm {
+                        connection = scmUrl
+                        developerConnection = scmUrl
+                        url = site
+                    }
+                    developers {
+                        developer {
+                            name = 'Developers'
+                            email = 'devs@queue-it.com'
+                        }
+                    }
+                    withXml {
+                        def rootNode = asNode()
+                        def rel = rootNode.appendNode('distributionManagement').appendNode('relocation')
+                        rel.appendNode('groupId', grp)
+                        rel.appendNode('artifactId', newArtifactId)
+                        rel.appendNode('version', ver)
+                        rel.appendNode('message', "${grp}:${oldArtifactId} has been renamed to ${grp}:${newArtifactId} as of ${ver}.")
                     }
                 }
             }

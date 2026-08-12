@@ -199,6 +199,15 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Recover a queue pass that completed while our process was dead (e.g. the
+        // OS killed the app while it was backgrounded in the waiting room). Delivers
+        // to the same listener, which shows the "you passed" result screen.
+        QueueITEngine.consumePendingPass(this, queueListener);
+    }
+
     private QueueITEngine getQueueITEngine(SharedPreferences sharedPreferences) {
         if (!TextUtils.isEmpty(customerIdEditText.getError()) || !TextUtils.isEmpty(eventIdEditText.getError())) {
             return null;
