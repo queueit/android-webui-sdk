@@ -182,6 +182,7 @@ public class QueueActivityBase {
 
         FrameLayout layout = _context.findViewById(R.id.relativeLayout);
         webview = new WebView(_context);
+        webview.setBackgroundColor(Color.TRANSPARENT);
         layout.addView(webview);
         previousWebView = webview;
         webview.getSettings().setJavaScriptEnabled(true);
