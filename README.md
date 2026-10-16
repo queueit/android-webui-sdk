@@ -352,6 +352,161 @@ If a pass completed while your process was gone, it is delivered to your listene
 
 > **Note:** the token is cleared *before* your `onQueuePassed(...)` runs, so if your handler throws, the pass is **not** redelivered on a later resume — keep the handler robust. Persistence is best-effort (a failed disk write is not retried), so treat this recovery as a safety net on top of your own session handling, not a guaranteed transaction.
 
+`consumePendingPass` only recovers a pass that has already completed. If the user is still waiting when the waiting room disappears, there is nothing to recover: see [Apps with a `singleTask` launcher activity](#apps-with-a-singletask-launcher-activity).
+
+### Apps with a `singleTask` launcher activity
+
+The waiting room (`QueueActivity`) is shown on top of your activity, in the same task. If the activity that shows it is declared with `android:launchMode="singleTask"` in your `AndroidManifest.xml`, Android closes the waiting room whenever a new intent is delivered to that activity. For example:
+
+1. The user is in the waiting room and presses Home.
+2. The user opens the app again by tapping its launcher icon (or opens a deep link to that activity).
+3. Android delivers the intent to your existing `singleTask` activity and finishes every activity above it, including `QueueActivity`.
+
+The SDK raises no `QueueListener` callback when this happens. The user is back in your app, has not passed the queue, and doesn't see the waiting room anymore. It doesn't happen when the user returns through the Recents screen. The same happens with other launch modes when an intent with `FLAG_ACTIVITY_CLEAR_TOP` (for example from a notification) reaches the activity, and when the waiting room is shown from another activity above your `singleTask` activity.
+
+The user doesn't lose their place in the queue: it is kept by the waiting room's cookies in the webview, not by the waiting room screen. To restore the waiting room, your app keeps the `QueueTryPassResult` it showed, and shows it again when Android has closed it:
+
+- Keep the `QueueTryPassResult` when you call `showQueue` with it.
+- In `onNewIntent`, if you still have it, call `showQueue` with it again. A new intent is the moment Android closes the waiting room.
+- Forget it when the waiting room ends: in `onQueuePassed`, `onWebViewClosed`, `onSessionRestart` and `onError`. These are the callbacks raised for a waiting room shown with `QueueITWaitingRoomView`. Otherwise the app reopens a waiting room that ended or that the user closed.
+- If your activity gets `onResume` without `onNewIntent` while you still hold the result, the waiting room has ended without a callback: forget the result there, so that the app doesn't reopen it. This happens when the user leaves the waiting room with the back button (if you enable it with `setBackButtonDisabledFromWR(false)`; with the default options it is disabled), and when the SDK loses the callbacks of a waiting room shown again right after a deep link.
+- Call `QueueITEngine.consumePendingPass` first in `onResume`, as described in [Recovering a queue pass after the app is killed](#recovering-a-queue-pass-after-the-app-is-killed-process-death). If it delivers a pass, the user is through and the waiting room must not be shown again.
+- The queue URL has a time to live (`getUrlTTLInMinutes()`). If it has expired, call `tryPass` again instead of showing the stored result.
+- A deep link to this activity also shows the waiting room again, over the content the link opens. Handle the link's data first. If the link carries a new invite code (see [Capturing the invite code from a deep link](#capturing-the-invite-code-from-a-deep-link)), call `tryPass` again instead of showing the stored result.
+
+```java
+public class YourActivity extends AppCompatActivity {
+
+    private QueueITWaitingRoomView queueITWaitingRoomView;
+
+    // The waiting room the user is in, kept until it ends.
+    private QueueTryPassResult shownQueueResult;
+    private long shownQueueResultTime;
+    // Set when onNewIntent shows the waiting room again, so that the onResume that follows keeps it.
+    private boolean reshownOnNewIntent;
+
+    // Use this instead of calling showQueue directly.
+    private void showWaitingRoom(QueueTryPassResult queueTryPassResult) {
+        shownQueueResult = queueTryPassResult;
+        shownQueueResultTime = System.currentTimeMillis();
+        queueITWaitingRoomView.showQueue(queueTryPassResult, UserAgentManager.getUserAgent());
+    }
+
+    private void forgetWaitingRoom() {
+        shownQueueResult = null;
+    }
+
+    private boolean isExpired(QueueTryPassResult queueTryPassResult, long shownAt) {
+        if (queueTryPassResult.getUrlTTLInMinutes() <= 0) return false; // No time to live given.
+        long ttlInMillis = queueTryPassResult.getUrlTTLInMinutes() * 60_000L;
+        return System.currentTimeMillis() - shownAt > ttlInMillis;
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        if (shownQueueResult == null) return;
+
+        // Android has closed the waiting room: show it again. The user keeps their place in the queue.
+        if (isExpired(shownQueueResult, shownQueueResultTime)) {
+            forgetWaitingRoom();
+            // Call tryPass again here.
+            return;
+        }
+        reshownOnNewIntent = true;
+        queueITWaitingRoomView.showQueue(shownQueueResult, UserAgentManager.getUserAgent());
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (QueueITEngine.consumePendingPass(this, queueListener)) {
+            forgetWaitingRoom();
+            return;
+        }
+        if (reshownOnNewIntent) {
+            reshownOnNewIntent = false;
+        } else if (shownQueueResult != null) {
+            // The waiting room ended without a callback (back button, or callback lost).
+            forgetWaitingRoom();
+        }
+    }
+
+    // Use this listener for the QueueITWaitingRoomView.
+    QueueListener queueListener = new QueueListener() {
+        @Override
+        public void onQueuePassed(QueuePassedInfo queuePassedInfo) {
+            forgetWaitingRoom();
+            // Store the pass, as described in "Listening to the waiting room events".
+        }
+
+        @Override
+        public void onWebViewClosed() {
+            forgetWaitingRoom();
+        }
+
+        @Override
+        public void onSessionRestart(QueueITEngine queueITEngine) {
+            forgetWaitingRoom();
+            // Call tryPass again.
+        }
+
+        @Override
+        public void onError(Error error, String errorMessage) {
+            forgetWaitingRoom();
+        }
+
+        @Override
+        public void onQueueViewWillOpen() {
+        }
+
+        @Override
+        public void onQueueDisabled(QueueDisabledInfo queueDisabledInfo) {
+        }
+
+        @Override
+        public void onQueueItUnavailable() {
+        }
+    };
+}
+```
+
+In `QueueITWaitingRoomProviderListener.onSuccess` (see [Checking the status of the waiting room](#checking-the-status-of-the-waiting-room)), call `showWaitingRoom(queueTryPassResult)` instead of calling `showQueue` directly.
+
+Android also recreates your activity on configuration changes (rotation, dark mode, language), and kills your app's process in the background. In both cases the stored result is lost, so save it in `onSaveInstanceState` and read it back in `onCreate`. `QueueTryPassResult` isn't `Parcelable`, so save its values:
+
+```java
+@Override
+protected void onSaveInstanceState(Bundle outState) {
+    super.onSaveInstanceState(outState);
+    if (shownQueueResult != null) {
+        outState.putString("queueUrl", shownQueueResult.getQueueUrl());
+        outState.putString("targetUrl", shownQueueResult.getTargetUrl());
+        outState.putInt("urlTTLInMinutes", shownQueueResult.getUrlTTLInMinutes());
+        outState.putLong("shownAt", shownQueueResultTime);
+    }
+    outState.putBoolean("reshownOnNewIntent", reshownOnNewIntent);
+}
+
+// In onCreate, after setting up queueITWaitingRoomView:
+if (savedInstanceState != null && savedInstanceState.getString("queueUrl") != null) {
+    shownQueueResult = new QueueTryPassResult(
+            null,
+            savedInstanceState.getString("queueUrl"),
+            savedInstanceState.getString("targetUrl"),
+            savedInstanceState.getInt("urlTTLInMinutes"),
+            false,
+            RedirectType.queue);
+    shownQueueResultTime = savedInstanceState.getLong("shownAt");
+}
+if (savedInstanceState != null) {
+    reshownOnNewIntent = savedInstanceState.getBoolean("reshownOnNewIntent");
+}
+```
+
+When the user then opens the app from its launcher icon, `onNewIntent` follows `onCreate` and shows the waiting room again.
+
 ## Client-side mobile integration with Queue-it Behind Proxy (Bring your own CDN)
 
 > Note: This only applies if you are using the Mobile SDK as a client-side protection only. I.e. this does not apply if you are protecting the API endpoints your Mobile app is using.
